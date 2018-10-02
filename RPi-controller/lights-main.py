@@ -1,5 +1,5 @@
 import time
-# comment next line if animator installed properly
+# comment next line if animator is installed on the path
 import sys, os; sys.path.append(os.path.dirname(os.path.realpath(__file__))+'/../../ws2812-animator')
 from animator import anim_init,anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import gradient_preset, STEP, SMOOTH

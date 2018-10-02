@@ -1,20 +1,48 @@
 <?php
-//file_put_contents("form.json", json_encode(array('var1'=>'val1', 'var2'=>'val2')));
-$vars=json_decode(file_get_contents("json-current.json"), true);
+//
+//Format of json-history:
+//
+//::= <display details>*
+//<display details> ::= <display head> <display params>
+//  <display head> ::= <id> <name> <creator> <statistics>
+//    <id> ::= <int>
+//    <name> ::= <str>
+//    <creator> ::= <str>
+//    <statistics> ::= <creation date> <last used> <number of uses>
+//  <display params> ::= <gradient> <segment> <fading> <sparkle> <spot>
+//    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
+//  <segment> := <num segments> <motion> <duration> <reverse>
+//    <num segments> ::= <int 0-8>
+//    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
+//    <duration> ::= <float 0+>
+//    <reverse> ::= <int REPEAT, REVERSE>
+//  <fading> ::= <duration> <blend> <fade min> <fade max>
+//    <blend> ::= <int STEP, SMOOTH>
+//    <fade min>, <fade max> ::== <int 0-255>
+//  <sparkle> ::== <sparks per thousand> <duration>
+//    <sparks per thousand> ::= <int 0-1000>
+//  <spot> ::= <size> <colour> <motion> <duration> <reverse>
+//    <size> ::= <int 0-32>
+
+// Read in the json-history file
+$hist=json_decode(file_get_contents("json-history.json"), true);
+
 // This funtion outputs all the elements for a labelled drop-down (select)
 function select_input($select_label, $select_name, array $option) {
-    global $vars;
+    global $hist;
     // Header with label
     echo "<p>$select_label: <select name=\"$select_name\" id=\"$select_name\">\n";
     // Put in all the options
     foreach ($option as $option_value => $option_text) {
         // $sel will be set to 'selected' for the selected option
-        $sel=($vars[$select_name]==$option_value)?' selected':'';
+        $sel=($hist[$select_name]==$option_value)?' selected':'';
         echo "  <option value=\"{$option_value}\"{$sel}>{$option_text}</option>\n";
     }
     // Finish off the select
     echo "</select></p>\n";
 }
+
+//file_put_contents("form.json", json_encode(array('var1'=>'val1', 'var2'=>'val2')));
 ?>
 <!DOCTYPE html>
 <html>
@@ -136,14 +164,13 @@ function doDisplay() {
 			<tr>
 				<!--When a header is clicked, run the sortTable function, with a parameter,
 				0 for sorting by names, 1 for sorting by country: -->
-				<th onclick="sortTable('ta',0)" style="width:30%">Col 1</th>
-				<th onclick="sortTable('ta',1)" style="width:30%">Col 2</th>
+				<th onclick="sortTable('ta',0)" style="width:30%">id</th>
+				<th onclick="sortTable('ta',1)" style="width:30%">Name</th>
 			</tr>
 		</table>
 		<table id="ta">
-			<?php $r = 1; foreach ($vars[2] as $hist) {
-				echo "<tr  onclick='selRow(this)'><td style='width:30%'>",$hist[0],"</td><td style='width:30%'>",$hist[1],"</td></tr>";
-				$r++;
+			<?php foreach ($hist["dh"] as $entry) {
+				echo "<tr  onclick='selRow(this)'><td style='width:30%'>",$entry,"</td><td style='width:30%'>",$entry[1],"</td></tr>";
 			}
 			?>
 		</table>

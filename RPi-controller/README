@@ -1,0 +1,61 @@
+The project is in four parts:
+Browser, Server, RPi, Hardware
+Browser:
+  php file user-controller.php
+	php read json-history.json (includes response token to prevent flooding)
+	php format this into a selection list
+	user selects one of the existing displays from the list
+	user chooses whether to display it or edit it into a new one
+	[user edits the display to create a new one]
+	js send back the data as json-request (including token)
+Server:
+  json-request arrives at proc-enq.php
+    check the token
+    update token database to invalidate this token
+    enqueue the request by creating a file with the info and a timestamped name
+    return position in queue
+  proc-deq.php checks for new files in the queue. When found:
+    read file contents to work out next display
+    format json-current with new display data for reading by the RPi
+    update json-history to include new display
+RPi:
+  wget json-current.json
+  check for changes
+  format display data and send to animator
+  animator sends required hardware signals
+Hardware:
+  power supply for large amps
+  WS2812 strip
+  Meteor lights
+  DMX RGB spotlights
+    
+Fields required
+
+un = user name (str)
+ut = user token (int/ts)
+
+di = display id for access to records after sorting (int)
+dn = display name (str)
+da = display being added (bool)
+
+dp = display number of plays (int)
+dr = display most recent play (ts)
+
+dd = display data (array of integers and arrays)
+	creator (str)
+	creation date (ts)
+	gradient
+	  [colours] (int)
+	  blend (int)
+	  count (int)
+	  reverse (int)
+	segments
+	  count (int)
+	  reverse (int)
+	  duration (float)
+	fading
+	  duration (float)
+	  blend (int)
+	sparkle
+	  percentage (float)
+	  duration (float)

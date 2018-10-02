@@ -4,11 +4,10 @@
 //
 //::= <display details>*
 //<display details> ::= <display head> <display params>
-//  <display head> ::= <id> <name> <creator> <statistics>
-//    <id> ::= <int>
-//    <name> ::= <str>
-//    <creator> ::= <str>
-//    <statistics> ::= <creation date> <last used> <number of uses>
+//  <display head> ::= <id> <name> <creator> <created> <used> <uses>
+//    <id>, <uses> ::= <int>
+//    <name>, <creator> ::= <str>
+//    <created>, <used> ::= <timestamp>
 //  <display params> ::= <gradient> <segment> <fading> <sparkle> <spot>
 //    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
 //  <segment> := <num segments> <motion> <duration> <reverse>
@@ -65,7 +64,7 @@ function select_input($select_label, $select_name, array $option) {
 </style>
 <script>
 // https://www.w3schools.com/howto/howto_js_sort_table.asp
-function sortTable(tid,n) {
+function sortTable(tid,n,n_headers) {
   var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
   table = document.getElementById(tid);
   switching = true;
@@ -78,8 +77,8 @@ function sortTable(tid,n) {
     switching = false;
     rows = table.rows;
     /* Loop through all table rows (except the
-    first, which contains table headers): */
-    for (i = 1; i < (rows.length - 1); i++) {
+    first n_headers, which contains table headers): */
+    for (i = n_headers; i < (rows.length - 1); i++) {
       // Start by saying there should be no switching:
       shouldSwitch = false;
       /* Get the two elements you want to compare,
@@ -119,29 +118,41 @@ function sortTable(tid,n) {
     }
   }
 }
-function selRow(thisrow) {
+function unselRow() {
 	var cursel;
-	// un-select current one
 	cursel = document.getElementById("curSel")
 	if (cursel) {
 		cursel.id="";
-		cursel.firstChild.removeChild(cursel.firstChild.lastChild);
+		cursel.parentNode.removeChild(cursel.nextSibling);
 	}
+}
+function selRow(thisrow) {
+	var cursel;
+	// un-select current one
+	unselRow();
 	// Select new one
 	thisrow.id="curSel";
-	var newdiv = document.createElement("div");
-	newdiv.display = "block";
+	var newtr = document.createElement("tr");
+	var newtd = document.createElement("td");
+	newtd.colSpan = 6;
 	var newbut = document.createElement("button");
 	newbut.innerText = "DISPLAY";
-	newdiv.appendChild(newbut);
+	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
 	newbut.innerText = "EDIT";
 	//newbut.style="margin-left:1em";
-	newdiv.appendChild(newbut);
-	thisrow.firstChild.appendChild(newdiv);
+	newtd.appendChild(newbut);
+	newtr.appendChild(newtd);
+	thisrow.parentNode.insertBefore(newtr, thisrow.nextSibling);
+	//thisrow.firstChild.appendChild(newdiv);
 	// For double click to select, this works but needs onclick to be 
 	// reset when id is reset above: 
 	//thisrow.onclick=function secondClick(){doDisplay();};
+}
+function sortCol(n) {
+	//Need to remove selection as it adds a row we don't want to sort
+	unselRow();
+	sortTable('ta',n,0);
 }
 function doDisplay() {
 	var cursel;
@@ -157,20 +168,32 @@ function doDisplay() {
 		Here we go again!
 		<?php echo "<br>blob"; ?>
 		<?php echo "baah<br>";?>
-		<?php echo $vars["un"], $vars["tk"]; ?>
+		<?php echo $hist[0]["dh"][1]; ?>
 	</div>
 	<div>
 		<table class="header">
 			<tr>
 				<!--When a header is clicked, run the sortTable function, with a parameter,
 				0 for sorting by names, 1 for sorting by country: -->
-				<th onclick="sortTable('ta',0)" style="width:30%">id</th>
-				<th onclick="sortTable('ta',1)" style="width:30%">Name</th>
+				<th onclick="sortCol(0)" style="width:10%">id</th>
+				<th onclick="sortCol(1)" style="width:40%">Name</th>
+				<th onclick="sortCol(2)" style="width:20%">Creator</th>
+				<th onclick="sortCol(3)" style="width:5%">Created</th>
+				<th onclick="sortCol(4)" style="width:5%">Used</th>
+				<th onclick="sortCol(5)" style="width:5%">Uses</th>
 			</tr>
 		</table>
 		<table id="ta">
-			<?php foreach ($hist["dh"] as $entry) {
-				echo "<tr  onclick='selRow(this)'><td style='width:30%'>",$entry,"</td><td style='width:30%'>",$entry[1],"</td></tr>";
+			<?php foreach ($hist as $disp) {
+				$head = $disp["dh"];
+				echo "<tr onclick='selRow(this)'>";
+				echo   "<td style='width:10%'>",$head[0],"</td>\n";
+				echo   "<td style='width:40%'>",$head[1],"</td>\n";
+				echo   "<td style='width:20%'>",$head[2],"</td>\n";
+				echo   "<td style='width:5%'>",$head[3],"</td>\n";
+				echo   "<td style='width:5%'>",$head[4],"</td>\n";
+				echo   "<td style='width:5%'>",$head[5],"</td>\n";
+				echo "</tr>";
 			}
 			?>
 		</table>

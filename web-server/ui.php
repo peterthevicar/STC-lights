@@ -50,7 +50,7 @@ function select_input($select_label, $select_name, array $option) {
 <style type="text/css">
 	th {color:blue; text-align:left}
 	td, th {width: 30%}
-	#curSel {color:white; background-color:blue; font-size:100%} /* Selected row in table */
+	#curSel, .curSel {color:white; background-color:blue; font-size:100%} /* Selected row in table */
 	.header {position: sticky; top: 0; background-color:white} /* will scroll to top of page then stop */
 	.footer {position: sticky; bottom: 0; width: 100%} /* stays at foot of page with text scrolling behind */
 	table {width:100%}
@@ -64,7 +64,7 @@ function select_input($select_label, $select_name, array $option) {
 </style>
 <script>
 // https://www.w3schools.com/howto/howto_js_sort_table.asp
-function sortTable(tid,n,n_headers) {
+function sortTable(tid,n,n_headers,type) {
   var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
   table = document.getElementById(tid);
   switching = true;
@@ -88,14 +88,18 @@ function sortTable(tid,n,n_headers) {
       /* Check if the two rows should switch place,
       based on the direction, asc or desc: */
       if (dir == "asc") {
-        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+		var xv = (type==0?x.innerHTML.toLowerCase():Number(x.innerHTML));
+		var yv = (type==0?y.innerHTML.toLowerCase():Number(y.innerHTML));
+        if (xv > yv) {
           // If so, mark as a switch and break the loop:
           shouldSwitch = true;
           break;
         }
       } else if (dir == "desc") {
-        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-          // If so, mark as a switch and break the loop:
+		var xv = (type==0?x.innerHTML.toLowerCase():Number(x.innerHTML));
+		var yv = (type==0?y.innerHTML.toLowerCase():Number(y.innerHTML));
+        if (xv < yv) {
+         // If so, mark as a switch and break the loop:
           shouldSwitch = true;
           break;
         }
@@ -133,13 +137,16 @@ function selRow(thisrow) {
 	// Select new one
 	thisrow.id="curSel";
 	var newtr = document.createElement("tr");
+	newtr.classList.add("curSel");
 	var newtd = document.createElement("td");
 	newtd.colSpan = 6;
 	var newbut = document.createElement("button");
 	newbut.innerText = "DISPLAY";
+	newbut.onclick = function f() {doProcess(1);};
 	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
 	newbut.innerText = "EDIT";
+	newbut.onclick = function f() {doProcess(2);};
 	//newbut.style="margin-left:1em";
 	newtd.appendChild(newbut);
 	newtr.appendChild(newtd);
@@ -149,38 +156,37 @@ function selRow(thisrow) {
 	// reset when id is reset above: 
 	//thisrow.onclick=function secondClick(){doDisplay();};
 }
-function sortCol(n) {
+function sortCol(coln,type) {
 	//Need to remove selection as it adds a row we don't want to sort
 	unselRow();
-	sortTable('ta',n,0);
+	sortTable('ta',coln,0,type);
 }
-function doDisplay() {
+function doProcess(action) {
 	var cursel;
 	cursel = document.getElementById("curSel")
 	if (cursel) {
-		alert("0="+cursel.children[0].innerText);
+		alert((action==1?"DISPLAY":"EDIT")+" "+cursel.children[1].innerText);
 	}
 }
 </script>
 </head>
 <body>
 	<div>
-		Here we go again!
-		<?php echo "<br>blob"; ?>
-		<?php echo "baah<br>";?>
-		<?php echo $hist[0]["dh"][1]; ?>
+		Welcome to the St.Thomas Christmas Lights controller. There are
+		currently <?php echo count($hist);?> different displays to choose
+		from. Enjoy!
 	</div>
 	<div>
 		<table class="header">
 			<tr>
 				<!--When a header is clicked, run the sortTable function, with a parameter,
 				0 for sorting by names, 1 for sorting by country: -->
-				<th onclick="sortCol(0)" style="width:10%">id</th>
-				<th onclick="sortCol(1)" style="width:40%">Name</th>
-				<th onclick="sortCol(2)" style="width:20%">Creator</th>
-				<th onclick="sortCol(3)" style="width:5%">Created</th>
-				<th onclick="sortCol(4)" style="width:5%">Used</th>
-				<th onclick="sortCol(5)" style="width:5%">Uses</th>
+				<th onclick="sortCol(0,1)" style="width:10%">id</th>
+				<th onclick="sortCol(1,0)" style="width:40%">Name</th>
+				<th onclick="sortCol(2,0)" style="width:20%">Creator</th>
+				<th onclick="sortCol(3,1)" style="width:5%">Created</th>
+				<th onclick="sortCol(4,1)" style="width:5%">Used</th>
+				<th onclick="sortCol(5,1)" style="width:5%">Uses</th>
 			</tr>
 		</table>
 		<table id="ta">
@@ -199,7 +205,7 @@ function doDisplay() {
 		</table>
 	</div>
 	<div class="footer">
-		<button type="button" onclick="doDisplay()">Display</button> 
+		Footer text 
 	</div>
 
 </body>

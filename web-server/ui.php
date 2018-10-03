@@ -1,14 +1,17 @@
 <?php
 //
-//Format of json-history:
+//Format of json-displays:
 //
 //::= <display details>*
-//<display details> ::= <display head> <display params>
-//  <display head> ::= <id> <name> <creator> <created> <used> <uses>
+//<display details> ::= <id> <name> <creator> <created> <used> <uses>
 //    <id>, <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
-//  <display params> ::= <gradient> <segment> <fading> <sparkle> <spot>
+//
+//
+//Format of json-disp-specs:
+//
+//  <display specs> ::= <id> <gradient> <segment> <fading> <sparkle> <spot>
 //    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
 //  <segment> := <num segments> <motion> <duration> <reverse>
 //    <num segments> ::= <int 0-8>
@@ -23,18 +26,18 @@
 //  <spot> ::= <size> <colour> <motion> <duration> <reverse>
 //    <size> ::= <int 0-32>
 
-// Read in the json-history file
-$hist=json_decode(file_get_contents("json-history.json"), true);
+// Read in the json-displays file
+$disps=json_decode(file_get_contents("json-displays.json"), true);
 
 // This funtion outputs all the elements for a labelled drop-down (select)
 function select_input($select_label, $select_name, array $option) {
-    global $hist;
+    global $disps;
     // Header with label
     echo "<p>$select_label: <select name=\"$select_name\" id=\"$select_name\">\n";
     // Put in all the options
     foreach ($option as $option_value => $option_text) {
         // $sel will be set to 'selected' for the selected option
-        $sel=($hist[$select_name]==$option_value)?' selected':'';
+        $sel=($disps[$select_name]==$option_value)?' selected':'';
         echo "  <option value=\"{$option_value}\"{$sel}>{$option_text}</option>\n";
     }
     // Finish off the select
@@ -49,12 +52,11 @@ function select_input($select_label, $select_name, array $option) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style type="text/css">
 	th {color:blue; text-align:left}
-	td, th {width: 30%}
 	#curSel, .curSel {color:white; background-color:blue; font-size:100%} /* Selected row in table */
 	.header {position: sticky; top: 0; background-color:white} /* will scroll to top of page then stop */
 	.footer {position: sticky; bottom: 0; width: 100%} /* stays at foot of page with text scrolling behind */
-	table {width:100%}
 	button {font-size:100%}
+	.hidden {display: inline}
 	/* 
 	@media (min-width: 858px) {
     html {
@@ -64,12 +66,10 @@ function select_input($select_label, $select_name, array $option) {
 </style>
 <script>
 // https://www.w3schools.com/howto/howto_js_sort_table.asp
-function sortTable(tid,n,n_headers,type) {
-  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+function sortTable(tid,n,n_headers,type,dir) {
+  var table, rows, switching, i, x, y, shouldSwitch, switchcount = 0;
   table = document.getElementById(tid);
   switching = true;
-  // Set the sorting direction to ascending:
-  dir = "asc";
   /* Make a loop that will continue until
   no switching has been done: */
   while (switching) {
@@ -86,8 +86,8 @@ function sortTable(tid,n,n_headers,type) {
       x = rows[i].getElementsByTagName("TD")[n];
       y = rows[i + 1].getElementsByTagName("TD")[n];
       /* Check if the two rows should switch place,
-      based on the direction, asc or desc: */
-      if (dir == "asc") {
+      based on the direction, asc=1 or desc=0: */
+      if (dir == 1) {
 		var xv = (type==0?x.innerHTML.toLowerCase():Number(x.innerHTML));
 		var yv = (type==0?y.innerHTML.toLowerCase():Number(y.innerHTML));
         if (xv > yv) {
@@ -95,7 +95,7 @@ function sortTable(tid,n,n_headers,type) {
           shouldSwitch = true;
           break;
         }
-      } else if (dir == "desc") {
+      } else if (dir == 0) {
 		var xv = (type==0?x.innerHTML.toLowerCase():Number(x.innerHTML));
 		var yv = (type==0?y.innerHTML.toLowerCase():Number(y.innerHTML));
         if (xv < yv) {
@@ -112,13 +112,6 @@ function sortTable(tid,n,n_headers,type) {
       switching = true;
       // Each time a switch is done, increase this count by 1:
       switchcount ++;
-    } else {
-      /* If no switching has been done AND the direction is "asc",
-      set the direction to "desc" and run the while loop again. */
-      if (switchcount == 0 && dir == "asc") {
-        dir = "desc";
-        switching = true;
-      }
     }
   }
 }
@@ -156,10 +149,11 @@ function selRow(thisrow) {
 	// reset when id is reset above: 
 	//thisrow.onclick=function secondClick(){doDisplay();};
 }
-function sortCol(coln,type) {
-	//Need to remove selection as it adds a row we don't want to sort
+function sortCol(params) {
+	//Need to remove se class='hidden'lection as it adds a row we don't want to sort
+	var paramv = params.split(",");
 	unselRow();
-	sortTable('ta',coln,0,type);
+	sortTable('ta',paramv[0],1,paramv[1],paramv[2]);
 }
 function doProcess(action) {
 	var cursel;
@@ -173,36 +167,37 @@ function doProcess(action) {
 <body>
 	<div>
 		Welcome to the St.Thomas Christmas Lights controller. There are
-		currently <?php echo count($hist);?> different displays to choose
+		currently <?php echo count($disps);?> different displays to choose
 		from. Enjoy!
 	</div>
 	<div>
-		<table class="header">
-			<tr>
-				<!--When a header is clicked, run the sortTable function, with a parameter,
-				0 for sorting by names, 1 for sorting by country: -->
-				<th onclick="sortCol(0,1)" style="width:10%">id</th>
-				<th onclick="sortCol(1,0)" style="width:40%">Name</th>
-				<th onclick="sortCol(2,0)" style="width:20%">Creator</th>
-				<th onclick="sortCol(3,1)" style="width:5%">Created</th>
-				<th onclick="sortCol(4,1)" style="width:5%">Used</th>
-				<th onclick="sortCol(5,1)" style="width:5%">Uses</th>
-			</tr>
-		</table>
+		<p class="header">
+		  Sort:
+		  <select onchange="sortCol(this.value)" autocomplete="off">
+			  <option value="0,0,1">Display Name</option>
+			  <option value="1,0,1">Creator</option>
+			  <option value="2,1,0">Newest first</option>
+			  <option value="3,1,0">Most recently used</option>
+			  <option value="4,1,0" selected>Most popular</option>
+		   </select>
+		</p>
 		<table id="ta">
-			<?php foreach ($hist as $disp) {
-				$head = $disp["dh"];
+			<tr>
+				<th>Display name</th>
+				<th>Created by</th>
+			</tr>
+			<?php foreach ($disps as $disp) {
 				echo "<tr onclick='selRow(this)'>";
-				echo   "<td style='width:10%'>",$head[0],"</td>\n";
-				echo   "<td style='width:40%'>",$head[1],"</td>\n";
-				echo   "<td style='width:20%'>",$head[2],"</td>\n";
-				echo   "<td style='width:5%'>",$head[3],"</td>\n";
-				echo   "<td style='width:5%'>",$head[4],"</td>\n";
-				echo   "<td style='width:5%'>",$head[5],"</td>\n";
+				echo   "<td>",$disp[1],"</td>\n";
+				echo   "<td>",$disp[2],"</td>\n";
+				echo   "<td class='hidden'>",$disp[3],"</td>\n";
+				echo   "<td class='hidden'>",$disp[4],"</td>\n";
+				echo   "<td class='hidden'>",$disp[5],"</td>\n";
 				echo "</tr>";
 			}
 			?>
 		</table>
+		<script>sortCol("4,1,0");</script>
 	</div>
 	<div class="footer">
 		Footer text 

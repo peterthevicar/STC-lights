@@ -56,7 +56,7 @@ function select_input($select_label, $select_name, array $option) {
 	.header {position: sticky; top: 0; background-color:white} /* will scroll to top of page then stop */
 	.footer {position: sticky; bottom: 0; width: 100%} /* stays at foot of page with text scrolling behind */
 	button {font-size:100%}
-	.hidden {display: inline}
+	.hidden {display: none}
 	/* 
 	@media (min-width: 858px) {
     html {
@@ -157,9 +157,10 @@ function sortCol(params) {
 }
 function doProcess(action) {
 	var cursel;
-	cursel = document.getElementById("curSel")
+	cursel = document.getElementById("curSel");
 	if (cursel) {
-		alert((action==1?"DISPLAY":"EDIT")+" "+cursel.children[1].innerText);
+		if (action == 1) alert("DISPLAY "+cursel.children[0].innerText)
+		else location.href = 'edit.php?'+cursel.lastChild.innerText;
 	}
 }
 </script>
@@ -186,13 +187,14 @@ function doProcess(action) {
 				<th>Display name</th>
 				<th>Created by</th>
 			</tr>
-			<?php foreach ($disps as $disp) {
+			<?php foreach ($disps as $disp_id => $disp) {
 				echo "<tr onclick='selRow(this)'>";
+				echo   "<td>",$disp[0],"</td>\n";
 				echo   "<td>",$disp[1],"</td>\n";
-				echo   "<td>",$disp[2],"</td>\n";
+				echo   "<td class='hidden'>",$disp[2],"</td>\n";
 				echo   "<td class='hidden'>",$disp[3],"</td>\n";
 				echo   "<td class='hidden'>",$disp[4],"</td>\n";
-				echo   "<td class='hidden'>",$disp[5],"</td>\n";
+				echo   "<td class='hidden'>",$disp_id,"</td>";
 				echo "</tr>";
 			}
 			?>

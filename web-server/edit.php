@@ -157,19 +157,40 @@ function build_colours ($id, $i) {
 	<button type="button" onclick="create_new();">CREATE new display</button>
 	
 <script>
+	// create_new goes through the elements in the original display spec
+	// and for each one looks in the DOM for a matching element.
+	// If it finds one it puts the new value into new_spec ready for 
+	// creating a display with the new spec.
+	
+	var original_spec = JSON.parse('<?php echo json_encode($this_spec);?>');
+	var new_spec = []; // for building up the spec for the created display
+	
 	function create_new () {
-		create_new_colours();
-		
-		var coll = document.getElementsByTagName("input");
-		var i;
 		var changed = false;
-		for (i = 0; i < coll.length; i++) {
-			if (coll[i].value != coll[i].getAttribute("value")) {
-				changed = true;
-				break;
+		new_spec = {};
+		// Go through each section in the original spec
+		for (section_id in original_spec) {
+			var orig_sect = original_spec[section_id];
+			var i, e;
+			new_spec[section_id] = [];
+			// Now go through each element in this section
+			for (i in orig_sect) {
+				// We've labeled the elements with section id and index
+				e = document.getElementById(section_id + i);
+				if (e == null) {
+					// nothing there so copy the original
+					new_spec[section_id][i] = orig_sect[i];
+				}
+				else {
+					// found a matching element so get its value
+					new_spec[section_id][i] = e.value;
+					if (e.value != orig_sect[i])
+						changed = true;
+				}
 			}
 		}
-		alert((changed?'Creating new display':'Nothing changed, nothing to create'));
+		alert((changed? "Something changed": "NOTHING changed"));
+		alert("Original display spec was\n" + JSON.stringify(original_spec) + "\nNew display spec is\n" + JSON.stringify(new_spec));
 	}
 </script>	
 <script>
@@ -199,6 +220,9 @@ function build_colours ($id, $i) {
 	}
 </script>	
 <script>
+	// Store original number of colours to spot changes
+	n_colours0=<?php echo $grad_colours;?>
+	// Global counts of how many colour elements we have and how many are currently visible
 	created=<?php echo $grad_colours;?>;
 	visible=<?php echo $grad_colours;?>;
 	function update_colours(n) {
@@ -219,7 +243,15 @@ function build_colours ($id, $i) {
 			document.getElementById('c'+i).style.display='none'
 		}
 		visible = n;
-	}     
+	}
+//
+//
+//TODO
+//
+// Put gradient spec at end of gr or make its own section
+// Some way of packing up the colours for create
+//
+//
 </script>
 
 </body>

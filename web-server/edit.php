@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <?php
+// Format of json-displays
+//
+//::= <display details>*
+//<display details> ::= <id> <name> <creator> <created> <used> <uses>
+//    <id>, <uses> ::= <int>
+//    <name>, <creator> ::= <str>
+//    <created>, <used> ::= <timestamp>
 //
 //Format of json-disp-specs:
 //
-//  <display specs> ::= <id> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
+//::= <display specs>*
+//  <display specs> ::= <id> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
+//    <colour list> ::= <colour> <colour>* <colour>
 //    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
 //  <segment> := <num segments> <motion> <duration> <reverse>
 //    <num segments> ::= <int 0-8>
@@ -57,26 +66,21 @@ function build_number ($id, $i, $min, $max, $step) {
     echo "<input id='$id$i' autocomplete='off' type='number' value='$cur_val' min='$min' max='$max' step='$step'>\n";
 }
 //build a gradient colour selector with the initial colours added
-$grad_colours=2;
-function build_colours ($id, $i) {
-	global $this_spec, $grad_colours;
-	// Retrieve the current value of the requested field
-	$cur_val=$this_spec[$id][$i];
-    // Header with label
-    echo "\n<div id='colour_first' style='display:inline-block'>\n";
-    echo "  <input id='c1' type='color' autocomplete='off' style='display:inline-block; border-width:2px; border-color:red' value='$cur_val[0]'>\n";
-    foreach (array_slice($cur_val,1,-1) as $col) {
-		$grad_colours++;
-		echo "<input id='c$grad_colours' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$col'>\n";
+$last_colour=-1;
+function build_colours () {
+	global $this_spec, $last_colour;
+	// Retrieve the current colour list
+	$cur_val=$this_spec["co"];
+    // Header with id
+    echo "\n<div id='colour_list' style='display:inline-block'>\n";
+    foreach ($cur_val as $col) {
+		$last_colour++;
+		echo "<input id='c$last_colour' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$col'>\n";
 	}
     echo "</div>\n";
-    echo "<div style='display:inline-block'>\n";
-    $col=$cur_val[$grad_colours-1];
-    echo "   <input id='c2' type='color' autocomplete='off' style='display:inline-block; border-width:2px; border-color:red' value='$col'>\n";
-    echo "</div>\n";
     echo "<div style='display:block'>\n";
-    echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(visible+1)'>Insert +</button>\n";
-    echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(visible-1)'>- Remove</button>\n";
+    echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible+1)'>Insert +</button>\n";
+    echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible-1)'>- Remove</button>\n";
     echo "  </div>\n";
 }
 
@@ -135,7 +139,7 @@ function build_colours ($id, $i) {
 	<button class="collapsible">1 Colours</button>
 	<div class="content">
 	  <p>Colours for the gradient:
-		<?php build_colours("gr",0);?>
+		<?php build_colours();?>
 	</div>
 	
 	<button class="collapsible">2 Repeats</button>
@@ -163,29 +167,39 @@ function build_colours ($id, $i) {
 	// creating a display with the new spec.
 	
 	var original_spec = JSON.parse('<?php echo json_encode($this_spec);?>');
-	var new_spec = []; // for building up the spec for the created display
 	
 	function create_new () {
 		var changed = false;
-		new_spec = {};
+		var new_spec = {};
 		// Go through each section in the original spec
 		for (section_id in original_spec) {
 			var orig_sect = original_spec[section_id];
 			var i, e;
 			new_spec[section_id] = [];
-			// Now go through each element in this section
-			for (i in orig_sect) {
-				// We've labeled the elements with section id and index
-				e = document.getElementById(section_id + i);
-				if (e == null) {
-					// nothing there so copy the original
-					new_spec[section_id][i] = orig_sect[i];
-				}
-				else {
-					// found a matching element so get its value
-					new_spec[section_id][i] = e.value;
-					if (e.value != orig_sect[i])
+			// First a special way of handling the colour list as it's variable length
+			if (section_id == "co") {
+				for (i=0; i<=last_colour_visible; i++) {
+					var cv = document.getElementById("c"+i).value;
+					new_spec[section_id][i] = cv;
+					if (orig_sect[i] != cv)
 						changed = true;
+				}
+			}
+			else {
+				// Go through each element in this section
+				for (i in orig_sect) {
+					// We've labeled the elements with section id and index
+					e = document.getElementById(section_id + i);
+					if (e == null) {
+						// nothing there so copy the original
+						new_spec[section_id][i] = orig_sect[i];
+					}
+					else {
+						// found a matching element so get its value
+						new_spec[section_id][i] = e.value;
+						if (orig_sect[i] != e.value)
+							changed = true;
+					}
 				}
 			}
 		}
@@ -221,34 +235,34 @@ function build_colours ($id, $i) {
 </script>	
 <script>
 	// Store original number of colours to spot changes
-	n_colours0=<?php echo $grad_colours;?>
+	last_colour_0=<?php echo $last_colour;?>
 	// Global counts of how many colour elements we have and how many are currently visible
-	created=<?php echo $grad_colours;?>;
-	visible=<?php echo $grad_colours;?>;
-	function update_colours(n) {
-		if (n < 2) return;
-		// Make sure there are n colour choosers visible
-		for (i=created+1; i<=n; i++) { // create inputs as required
+	last_colour_created=<?php echo $last_colour;?>;
+	last_colour_visible=<?php echo $last_colour;?>;
+	function update_colours(last) {
+		if (last < 1) return;
+		// Make sure there are last-1 colour choosers visible
+		for (i=last_colour_created+1; i<=last; i++) { // create inputs as required
 			var e = document.createElement("input");
-			e = document.getElementById('colour_first').appendChild(e);
+			e = document.getElementById('colour_list').appendChild(e);
 			e.id = 'c'+i;
 			e.type = 'color';
 			e.style = 'border-width:2px';
-			created++;
+			last_colour_created=i;
 		}
-		for (i=3; i<=n; i++) { // make sure they're visible
+		for (i=0; i<=last; i++) { // make sure they're visible
 			document.getElementById('c'+i).style.display='inline-block'
 		}
-		for (i=visible; i>n; i--) { // hide others that were visible
+		for (i=last_colour_visible; i>last; i--) { // hide others that were visible
 			document.getElementById('c'+i).style.display='none'
 		}
-		visible = n;
+		last_colour_visible = last;
 	}
+
 //
 //
 //TODO
 //
-// Put gradient spec at end of gr or make its own section
 // Some way of packing up the colours for create
 //
 //

@@ -1,31 +1,4 @@
 <?php
-//
-//Format of json-displays:
-//
-//::= <display details>*
-//<display details> ::= <id> <name> <creator> <created> <used> <uses>
-//    <id>, <uses> ::= <int>
-//    <name>, <creator> ::= <str>
-//    <created>, <used> ::= <timestamp>
-//
-//
-//Format of json-disp-specs:
-//
-//  <display specs> ::= <id> <gradient> <segment> <fading> <sparkle> <spot>
-//    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
-//  <segment> := <num segments> <motion> <duration> <reverse>
-//    <num segments> ::= <int 0-8>
-//    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
-//    <duration> ::= <float 0+>
-//    <reverse> ::= <int REPEAT, REVERSE>
-//  <fading> ::= <duration> <blend> <fade min> <fade max>
-//    <blend> ::= <int STEP, SMOOTH>
-//    <fade min>, <fade max> ::== <int 0-255>
-//  <sparkle> ::== <sparks per thousand> <duration>
-//    <sparks per thousand> ::= <int 0-1000>
-//  <spot> ::= <size> <colour> <motion> <duration> <reverse>
-//    <size> ::= <int 0-32>
-
 // Read in the json-displays file
 $disps=json_decode(file_get_contents("json-displays.json"), true);
 

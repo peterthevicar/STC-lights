@@ -1,23 +1,6 @@
 <?php
 // Read in the json-displays file
 $disps=json_decode(file_get_contents("json-displays.json"), true);
-
-// This funtion outputs all the elements for a labelled drop-down (select)
-function select_input($select_label, $select_name, array $option) {
-    global $disps;
-    // Header with label
-    echo "<p>$select_label: <select name=\"$select_name\" id=\"$select_name\">\n";
-    // Put in all the options
-    foreach ($option as $option_value => $option_text) {
-        // $sel will be set to 'selected' for the selected option
-        $sel=($disps[$select_name]==$option_value)?' selected':'';
-        echo "  <option value=\"{$option_value}\"{$sel}>{$option_text}</option>\n";
-    }
-    // Finish off the select
-    echo "</select></p>\n";
-}
-
-//file_put_contents("form.json", json_encode(array('var1'=>'val1', 'var2'=>'val2')));
 ?>
 <!DOCTYPE html>
 <html>
@@ -133,7 +116,7 @@ function doProcess(action) {
 	cursel = document.getElementById("curSel");
 	if (cursel) {
 		if (action == 1) alert("DISPLAY "+cursel.children[0].innerText)
-		else location.href = 'edit.php?'+cursel.lastChild.innerText;
+		else location.href = 'create.php?'+cursel.lastChild.innerText;
 	}
 }
 </script>
@@ -161,12 +144,13 @@ function doProcess(action) {
 				<th>Created by</th>
 			</tr>
 			<?php foreach ($disps as $disp_id => $disp) {
+				$hd = $disp["hd"];
 				echo "<tr onclick='selRow(this)'>";
-				echo   "<td>",$disp[0],"</td>\n";
-				echo   "<td>",$disp[1],"</td>\n";
-				echo   "<td class='hidden'>",$disp[2],"</td>\n";
-				echo   "<td class='hidden'>",$disp[3],"</td>\n";
-				echo   "<td class='hidden'>",$disp[4],"</td>\n";
+				echo   "<td>",$hd[0],"</td>\n";
+				echo   "<td>",$hd[1],"</td>\n";
+				echo   "<td class='hidden'>",$hd[2],"</td>\n";
+				echo   "<td class='hidden'>",$hd[3],"</td>\n";
+				echo   "<td class='hidden'>",$hd[4],"</td>\n";
 				echo   "<td class='hidden'>",$disp_id,"</td>";
 				echo "</tr>";
 			}

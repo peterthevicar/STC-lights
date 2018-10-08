@@ -3,17 +3,14 @@
 // Format of json-displays
 //
 //::= <display details>*
-//<display details> ::= <id> <name> <creator> <created> <used> <uses>
-//    <id>, <uses> ::= <int>
+//<display details> ::= <id> <header> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
+//  <id> ::= id<int>
+//  <header> ::= <name> <creator> <created> <used> <uses>
+//    <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
-//
-//Format of json-disp-specs:
-//
-//::= <display specs>*
-//  <display specs> ::= <id> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
-//    <colour list> ::= <colour> <colour>* <colour>
-//    <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
+//  <colour list> ::= <colour> <colour>* <colour>
+//  <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
 //  <segment> := <num segments> <motion> <duration> <reverse>
 //    <num segments> ::= <int 0-8>
 //    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
@@ -26,26 +23,26 @@
 //    <sparks per thousand> ::= <int 0-1000>
 //  <spot> ::= <size> <colour> <motion> <duration> <reverse>
 //    <size> ::= <int 0-32>
+//  <floods> ::= <flood spec> <flood spec>
+//    <flood spec> ::= <int AUTO, MANUAL> <flood def>
+//      <flood def> ::= <colour> <colour> <blend> <duration>
+//  <meteor> ::= <int ON, OFF, AUTO>
 
 
-// Read in the information we need from json files
+// Read in the information we need from json file
 $this_disp = null;
-$this_spec = null;
 // The display id is passed in as the query string
 $disp_id=$_SERVER['QUERY_STRING'];
 if ($disp_id == null) $disp_id = "id1"; // in case we don't have a query string
 // Read the header information (name, creator etc)
 $disps=json_decode(file_get_contents("json-displays.json"), true);
 $this_disp=$disps[$disp_id];
-// Read the specs for this display (colours, speeds etc)
-$disp_specs=json_decode(file_get_contents("json-disp-specs.json"), true);
-$this_spec=$disp_specs[$disp_id];
 
 // build a <select> with current value pre-selected
 function build_select ($id, $i, $opts) {
-	global $this_spec;
+	global $this_disp;
 	// Retrieve the current value of the requested field
-	$cur_val=$this_spec[$id][$i];
+	$cur_val=$this_disp[$id][$i];
     // Header with label
     echo "<select id='$id$i' autocomplete='off'>\n";
     // Put in all the options
@@ -59,32 +56,40 @@ function build_select ($id, $i, $opts) {
 }
 //build a numeric input with min and max values
 function build_number ($id, $i, $min, $max, $step) {
-	global $this_spec;
+	global $this_disp;
 	// Retrieve the current value of the requested field
-	$cur_val=$this_spec[$id][$i];
+	$cur_val=$this_disp[$id][$i];
     // Header with label
     echo "<input id='$id$i' autocomplete='off' type='number' value='$cur_val' min='$min' max='$max' step='$step'>\n";
 }
 //build a gradient colour selector with the initial colours added
 $last_colour=-1;
 function build_colours () {
-	global $this_spec, $last_colour;
+	global $this_disp, $last_colour;
 	// Retrieve the current colour list
-	$cur_val=$this_spec["co"];
+	$cur_val=$this_disp["co"];
     // Header with id
     echo "\n<div id='colour_list' style='display:inline-block'>\n";
+    $grad_colours = "";
     foreach ($cur_val as $col) {
 		$last_colour++;
 		echo "<input id='c$last_colour' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$col'>\n";
+		$grad_colours .= ",$col"; 
 	}
     echo "</div>\n";
     echo "<div style='display:block'>\n";
     echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible+1)'>Insert +</button>\n";
     echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible-1)'>- Remove</button>\n";
     echo "  </div>\n";
+/*  Preview of blended gradient - would need to sort add/delete, blend/step etc
+    echo "  <div id='grad' style='background-image: linear-gradient(to right" . $grad_colours . ");'>\n";
+    echo "    <p>Preview of gradient</p></div>\n";
+*/
 }
 
-//file_put_contents("form.json", json_encode(array('var1'=>'val1', 'var2'=>'val2')));
+
+// ----------------------------- END PHP -----------------------------//
+
 ?>
 <html>
 <head>
@@ -133,11 +138,11 @@ function build_colours () {
 	<div>
 		<h2>Create New Display</h2>
 		<p>You have chosen to create a new display based on 
-		<?php print('&quot;'.$this_disp[0]."&quot; by &quot;".$this_disp[1].'&quot;'); ?>
+		<?php print('&quot;'.$this_disp["hd"][0]."&quot; by &quot;".$this_disp["hd"][1].'&quot;'); ?>
 		<p>Change anything you like below, then click on the CREATE button.
 	</div>
 	<button class="collapsible">1 Colours</button>
-	<div class="content">
+	<div class="content" style="display:block">
 	  <p>Colours for the gradient:
 		<?php build_colours();?>
 	</div>
@@ -159,65 +164,11 @@ function build_colours () {
 	</div>
 	<button type="reset" onclick="reset_all();">RESET ALL values</button>
 	<button type="button" onclick="create_new();">CREATE new display</button>
-	
-<script>
-	// create_new goes through the elements in the original display spec
-	// and for each one looks in the DOM for a matching element.
-	// If it finds one it puts the new value into new_spec ready for 
-	// creating a display with the new spec.
-	
-	var original_spec = JSON.parse('<?php echo json_encode($this_spec);?>');
-	
-	function create_new () {
-		var changed = false;
-		var new_spec = {};
-		// Go through each section in the original spec
-		for (section_id in original_spec) {
-			var orig_sect = original_spec[section_id];
-			var i, e;
-			new_spec[section_id] = [];
-			// First a special way of handling the colour list as it's variable length
-			if (section_id == "co") {
-				for (i=0; i<=last_colour_visible; i++) {
-					var cv = document.getElementById("c"+i).value;
-					new_spec[section_id][i] = cv;
-					if (orig_sect[i] != cv)
-						changed = true;
-				}
-			}
-			else {
-				// Go through each element in this section
-				for (i in orig_sect) {
-					// We've labeled the elements with section id and index
-					e = document.getElementById(section_id + i);
-					if (e == null) {
-						// nothing there so copy the original
-						new_spec[section_id][i] = orig_sect[i];
-					}
-					else {
-						// found a matching element so get its value
-						new_spec[section_id][i] = e.value;
-						if (orig_sect[i] != e.value)
-							changed = true;
-					}
-				}
-			}
-		}
-		alert((changed? "Something changed": "NOTHING changed"));
-		alert("Original display spec was\n" + JSON.stringify(original_spec) + "\nNew display spec is\n" + JSON.stringify(new_spec));
-	}
-</script>	
-<script>
-	function reset_all () {
-		var coll = document.getElementsByTagName("input");
-		var i;
 
-		for (i = 0; i < coll.length; i++) {
-		  coll[i].value = coll[i].getAttribute("value");
-	  }
-	}
-</script>	
 <script>
+	//
+	//-------------- onClick for Collapsible sections ----------------//
+	//
 	var coll = document.getElementsByClassName("collapsible");
 	var i;
 
@@ -234,6 +185,9 @@ function build_colours () {
 	}
 </script>	
 <script>
+	//
+	//--------------------- Expanding colour list --------------------//
+	//
 	// Store original number of colours to spot changes
 	last_colour_0=<?php echo $last_colour;?>
 	// Global counts of how many colour elements we have and how many are currently visible
@@ -258,14 +212,92 @@ function build_colours () {
 		}
 		last_colour_visible = last;
 	}
+</script>
+<script>
+	//
+	//--------------------- Reset all values to original -------------//
+	//
+	function reset_all () {
+		var coll = document.getElementsByTagName("input");
+		var i;
 
+		for (i = 0; i < coll.length; i++) {
+		  coll[i].value = coll[i].getAttribute("value");
+	  }
+	}
+</script>	
+<script>
+	//
+	//--------------------- Create new display spec -----------------//
+	//
+	// create_new goes through the elements in the original display spec
+	// and for each one looks in the DOM for a matching element.
+	// If it finds one it puts the new value into new_disp ready for 
+	// creating a display with the new spec.
+	
+	var original_disp = JSON.parse('<?php echo json_encode($this_disp);?>');
+	
+	function create_new () {
+		var changed = false;
+		var new_disp = {};
+		// Go through each section in the original disp
+		for (section_id in original_disp) {
+			var orig_sect = original_disp[section_id];
+			var i, e;
+			new_disp[section_id] = [];
+			// First a special way of handling the colour list as it's variable length
+			if (section_id == "co") {
+				for (i=0; i<=last_colour_visible; i++) {
+					var cv = document.getElementById("c"+i).value;
+					new_disp[section_id][i] = cv;
+					if (orig_sect[i] != cv)
+						changed = true;
+				}
+			}
+			else {
+				// Go through each element in this section
+				for (i in orig_sect) {
+					// We've labeled the elements with section id and index
+					e = document.getElementById(section_id + i);
+					if (e == null) {
+						// nothing there so copy the original
+						new_disp[section_id][i] = orig_sect[i];
+					}
+					else {
+						// found a matching element so get its value
+						new_disp[section_id][i] = e.value;
+						if (orig_sect[i] != e.value)
+							changed = true;
+					}
+				}
+			}
+		}
+		//alert((changed? "Something changed": "NOTHING changed"));
+		//alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
+
+		// Send the json to create a new display
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function () {
+			if (this.readyState != 4 || this.status != 200) return;
+			// Do something with the retrieved data ( found in .responseText )
+			alert(this.responseText);
+		};
+		xhr.open("POST", "insert.php", true);
+		// can't get application/json to work so have to use form encoding
+		xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+		//xhr.setRequestHeader('Content-type', 'application/json');
+
+		// send the collected data as JSON
+		xhr.send('json='+JSON.stringify(new_disp));
+	}
+</script>	
+<script>
 //
 //
 //TODO
 //
-// Some way of packing up the colours for create
-//
-//
+// Reset colours to original vlaues
+// Preview of pattern, done some of this but it's complex
 </script>
 
 </body>

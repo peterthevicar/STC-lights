@@ -298,6 +298,9 @@ function build_colours () {
 //
 // Reset colours to original vlaues
 // Preview of pattern, done some of this but it's complex
+// Complete the editing collapsibles to cover all the parameters
+// Work out possible responses from insert.php and display.php
+//
 </script>
 
 </body>

@@ -1,6 +1,13 @@
 <?php
-// Read in the json-displays file
-$disps=json_decode(file_get_contents("json-displays.json"), true);
+// Read in the json-displays file, which may be locked by insert.php
+$fn = 'json-displays.json';
+$fp = fopen($fn, 'r');
+if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is released
+    $content = fread($fp, filesize($fn));
+    $disps=json_decode($content, true);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+}
 ?>
 <!DOCTYPE html>
 <html>

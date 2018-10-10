@@ -296,8 +296,8 @@ function build_colours () {
 //
 //TODO
 //
-// Reset colours to original vlaues
-// Preview of pattern, done some of this but it's complex
+// Reset colours to original values
+// Preview of pattern, done some of this but it's complex, probably remove to a separate file
 // Complete the editing collapsibles to cover all the parameters
 // Work out possible responses from insert.php and display.php
 //

@@ -54,8 +54,8 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			$disps[$new_id] = $new_disp;
 			echo json_encode($disps);
 			fwrite($fp, json_encode($disps));
-			fclose($fp);
 			flock($fp, LOCK_UN);
+			fclose($fp);
 			$waiting = false;
 		}
 		else fclose($fp);
@@ -66,7 +66,7 @@ if ($waiting) trigger_error("Couldn't open displays database", E_USER_ERROR);
 
 // Added the new display to the json file, so now let the user know
 echo "\n\nYippeeeeee!!\n\n";
-//~ TODO: work out how to respond after errors etc, die is not ideal
+//~ TODO: work out how to respond after errors etc
 //~ Complete file writing code
 //~ Thorough parameter checking before accepting
 //~ Check for very similar or identical displays

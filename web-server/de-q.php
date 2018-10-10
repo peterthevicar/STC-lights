@@ -22,7 +22,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				$q['cur_id'] = $next_id;
 			}				
 			echo json_encode($q);
-			fwrite($fp, json_encode($q));
+			file_put_contents($fn, json_encode($q));
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			$waiting = false;

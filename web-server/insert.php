@@ -1,39 +1,7 @@
 <?php
-//
-//-------------------------- Error handler -------------------------//
-//
-// Handle errors ourselves. See https://www.w3schools.com/php/php_error.asp
-function customError($error_number, $error_string, $error_file, $error_line, $error_context) {
-  echo "\n\n***Error: [$error_number] $error_string\n";
-  echo date("Y-m-d H:i:s")."\nFile: [$error_file]\n".
-	"    Line: [$error_line]\n".
-	var_export($error_context, true)."\n==========\n",
-	3, "error_log.txt";
-  echo "Ending Script";
-  die(1);
-}
-function customExcept($e) {
-  $error_number = $e->getCode();
-  $error_string = $e->getMessage();
-  $error_file = $e->getFile();
-  $error_line = $e->getLine();
-  echo "\n\n***Exception: [$error_number] $error_string\n";
-  echo date("Y-m-d H:i:s")."\nFile: [$error_file]\n".
-	"    Line: [$error_line]\n".
-	$e->getTraceAsString()."\n==========\n",
-	3, "error_log.txt";
-  echo "Ending Script";
-  die(1);
-}
-// Can handle two different levels of error: E_ALL or E_STRICT
-set_error_handler("customError", E_STRICT);
-set_exception_handler("customExcept");
-// To use this on purpose, use 
-// trigger_error($message, $level);
-// $level must be E_USER_WARNING, E_USER_ERROR, or E_USER_WARNING
-?>
+// Set up error handler and err function for logging errors
+include "error-handler.php";
 
-<?php
 //
 //------------------ Code to insert new display spec -----------------//
 //
@@ -49,13 +17,19 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 	$fp = fopen($fn, "c+"); // try to open file but don't truncate
 	if ($fp) {
 		if (flock($fp, LOCK_EX)) {
+			//
+			//-------------- EXCLUSIVE LOCKED -----------
+			//
 			$disps = json_decode(file_get_contents($fn), true);
 			$new_id = "id".(count($disps)+1);
 			$disps[$new_id] = $new_disp;
-			echo json_encode($disps);
+			err("DEBUG:insert.php:".json_encode($disps));
 			fwrite($fp, json_encode($disps));
 			flock($fp, LOCK_UN);
 			fclose($fp);
+			//
+			//-------------- UNLOCKED -----------
+			//
 			$waiting = false;
 		}
 		else fclose($fp);

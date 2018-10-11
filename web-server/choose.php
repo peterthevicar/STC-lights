@@ -3,10 +3,16 @@
 $fn = 'json-displays.json';
 $fp = fopen($fn, 'r');
 if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is released
+	//
+	//-------------- SHARE LOCKED -----------
+	//
     $content = fread($fp, filesize($fn));
     $disps=json_decode($content, true);
     flock($fp, LOCK_UN);
     fclose($fp);
+	//
+	//-------------- UNLOCKED -----------
+	//
 }
 ?>
 <!DOCTYPE html>
@@ -118,15 +124,44 @@ function sortCol(params) {
 	unselRow();
 	sortTable('ta',paramv[0],1,paramv[1],paramv[2]);
 }
+//
+//-------------------------- EN-QUEUE the display request -----------
+//
+function processResponse() {
+	if (this.readyState != 4) return;
+	if (this.status == 200) { // success
+		// responseText is the Queue wait returned from the en-q process
+		var q_wait = parseInt(this.responseText, 10);
+		if (q_wait > 0) {
+			alert("Thank you, your chosen display has been queued and should start in about " +
+				q_wait + " seconds.");
+		}
+		else alert("Thank you, your chosen display should start immediately.");
+	}
+	else // error of some sort
+		alert("Sorry, unable to contact the server. Please try again later");
+}
 function doProcess(action) {
 	var cursel;
 	cursel = document.getElementById("curSel");
 	if (cursel) {
-		if (action == 1) alert("DISPLAY "+cursel.children[0].innerText)
-		else location.href = 'create.php?'+cursel.lastChild.innerText;
+		if (action == 1) { // DISPLAY
+			// Send the id to display for queueing
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = processResponse;
+			xhr.open("POST", "en-q.php", true);
+			xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+			// send the id
+			xhr.send('next_id='+cursel.lastChild.innerText);
+		}
+		else // CREATE 
+			location.href = 'create.php?'+cursel.lastChild.innerText;
 	}
 }
 </script>
+<-->
+<----------------------- HTML SECTION ------------------------->
+<-->
 </head>
 <body>
 	<div>

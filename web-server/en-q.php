@@ -1,8 +1,11 @@
 <?php
-// Read the header information
-if ($_POST == null) $next_id = "id1";
-else $next_id = $_POST['id'];
+// Set up error handler and err function for logging errors
+include "error-handler.php";
 
+// Read the header information
+if ($_POST == null) $_POST = ["next_id"=>"id1"];
+$next_id = $_POST['next_id'];
+err("DEBUG:en-q:[".json_encode($_POST)."][$next_id]");
 // Get an exclusive lock on json-q
 $fn = 'json-q.json';
 $waiting = true;
@@ -14,40 +17,40 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			//--------------- EXCLUSIVE LOCKED -----------
 			//
 			$q = json_decode(file_get_contents($fn), true);
-			print_r($q);
 			if ($q == null) { // queue has broken, start again with id1
 				$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
 			}
-			print_r($q);
+			err("DEBUG:en-q:".json_encode($q));
 			// Add this id to the end of the queue
-			$queue = &$q['q'];
-			$q_end = count($queue);
+			$q_conts = &$q['q'];
+			$q_end = count($q_conts);
 			// Check if it's already in the queue and add up the queue time
 			$q_wait = max($q['next_t'] - time(), 0); // how much left for this one
 			$matched = false;
 			for ($i=0; $i<$q_end and !$matched; $i+=2) {
-				if ($queue[$i] == $next_id) $matched = true;
-				else $q_wait += $queue[i+1];
+				if ($q_conts[$i] == $next_id) $matched = true;
+				else $q_wait += $q_conts[$i+1];
 			}
 			if (!$matched) { // Add the new id in at the end of the queue
-				$queue[$q_end++] = $next_id;
-				$queue[$q_end] = 10; // default duration is 10
+				$q_conts[$q_end++] = $next_id;
+				$q_conts[$q_end] = 10; // default duration is 10
 			}
-			echo "\nQueue wait:$q_wait\n";
-			echo json_encode($q);
 			file_put_contents($fn, json_encode($q));
 			flock($fp, LOCK_UN);
 			fclose($fp);
 			//
 			//---------------- UNLOCKED ----------------
 			//
+			echo "$q_wait";
+			//~ err("DEBUG:en-q:".json_encode($q));
 			$waiting = false;
 		}
 		else fclose($fp);
 	}
 	if ($waiting) sleep(rand(0, 2));
 }
-if ($waiting) trigger_error("Couldn't open queue", E_USER_ERROR);
+if ($waiting) 
+	trigger_error("Couldn't open queue", E_USER_ERROR);
+
 //~ TODO
-//~ Check for duplicates before inserting into the queue
 ?>

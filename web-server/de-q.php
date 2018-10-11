@@ -10,18 +10,21 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			if ($q == null) { // queue has broken, start again with id1
 				$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
 			}
-			if (count($q['q']) == 0) { // nothing in the queue
-				$q['next_t'] = time() + 5; // check back in 5 seconds
+			$q_conts = &$q['q']; // reference to the queue contents
+			if (count($q_conts) == 0) { // nothing in the queue
+				$next_t = time() + 5; // check back in 5 seconds
+				$q['next_t'] = $next_t;
+				$next_id = $q['cur_id'];
 				$changed = false;
 			}
 			else { // have a queue, two elements per entry: id and duration
-				$next_id = array_shift($q['q']);
-				$next_t = time() + array_shift($q['q']);
+				$next_id = array_shift($q_conts);
+				$next_t = time() + array_shift($q_conts);
 				// Update the queue header with the new info
 				$q['next_t'] = $next_t;
 				$q['cur_id'] = $next_id;
 			}				
-			echo json_encode($q);
+			//~ echo "\nDEBUG, Queue contents:\n".json_encode($q)."\n";
 			file_put_contents($fn, json_encode($q));
 			flock($fp, LOCK_UN);
 			fclose($fp);
@@ -33,6 +36,27 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 }
 if ($waiting) trigger_error("Couldn't open queue", E_USER_ERROR);
 
+// Read in the json-displays file, which may be locked by insert.php
+$fn = 'json-displays.json';
+$fp = fopen($fn, 'r');
+if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is released
+	//
+	//-------------- SHARE LOCKED -----------
+	//
+    $content = fread($fp, filesize($fn));
+    $disps=json_decode($content, true);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+	//
+	//-------------- UNLOCKED -----------
+	//
+}
+// Add in the current id and next check-in time
+$return = $disps[$next_id];
+$return['id'] = $next_id;
+$return['next_t'] = $next_t;
+// Return the info as a json string
+echo json_encode($return);
 //~ TODO
-//~ Check a password in the cheader
+//~ Check a password in the header
 ?>

@@ -5,7 +5,8 @@ from animator import anim_init,anim_define_pattern, anim_define_spot, anim_defin
 from gradients import gradient_preset, STEP, SMOOTH
 import numpy
 from colours import *
-import argparse
+import urllib.request
+import json
 
 def hue_256(pos):
     """Generate rainbow colors across 0-255 positions."""
@@ -19,11 +20,14 @@ def hue_256(pos):
         return Color(0, pos * 3, 255 - pos * 3)
     
 if __name__ == '__main__':
-	# Process arguments
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
-	args = parser.parse_args()
-
+	download = urllib.request.urlopen('http://localhost/web-server/de-q.php')
+	print(download)
+	data = download.read() # a `bytes` object
+	text = data.decode('utf-8') # a `str`; this step can't be used if d
+	spec = json.loads(text)
+	print (spec)
+	print (spec['co'])
+	exit(1)
 	anim_init()
 	
 	print ('Press Ctrl-C to quit.')

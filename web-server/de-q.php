@@ -1,11 +1,14 @@
 <?php
 // Get an exclusive lock on json-q
 $fn = 'json-q.json';
-$waiting = true;
+$waiting = true; // waiting for lock
 for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to the file
 	$fp = fopen($fn, "c+"); // try to open file but don't truncate
 	if ($fp) {
 		if (flock($fp, LOCK_EX)) {
+			//
+			//----------------- EXCLUSIVE LOCK --------------------
+			//
 			$q = json_decode(file_get_contents($fn), true);
 			if ($q == null) { // queue has broken, start again with id1
 				$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
@@ -15,7 +18,6 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				$next_t = time() + 5; // check back in 5 seconds
 				$q['next_t'] = $next_t;
 				$next_id = $q['cur_id'];
-				$changed = false;
 			}
 			else { // have a queue, two elements per entry: id and duration
 				$next_id = array_shift($q_conts);
@@ -28,6 +30,9 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			file_put_contents($fn, json_encode($q));
 			flock($fp, LOCK_UN);
 			fclose($fp);
+			//
+			//----------------- UNLOCK --------------------
+			//
 			$waiting = false;
 		}
 		else fclose($fp);
@@ -54,7 +59,7 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 // Add in the current id and next check-in time
 $return = $disps[$next_id];
 $return['id'] = $next_id;
-$return['next_t'] = $next_t;
+$return['durn'] = $next_t-time();
 // Return the info as a json string
 echo json_encode($return);
 //~ TODO

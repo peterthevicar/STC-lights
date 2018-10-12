@@ -10,15 +10,16 @@
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
 //  <colour list> ::= <colour> <colour>* <colour>
-//  <gradient> ::= <colour list> <repeats> <blend> <bar on> <bar off>
-//  <segment> := <num segments> <motion> <duration> <reverse>
+//  <gradient> ::= <repeats> <blend> <bar type>
+//	  <bar type> :== <int OFF, DASH, DOT>
+//  <segment> := <num segments> <alternate> <motion> <duration> <reverse>
 //    <num segments> ::= <int 0-8>
+//    <alternate>, <reverse> ::= <int REPEAT, REVERSE>
 //    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
 //    <duration> ::= <float 0+>
-//    <reverse> ::= <int REPEAT, REVERSE>
-//  <fading> ::= <duration> <blend> <fade min> <fade max>
+//  <fading> ::= <duration> <blend> <fade min>
 //    <blend> ::= <int STEP, SMOOTH>
-//    <fade min>, <fade max> ::== <int 0-255>
+//    <fade min> ::== <int 0-255>
 //  <sparkle> ::== <sparks per thousand> <duration>
 //    <sparks per thousand> ::= <int 0-1000>
 //  <spot> ::= <size> <colour> <motion> <duration> <reverse>
@@ -62,6 +63,21 @@ function build_number ($id, $i, $min, $max, $step) {
     // Header with label
     echo "<input id='$id$i' autocomplete='off' type='number' value='$cur_val' min='$min' max='$max' step='$step'>\n";
 }
+// build a colour selector
+function build_colour($id, $i) {
+	global $this_disp;
+	// Retrieve the current colour
+	$cur_val=$this_disp[$id][$i];
+	echo "<input id='$id$i' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$cur_val'>\n";
+}
+// build a text input box
+function build_text($id, $i) {
+	global $this_disp;
+	// Retrieve the current content
+	$cur_val=$this_disp[$id][$i];
+	echo "<input id='$id$i' type='text' autocomplete='off' style='border-width:2px; display:inline-block' value='$cur_val'>\n";
+}
+
 //build a gradient colour selector with the initial colours added
 $last_colour=-1;
 function build_colours () {
@@ -141,27 +157,80 @@ function build_colours () {
 		<?php print('&quot;'.$this_disp["hd"][0]."&quot; by &quot;".$this_disp["hd"][1].'&quot;'); ?>
 		<p>Change anything you like below, then click on the CREATE button.
 	</div>
-	<button class="collapsible">1 Colours</button>
+
+	<button class="collapsible">Choose your colours</button>
 	<div class="content" style="display:block">
-	  <p>Colours for the gradient:
+	  <p>Colours to be used in the display:
 		<?php build_colours();?>
 	</div>
-	
-	<button class="collapsible">2 Repeats</button>
+		<button class="collapsible">Blend the colours into a gradient</button>
 	<div class="content">
-		<p>Number of times to repeat the pattern (one big one or more smaller ones): 
-			<?php build_number("se",0,1,16,1); ?>
+		<p>Blend the colours smoothly from one to another, or go in steps?
+			<?php build_select("gr",1,["1"=>"Smooth", "2"=>"Steps"]);?>
+		<p>How many times do you want to repeat this gradient in the pattern?
+			<?php build_number("gr",0,1,8,1); ?>
+		<p>Do you want to have black gaps in the gradient? Dashes means small gaps with lots of colour, Dots means bigger gaps and less colour.
+			<?php build_select("gr",2,["0"=>"No gaps", "1"=>"Dashes", "2"=>"Dots"]);?>
 	</div>
 	
-	<button class="collapsible">3 Movement</button>
+	<button class="collapsible">Get the colours moving</button>
 	<div class="content">
 		<p>Direction of movement: 
-			<?php build_select("se",1,["0"=>"Stop", "1"=>"Left", "2"=>"Right", "3"=>"Two left, one right"]);?>
-		<p>Time to get to the end (seconds): 
-			<?php build_number("se",2,0.5,20,0.5);?>
-		<p>What to do when the pattern gets to the end: 
-			<?php build_select("se",3,["1"=>"Reverse and come back", "2"=>"Keep going round in the same direction"]);?>
+			<?php build_select("se",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right", "3"=>"Two left, one right"]);?>
+		<p>Time to get to the end (seconds 1(fast) to 100(slow)): 
+			<?php build_number("se",3,1,100,1);?>
+		<p>When the pattern gets to the end, keep moving in the same direction or reverse and come back: 
+			<?php build_select("se",4,["1"=>"Same direction", "2"=>"Reverse"]);?>
 	</div>
+
+	<button class="collapsible">Add a moving spot on top</button>
+	<div class="content">
+		<p>Size of the spot: 
+			<?php build_select("st",0,["0"=>"No spot", "1"=>"Tiny", "3"=>"Small", "5"=>"Medium", "10"=>"Large", "16"=>"Huge"]);?>
+		<p>Colour of the moving spot: 
+			<?php build_colour("st",1); ?>
+		<p>Direction of movement: 
+			<?php build_select("st",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right", "3"=>"Two left, one right"]);?>
+		<p>Time to get to the end (seconds): 
+			<?php build_number("st",3,1,10,1);?>
+		<p>When the spot gets to the end, keep moving in the same direction or reverse and come back: 
+			<?php build_select("st",4,["1"=>"Same direction", "2"=>"Reverse"]);?>
+	</div>
+
+	<button class="collapsible">Repeat the pattern</button>
+	<div class="content">
+		<p>Number of times to repeat the pattern along the string of lights. The more repeats you have, the smaller each segment will be: 
+			<?php build_number("se",0,1,16,1); ?>
+		<p>All repeats of the pattern should be the same way round, or first one way then the other: 
+			<?php build_select("se",1,["1"=>"All the same", "2"=>"Alternate"]);?>
+	</div>
+	
+	<button class="collapsible">Add a bit of sparkle</button>
+	<div class="content">
+		<p>How much sparkle: 
+			<?php build_select("sk",0,["0"=>"No sparkle", "10"=>"Just a touch", "20"=>"Normal", "50"=>"Lots", "100"=>"Lots and lots"]);?>
+	</div>
+	
+	<button class="collapsible">Make the whole display fade up and down</button>
+	<div class="content">
+		<p>How quickly to fade up and down: 
+			<?php build_select("fa",0,["0"=>"No fading", "10"=>"Slowly", "5"=>"Normal", "1"=>"Fast", "0.5"=>"Mad"]);?>
+		<p>Fading should be smooth or flash from dim to bright:
+			<?php build_select("fa",1,["1"=>"Smooth", "2"=>"Flash"]);?>
+		<p>How dim to go:
+			<?php build_select("fa",2,["0"=>"All the way to black", "20"=>"Nearly black", "40"=>"Normal", "128"=>"Subtle fade"]);?>
+		
+	</div>
+	
+	<button class="collapsible">Now name your creation</button>
+	<div class="content">
+		<p>A unique and descriptive name for your display: 
+			<?php build_text("hd",0);?>
+		<p>Your name (this will be shown in the list of displays as the creator of this display): 
+			<?php build_text("hd",1);?>
+	</div>
+
+	
 	<button type="reset" onclick="reset_all();">RESET ALL values</button>
 	<button type="button" onclick="create_new();">CREATE new display</button>
 
@@ -227,6 +296,7 @@ function build_colours () {
 	}
 </script>	
 <script>
+	function seconds(){ return Math.floor( Date.now() / 1000 ); }
 	//
 	//--------------------- Create new display spec -----------------//
 	//
@@ -245,8 +315,15 @@ function build_colours () {
 			var orig_sect = original_disp[section_id];
 			var i, e;
 			new_disp[section_id] = [];
-			// First a special way of handling the colour list as it's variable length
-			if (section_id == "co") {
+			// The header needs to be filled in specially
+			if (section_id == "hd") {
+				new_disp['hd'][0] = document.getElementById('hd0').value;
+				new_disp['hd'][1] = document.getElementById('hd1').value;
+				new_disp['hd'][2] = seconds(); // Created
+				new_disp['hd'][3] = 0; // Last used
+				new_disp['hd'][4] = 0; // number of uses
+			}
+			else if (section_id == "co") { // The colour list is variable length
 				for (i=0; i<=last_colour_visible; i++) {
 					var cv = document.getElementById("c"+i).value;
 					new_disp[section_id][i] = cv;
@@ -278,7 +355,7 @@ function build_colours () {
 		// Send the json to create a new display
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function () {
-			if (this.readyState != 4 || this.status != 200) return;
+			if (this.readyState != 4) return;
 			// Do something with the retrieved data ( found in .responseText )
 			alert(this.responseText);
 		};
@@ -299,7 +376,9 @@ function build_colours () {
 // Reset colours to original values
 // Preview of pattern, done some of this but it's complex, probably remove to a separate file
 // Complete the editing collapsibles to cover all the parameters
-// Work out possible responses from insert.php and display.php
+// Check return from insert.php
+// Process dots and dashes in "gr" section
+// Check for unique name, check for identical values
 //
 </script>
 

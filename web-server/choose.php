@@ -34,6 +34,9 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
     */
 </style>
 <script>
+//
+//---------------- Apallingly inefficient table sort --------------------
+//
 // https://www.w3schools.com/howto/howto_js_sort_table.asp
 function sortTable(tid,n,n_headers,type,dir) {
   var table, rows, switching, i, x, y, shouldSwitch, switchcount = 0;
@@ -84,6 +87,14 @@ function sortTable(tid,n,n_headers,type,dir) {
     }
   }
 }
+function sortCol(params) {
+	var paramv = params.split(",");
+	unselRow();
+	sortTable('ta',paramv[0],1,paramv[1],paramv[2]);
+}
+//
+//------------------- Selection of row in table ---------------
+//
 function unselRow() {
 	var cursel;
 	cursel = document.getElementById("curSel")
@@ -94,10 +105,11 @@ function unselRow() {
 }
 function selRow(thisrow) {
 	var cursel;
-	// un-select current one
+	// un-select previously selected one
 	unselRow();
-	// Select new one
+	// Select this one
 	thisrow.id="curSel";
+	// Add in a new row below with the display/create buttons
 	var newtr = document.createElement("tr");
 	newtr.classList.add("curSel");
 	var newtd = document.createElement("td");
@@ -107,22 +119,11 @@ function selRow(thisrow) {
 	newbut.onclick = function f() {doProcess(1);};
 	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
-	newbut.innerText = "EDIT";
+	newbut.innerText = "CREATE";
 	newbut.onclick = function f() {doProcess(2);};
-	//newbut.style="margin-left:1em";
 	newtd.appendChild(newbut);
 	newtr.appendChild(newtd);
 	thisrow.parentNode.insertBefore(newtr, thisrow.nextSibling);
-	//thisrow.firstChild.appendChild(newdiv);
-	// For double click to select, this works but needs onclick to be 
-	// reset when id is reset above: 
-	//thisrow.onclick=function secondClick(){doDisplay();};
-}
-function sortCol(params) {
-	//Need to remove se class='hidden'lection as it adds a row we don't want to sort
-	var paramv = params.split(",");
-	unselRow();
-	sortTable('ta',paramv[0],1,paramv[1],paramv[2]);
 }
 //
 //-------------------------- EN-QUEUE the display request -----------
@@ -159,9 +160,9 @@ function doProcess(action) {
 	}
 }
 </script>
-<-->
-<----------------------- HTML SECTION ------------------------->
-<-->
+<!-- -->
+<!-- ---------------------- HTML SECTION ------------------------- -->
+<!-- -->
 </head>
 <body>
 	<div>

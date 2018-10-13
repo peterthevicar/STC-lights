@@ -379,6 +379,8 @@ function build_colours () {
 // Check return from insert.php
 // Process dots and dashes in "gr" section
 // Check for unique name, check for identical values
+// Most selects and number inputs: move to generic qualitative statments
+//   to interpret in the animator
 //
 </script>
 

@@ -59,3 +59,5 @@ if __name__ == '__main__':
 # TODO
 # CHECK the parameters and do something sensible on error
 # What happens on a crash? (maybe external)
+# Move from absolute numbers in Create selections to descriptors which are interpreted here
+#  to make things simpler for the creator (at the expense of absolute control)

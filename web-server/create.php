@@ -5,7 +5,7 @@
 //::= <display details>*
 //<display details> ::= <id> <header> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
 //  <id> ::= id<int>
-//  <header> ::= <name> <creator> <created> <used> <uses>
+//  <header> ::= <name> <creator> <pwd_hash> <created> <used> <uses>
 //    <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
@@ -25,7 +25,7 @@
 //  <spot> ::= <size> <colour> <motion> <duration> <reverse>
 //    <size> ::= <int 0-32>
 //  <floods> ::= <flood spec> <flood spec>
-//    <flood spec> ::= <int AUTO, MANUAL> <flood def>
+//    <flood spec> ::= <int OFF, AUTO, TOGETHER, ALTERNATE> <flood def>
 //      <flood def> ::= <colour> <colour> <blend> <duration>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
@@ -76,6 +76,10 @@ function build_text($id, $i) {
 	// Retrieve the current content
 	$cur_val=$this_disp[$id][$i];
 	echo "<input id='$id$i' type='text' autocomplete='off' style='border-width:2px; display:inline-block' value='$cur_val'>\n";
+}
+// build a password input box
+function build_password($id, $i) {
+	echo "<input id='$id$i' type='password' autocomplete='off' style='border-width:2px; display:inline-block' value=''>\n";
 }
 
 //build a gradient colour selector with the initial colours added
@@ -154,7 +158,7 @@ function build_colours () {
 	<div>
 		<h2>Create New Display</h2>
 		<p>You have chosen to create a new display based on 
-		<?php print('&quot;'.$this_disp["hd"][0]."&quot; by &quot;".$this_disp["hd"][1].'&quot;'); ?>
+		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'"')); ?>
 		<p>Change anything you like below, then click on the CREATE button.
 	</div>
 
@@ -177,8 +181,8 @@ function build_colours () {
 	<div class="content">
 		<p>Direction of movement: 
 			<?php build_select("se",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right", "3"=>"Two left, one right"]);?>
-		<p>Time to get to the end (seconds 1(fast) to 100(slow)): 
-			<?php build_number("se",3,1,100,1);?>
+		<p>Speed of movement: 
+			<?php build_select("se",3,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
 		<p>When the pattern gets to the end, keep moving in the same direction or reverse and come back: 
 			<?php build_select("se",4,["1"=>"Same direction", "2"=>"Reverse"]);?>
 	</div>
@@ -191,8 +195,8 @@ function build_colours () {
 			<?php build_colour("st",1); ?>
 		<p>Direction of movement: 
 			<?php build_select("st",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right", "3"=>"Two left, one right"]);?>
-		<p>Time to get to the end (seconds): 
-			<?php build_number("st",3,1,10,1);?>
+		<p>Speed of movement: 
+			<?php build_select("st",3,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
 		<p>When the spot gets to the end, keep moving in the same direction or reverse and come back: 
 			<?php build_select("st",4,["1"=>"Same direction", "2"=>"Reverse"]);?>
 	</div>
@@ -208,18 +212,31 @@ function build_colours () {
 	<button class="collapsible">Add a bit of sparkle</button>
 	<div class="content">
 		<p>How much sparkle: 
-			<?php build_select("sk",0,["0"=>"No sparkle", "10"=>"Just a touch", "20"=>"Normal", "50"=>"Lots", "100"=>"Lots and lots"]);?>
+			<?php build_select("sk",0,["0"=>"No sparkle", "1"=>"Just a touch", "2"=>"Normal", "3"=>"Lots", "4"=>"Lots and lots"]);?>
 	</div>
 	
 	<button class="collapsible">Make the whole display fade up and down</button>
 	<div class="content">
-		<p>How quickly to fade up and down: 
-			<?php build_select("fa",0,["0"=>"No fading", "10"=>"Slowly", "5"=>"Normal", "1"=>"Fast", "0.5"=>"Mad"]);?>
+		<p>Speed of fading: 
+			<?php build_select("se",3,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
 		<p>Fading should be smooth or flash from dim to bright:
 			<?php build_select("fa",1,["1"=>"Smooth", "2"=>"Flash"]);?>
 		<p>How dim to go:
-			<?php build_select("fa",2,["0"=>"All the way to black", "20"=>"Nearly black", "40"=>"Normal", "128"=>"Subtle fade"]);?>
+			<?php build_select("fa",2,["1"=>"Subtle", "2"=>"Normal", "4"=>"Maximum"]);?>
 		
+	</div>
+	
+	<button class="collapsible">Other lights you can switch on</button>
+	<div class="content">
+		<p>The two flood lights on the cupola can automatically pick up the colours from the rest of the display or can be set independently. If they are independent of the rest of the display the two sides can either be the same as each other, or alternate from side to side.
+			<?php build_select("fl",0,["0"=>"No flood lights", "1"=>"Automatic", "2"=>"Independent, both the same", "3"=>"Independent, alternating"]);?>
+		<p>For independent flood lights, set two colours for them to switch between.
+			<?php build_colour("fl",1);?><?php build_colour("fl",2);?>
+		<p>Move between the colours smoothly or in a single step:
+			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
+		
+		<p>Meteor shower effect lights (tubes with 'falling' white lights):
+			<?php build_select("me",0,["0"=>"No Meteors", "1"=>"Meteors ON"]);?>
 	</div>
 	
 	<button class="collapsible">Now name your creation</button>
@@ -228,11 +245,14 @@ function build_colours () {
 			<?php build_text("hd",0);?>
 		<p>Your name (this will be shown in the list of displays as the creator of this display): 
 			<?php build_text("hd",1);?>
+		<p>A password to prevent other people changing your display: 
+			<?php build_password("hd",2);?>
 	</div>
 
 	
 	<button type="reset" onclick="reset_all();">RESET ALL values</button>
-	<button type="button" onclick="create_new();">CREATE new display</button>
+	<button type="button" onclick="create_new(1);">CREATE new display</button>
+	<button type="button" onclick="create_new(2);">MODIFY this display</button>
 
 <script>
 	//
@@ -307,7 +327,7 @@ function build_colours () {
 	
 	var original_disp = JSON.parse('<?php echo json_encode($this_disp);?>');
 	
-	function create_new () {
+	function create_new ($action) {
 		var changed = false;
 		var new_disp = {};
 		// Go through each section in the original disp
@@ -319,9 +339,26 @@ function build_colours () {
 			if (section_id == "hd") {
 				new_disp['hd'][0] = document.getElementById('hd0').value;
 				new_disp['hd'][1] = document.getElementById('hd1').value;
-				new_disp['hd'][2] = seconds(); // Created
-				new_disp['hd'][3] = 0; // Last used
-				new_disp['hd'][4] = 0; // number of uses
+				new_disp['hd'][2] = document.getElementById('hd2').value;
+				new_disp['hd'][3] = seconds(); // Creation date
+				new_disp['hd'][4] = 0; // Last used
+				new_disp['hd'][5] = 0; // Uses
+				// Basic sanity checking
+				if (new_disp['hd'][2] == '') {
+					alert("You must specify a password");
+					return;
+				}
+				if (new_disp['hd'][0] == orig_sect[0]) {
+					if ($action == 1) {
+						alert("You can't use the same name for a new display");
+						return;
+					}
+					else if (new_disp['hd'][1] != orig_sect[1]) {
+						alert("You can't change either name when modifying a display");
+						return;
+					}
+				}
+
 			}
 			else if (section_id == "co") { // The colour list is variable length
 				for (i=0; i<=last_colour_visible; i++) {
@@ -349,8 +386,8 @@ function build_colours () {
 				}
 			}
 		}
-		//alert((changed? "Something changed": "NOTHING changed"));
-		//alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
+		//~ alert((changed? "Something changed": "NOTHING changed"));
+		//~ alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
 
 		// Send the json to create a new display
 		var xhr = new XMLHttpRequest();

@@ -9,6 +9,7 @@ include "error-handler.php";
 if ($_POST == null) $new_disp = json_decode(
 	['json' => '{"hd":["4 colours","Peter",1539365120,0,0],"co":["#0000ff","#00ff00","#ff0000","#000000"],"gr":["1","2","0"],"se":["2","1","2","5","2"],"fa":["0","2","0"],"sk":["10",8.3],"st":["0","#000000","1","3.5","1"],"fl":["0","#000000","#FFFFFF","1","3.0"],"me":["0"]}']['json'], true);
 else $new_disp = json_decode($_POST['json'], true);
+$new_disp['hd'][2] = substr(hash("md5",$new_disp['hd'][2]),4,8);
 
 // Get an exclusive lock on json-displays
 $fn = 'json-displays.json';
@@ -22,18 +23,34 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			//-------------- EXCLUSIVE LOCKED -----------
 			//
 			$disps = json_decode(file_get_contents($fn), true);
+			$new_id = null;
 			// See if it's a duplicate - nothing clever as we're holding a lock, 
 			// but foil a simple bot
 			foreach ($disps as $id => $spec) {
+				err('DEBUG:insert:29:spec='.json_encode($spec['hd']).' new='.json_encode($new_disp['hd']));
+				// See if the name is already in the list
 				if ($spec['hd'][0] == $new_disp['hd'][0]) {
-					$duplicate = true;
-					break;
+					// Names are the same, check create date to spot duplicate/automated requests
+					if ($spec['hd'][3] == $new_disp['hd'][3]) {
+						$duplicate = true;
+						break;
+					}
+					else if ($spec['hd'][1] == $new_disp['hd'][1]
+					and $spec['hd'][2] == $new_disp['hd'][2]) {
+						// We are modifying an existing display
+						$new_id = $id;
+					}
+					else {
+						// Creator name or password don't match
+						$duplicate = true;
+						break;
+					}
 				}
 			}
 			if (!$duplicate) {
-				$new_id = "id".(count($disps)+1);
+				if ($new_id == null) $new_id = "id".(count($disps)+1);
 				$disps[$new_id] = $new_disp;
-				err("DEBUG:insert.php:".json_encode($disps));
+				err("DEBUG:insert.php:disps=".json_encode($disps));
 				fwrite($fp, json_encode($disps));
 			}
 			flock($fp, LOCK_UN);
@@ -54,7 +71,7 @@ if ($waiting) {
 	trigger_error($msg, E_USER_ERROR);
 }
 if ($duplicate) {
-	$msg = '"'.$new_disp['hd'][0].'" is already in the system, try changing things!';
+	$msg = 'Display "'.$new_disp['hd'][0].'" is already in the list.';
 	echo $msg;
 	die(2);
 	trigger_error($msg, E_USER_ERROR);

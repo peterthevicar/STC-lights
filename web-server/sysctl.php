@@ -1,15 +1,15 @@
 <?php
 $req=$_SERVER['QUERY_STRING'];
-$on_file = 'sysctl-on.txt';
+$status_file = 'sysctl-status.txt';
+file_put_contents($status_file, $req);
+
 if ($req == 'off') {
-	unlink($on_file);
 }
 else if ($req == 'sta') {
 }
 else if ($req == 'cou') {
 }
 else if ($req == 'on') {
-	touch($on_file);
 }
 
 ?>

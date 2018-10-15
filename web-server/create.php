@@ -12,21 +12,21 @@
 //  <colour list> ::= <colour> <colour>* <colour>
 //  <gradient> ::= <repeats> <blend> <bar type>
 //	  <bar type> :== <int OFF, DASH, DOT>
-//  <segment> := <num segments> <alternate> <motion> <duration> <reverse>
+//  <segment> := <num segments> <alternate> <motion> <speed> <reverse>
 //    <num segments> ::= <int 0-8>
 //    <alternate>, <reverse> ::= <int REPEAT, REVERSE>
 //    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
-//    <duration> ::= <float 0+>
-//  <fading> ::= <duration> <blend> <fade min>
+//    <speed> ::= <int VSLOW..VFAST>
+//  <fading> ::= <fade speed> <blend> <fade min>
 //    <blend> ::= <int STEP, SMOOTH>
 //    <fade min> ::== <int 0-255>
-//  <sparkle> ::== <sparks per thousand> <duration>
+//  <sparkle> ::== <sparks per thousand> <speed>
 //    <sparks per thousand> ::= <int 0-1000>
-//  <spot> ::= <size> <colour> <motion> <duration> <reverse>
+//  <spot> ::= <size> <colour> <motion> <speed> <reverse>
 //    <size> ::= <int 0-32>
 //  <floods> ::= <flood spec> <flood spec>
 //    <flood spec> ::= <int OFF, AUTO, TOGETHER, ALTERNATE> <flood def>
-//      <flood def> ::= <colour> <colour> <blend> <duration>
+//      <flood def> ::= <colour> <colour> <blend> <speed>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
 
@@ -163,7 +163,7 @@ function build_colours () {
 	</div>
 
 	<button class="collapsible">Choose your colours</button>
-	<div class="content" style="display:block">
+	<div class="content">
 	  <p>Colours to be used in the display:
 		<?php build_colours();?>
 	</div>
@@ -190,11 +190,11 @@ function build_colours () {
 	<button class="collapsible">Add a moving spot on top</button>
 	<div class="content">
 		<p>Size of the spot: 
-			<?php build_select("st",0,["0"=>"No spot", "1"=>"Tiny", "3"=>"Small", "5"=>"Medium", "10"=>"Large", "16"=>"Huge"]);?>
+			<?php build_select("st",0,["0"=>"No spot", "1"=>"Tiny", "2"=>"Small", "3"=>"Medium", "4"=>"Large", "5"=>"Huge"]);?>
 		<p>Colour of the moving spot: 
 			<?php build_colour("st",1); ?>
 		<p>Direction of movement: 
-			<?php build_select("st",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right", "3"=>"Two left, one right"]);?>
+			<?php build_select("st",2,["0"=>"Stop", "2"=>"Left", "1"=>"Right"]);?>
 		<p>Speed of movement: 
 			<?php build_select("st",3,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
 		<p>When the spot gets to the end, keep moving in the same direction or reverse and come back: 
@@ -218,11 +218,11 @@ function build_colours () {
 	<button class="collapsible">Make the whole display fade up and down</button>
 	<div class="content">
 		<p>Speed of fading: 
-			<?php build_select("se",3,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
+			<?php build_select("fa",0,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
 		<p>Fading should be smooth or flash from dim to bright:
 			<?php build_select("fa",1,["1"=>"Smooth", "2"=>"Flash"]);?>
 		<p>How dim to go:
-			<?php build_select("fa",2,["1"=>"Subtle", "2"=>"Normal", "4"=>"Maximum"]);?>
+			<?php build_select("fa",2,["1"=>"Subtle", "2"=>"Normal", "3"=>"Maximum"]);?>
 		
 	</div>
 	
@@ -240,7 +240,7 @@ function build_colours () {
 	</div>
 	
 	<button class="collapsible">Now name your creation</button>
-	<div class="content">
+	<div class="content" style="display:block">
 		<p>A unique and descriptive name for your display: 
 			<?php build_text("hd",0);?>
 		<p>Your name (this will be shown in the list of displays as the creator of this display): 

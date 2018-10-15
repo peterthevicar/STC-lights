@@ -1,4 +1,7 @@
 <?php
+// Set up error handler and err function for logging errors
+include "error-handler.php";
+
 // Get an exclusive lock on json-q
 $fn = 'json-q.json';
 $waiting = true; // waiting for lock
@@ -18,6 +21,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				$next_t = time() + 5; // check back in 5 seconds
 				$q['next_t'] = $next_t;
 				$next_id = $q['cur_id'];
+				$from_q = false;
 			}
 			else { // have a queue, two elements per entry: id and duration
 				$next_id = array_shift($q_conts);
@@ -25,6 +29,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				// Update the queue header with the new info
 				$q['next_t'] = $next_t;
 				$q['cur_id'] = $next_id;
+				$from_q = true;
 			}				
 			//~ echo "\nDEBUG, Queue contents:\n".json_encode($q)."\n";
 			file_put_contents($fn, json_encode($q));
@@ -60,6 +65,9 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 $return = $disps[$next_id];
 $return['id'] = $next_id;
 $return['durn'] = $next_t-time();
+//~ err('DEBUG:de-q:68 status='.file_get_contents('json-status.json'));
+$return['br'] = json_decode(file_get_contents('json-status.json'), true)['br'];
+$return['fq'] = ($from_q? '1': '0');
 // Return the info as a json string
 echo json_encode($return);
 //~ TODO

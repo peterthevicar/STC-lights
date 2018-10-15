@@ -119,7 +119,7 @@ function selRow(thisrow) {
 	newbut.onclick = function f() {doProcess(1);};
 	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
-	newbut.innerText = "CREATE";
+	newbut.innerText = "EDIT";
 	newbut.onclick = function f() {doProcess(2);};
 	newtd.appendChild(newbut);
 	newtr.appendChild(newtd);

@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	try:
 		while True:
 			try:
-				download = urllib.request.urlopen('http:/salisburys.net/test/de-q.php')
+				download = urllib.request.urlopen('http://salisburys.net/test/de-q.php')
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
 			except:

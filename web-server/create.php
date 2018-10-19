@@ -158,7 +158,7 @@ function build_colours () {
 	<div>
 		<h2>Create New Display</h2>
 		<p>You have chosen to create a new display based on 
-		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'"')); ?>
+		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'" which has been chosen '.$this_disp['hd'][5].' times.')); ?>
 		<p>Change anything you like below, then click on the CREATE button.
 	</div>
 

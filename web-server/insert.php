@@ -7,10 +7,10 @@ include "error-handler.php";
 //
 // Read the header information (a json with the spec for the new display)
 if ($_POST == null) $_POST = ['json' => '{"hd":["4 colours","Peter","fred",1539552196,0,0],"co":["#0000ff","#00ff00","#ff0000","#000000"],"gr":["1","2","0"],"se":["2","1","2","5","2"],"fa":["0","2","1"],"sk":["0",8.3],"st":["0","#000000","1","1","1"],"fl":["0","#000000","#ffffff","1","3.0"],"me":["0"]}'];
-
+//~ err('DEBUG:insert:10 POST[json]='.$_POST['json']);
 $new_disp = json_decode($_POST['json'], true);
-//~ err('DEBUG:insert:12 POST=', json_encode($_POST));
-//~ err('DEBUG:insert:13 new=', json_encode($new_disp));
+//~ err('DEBUG:insert:12 POST='.json_encode($_POST));
+//~ err('DEBUG:insert:13 new='.json_encode($new_disp));
 // Hash the plain text password for comparison - very basic security
 $new_disp['hd'][2] = substr(hash("md5",$new_disp['hd'][2]),4,8);
 

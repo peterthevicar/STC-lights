@@ -395,6 +395,7 @@ function build_colours () {
 			if (this.readyState != 4) return;
 			// Do something with the retrieved data ( found in .responseText )
 			alert(this.responseText);
+			location.href = 'choose.php?new';
 		};
 		xhr.open("POST", "insert.php", true);
 		// can't get application/json to work so have to use form encoding

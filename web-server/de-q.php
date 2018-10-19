@@ -27,7 +27,7 @@ if ($lightson) {
 					$next_id = $q['cur_id'];
 				}
 				else { // have a queue, two elements per entry: id and duration
-					err('DEBUG:de-q:30 q='.json_encode($q));
+					//~ err('DEBUG:de-q:30 q='.json_encode($q));
 					$next_id = array_shift($q_conts);
 					$durn = array_shift($q_conts);
 					// Update the queue header with the new info
@@ -69,7 +69,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for appropriate lock
 			$content = fread($fp, filesize($fn));
 			$disps=json_decode($content, true);
 			if ($lock == LOCK_EX) { // Exclusive lock, update stats
-				err('DEBUG:de-q:72 next='.$next_id);
+				//~ err('DEBUG:de-q:72 next='.$next_id);
 				$disps[$next_id]['hd'][4] = time(); // last used date
 				$disps[$next_id]['hd'][5]++; // use count
 				file_put_contents($fn, json_encode($disps)); // write back modified file

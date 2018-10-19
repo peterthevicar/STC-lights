@@ -1,6 +1,6 @@
 <?php
 include "error-handler.php";
-
+//~ err('DEBUG:choose:3 query='.(array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']:'null'));
 // Read in the json-displays file, which may be locked by insert.php
 $fn = 'json-displays.json';
 $fp = fopen($fn, 'r');
@@ -60,12 +60,12 @@ include "check-lights-on.php";
 	<div>
 		<p class="header">
 		  Sort:
-		  <select onchange="sortCol(this.value)" autocomplete="off">
+		  <select id=sortselect onchange="sortCol(this.value)" autocomplete="off">
 			  <option value="0,0,1">Display Name</option>
 			  <option value="1,0,1">Creator</option>
 			  <option value="2,1,0">Newest first</option>
 			  <option value="3,1,0">Most recently used</option>
-			  <option value="4,1,0" selected>Most popular</option>
+			  <option value="4,1,0">Most popular</option>
 		   </select>
 		</p>
 		<table id="ta">
@@ -80,9 +80,9 @@ include "check-lights-on.php";
 					echo "<tr onclick='selRow(this)'>";
 					echo   "<td>",$hd[0],"</td>\n";
 					echo   "<td>",$hd[1],"</td>\n";
-					echo   "<td class='hidden'>",$hd[2],"</td>\n";
 					echo   "<td class='hidden'>",$hd[3],"</td>\n";
 					echo   "<td class='hidden'>",$hd[4],"</td>\n";
+					echo   "<td class='hidden'>",$hd[5],"</td>\n";
 					echo   "<td class='hidden'>",$disp_id,"</td>";
 					echo "</tr>";
 				}
@@ -228,7 +228,7 @@ function doProcess(action) {
 //
 	// params to sortCol are: field, type(0=str, 1=num), dir(0=desc, 1=asc)
 	// fields are: 0:Display Name; 1:Creator; 2:Creation; 3: Used date; 4:Used count
-	sortCol("4,1,0");
+	document.getElementById('sortselect').selectedIndex = <?php echo ((array_key_exists('QUERY_STRING',$_SERVER) and ($_SERVER['QUERY_STRING'] == 'new'))? '2': '4'); ?>;
 </script>
 </body>
 </html>

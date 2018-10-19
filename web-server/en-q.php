@@ -11,7 +11,7 @@ if (! $lightson)
 // Read the header information
 if ($_POST == null) $_POST = ["next_id"=>"id1"];
 $next_id = $_POST['next_id'];
-err("DEBUG:en-q:[".json_encode($_POST)."][$next_id]");
+//~ err('DEBUG:en-q:14 POST='.json_encode($_POST).' next_id='.$next_id);
 // Get an exclusive lock on json-q
 $fn = 'json-q.json';
 $waiting = true;
@@ -26,7 +26,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			if ($q == null) { // queue has broken, start again with id1
 				$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
 			}
-			err("DEBUG:en-q:".json_encode($q));
+			//~ err("DEBUG:en-q:29 q=".json_encode($q));
 			// Add this id to the end of the queue
 			$q_conts = &$q['q'];
 			$q_end = count($q_conts);
@@ -48,7 +48,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			//---------------- UNLOCKED ----------------
 			//
 			echo "$q_wait";
-			//~ err("DEBUG:en-q:".json_encode($q));
+			//~ err("DEBUG:en-q:51 q=".json_encode($q));
 			$waiting = false;
 		}
 		else fclose($fp);

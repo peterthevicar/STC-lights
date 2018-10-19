@@ -8,7 +8,7 @@ $req=($_GET == []? '': $_GET['mode']);
 
 // read in current status
 include "get-status.php";
-err('DEBUG:sysctl:10 status='.json_encode($status));
+//~ err('DEBUG:sysctl:11 status='.json_encode($status));
 
 // see if we're being called to change things or just to update
 if ($req == '') {
@@ -20,7 +20,6 @@ else {
 	if (array_key_exists('st',$_GET)) $status['st'] = $_GET['st'];
 	if (array_key_exists('et',$_GET)) $status['et'] = $_GET['et'];
 	if (array_key_exists('br',$_GET)) $status['br'] = $_GET['br'];
-	$status['tim'] = false; // Only set true if we get a tim request
 	// Process the request itself
 	if ($req == 'off') {
 		$status['on']='OFF'; // de-q handles this
@@ -29,7 +28,7 @@ else {
 		$status['on']='STA'; // de-q handles this
 	}
 	else if ($req == 'tim') {
-		$status['on'] = 'TIM'; // get-status will calculate $lightson from the settings
+		$status['on']='TIM'; // get-status will calculate $lightson from the settings
 	}
 	else if ($req == 'cou') {
 		// TODO: Put a countdown sequence into the queue
@@ -66,7 +65,7 @@ include "check-lights-on.php";
 		</style>
 	</head>
 	<body>
-		<p>System status: <?php echo file_get_contents($status_file);?>
+		<p>System status: <?php echo 'lightson='.($lightson?'true':'false').' until='.date('H:i', $until).' file='.file_get_contents($status_file);?>
 		<div>
 			<button type=button style="background-color:red" onclick="do_button('off')">OFF</button>
 			<button type=button style="background-color:orange" onclick="do_button('sta')">STANDBY</button>

@@ -50,8 +50,14 @@ if ($lightson) {
 	if ($waiting) trigger_error("ERR:de-q:48 Couldn't open queue", E_USER_ERROR);
 }
 else { // lights are currently off or standby
+	err('DEBUG:de-q:53 status='.json_encode($status));
 	$next_id = 'sid0'; // all off
-	$durn = ($status['on'] == 'OFF'? min(30,$until-time()): 1); // shorter runtime for standby
+	if ($status['on'] == 'OFF') $durn = 30;
+	else if ($status['on'] == 'TIM') {
+		//~ err('DEBUG:de-q:57 until='.$until.' time='.time());
+		$durn = max(0, min(30, $until - time()));
+	}
+	else $durn = 1; // shorter runtime for standby
 }
 
 // Read in the json-displays file, which may be locked by insert.php

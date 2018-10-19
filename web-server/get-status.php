@@ -9,6 +9,6 @@ if ($status == '' or
 !array_key_exists('st',$status) or 
 !array_key_exists('et',$status) or 
 !array_key_exists('br',$status)) {
-	$status = json_decode('{"on":"ON", "tim":false, "st":"16:00", "et":"01:00", "br":"128"}', true);
+	$status = json_decode('{"on":"ON", "st":"16:00", "et":"01:00", "br":"128"}', true);
 }
 ?>

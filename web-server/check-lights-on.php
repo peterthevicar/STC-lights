@@ -10,7 +10,6 @@ if ($status['on'] == 'TIM') {
 		$lightson = !(time() >= $et and time() < $st);
 	}
 	$until = ($lightson? $et: $st);
-	$status['on'] = ($lightson? 'ON': 'OFF');
 }
 else {
 	$lightson = ($status['on'] == 'ON');

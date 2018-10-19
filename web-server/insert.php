@@ -23,7 +23,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 	if ($fp) {
 		if (flock($fp, LOCK_EX)) {
 			//
-			//-------------- EXCLUSIVE LOCKED -----------
+			//-------------- EXCLUSIVE LOCKED json-displays -----------
 			//
 			$disps = json_decode(file_get_contents($fn), true);
 			$new_id = null;

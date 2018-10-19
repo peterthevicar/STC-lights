@@ -6,20 +6,13 @@ include "error-handler.php";
 
 $req=($_GET == []? '': $_GET['mode']);
 
-// Get the current status
-$status_file = 'json-status.json';
-if (file_exists($status_file)) $status = json_decode(file_get_contents($status_file), true);
-else $status = '';
-if ($status == '' or 
-!array_key_exists('st',$status) or 
-!array_key_exists('et',$status) or 
-!array_key_exists('br',$status)) {
-	$status = json_decode('{"on":"ON", "tim":false, "st":"16:00", "et":"01:00", "br":"128"}', true);
-}
+// read in current status
+include "get-status.php";
+err('DEBUG:sysctl:10 status='.json_encode($status));
 
-err('DEBUG:sysctl:13 status='.json_encode($status));
-
+// see if we're being called to change things or just to update
 if ($req == '') {
+	// Just an update
 }
 else {
 	// Have a request
@@ -30,25 +23,16 @@ else {
 	$status['tim'] = false; // Only set true if we get a tim request
 	// Process the request itself
 	if ($req == 'off') {
-		$status['on']='OFF';
+		$status['on']='OFF'; // de-q handles this
 	}
 	else if ($req == 'sta') {
-		// TODO Put standby sequence into the queue
-		$status['on']='OFF';
+		$status['on']='STA'; // de-q handles this
 	}
 	else if ($req == 'tim') {
-		// Calculate whether it's on or off according to the timer
-		$st = strtotime($status['st']);
-		$et = strtotime($status['et']);
-		if ($st < $et) //Normal case: start time before off time
-			$lightson = time() >= $st and time() < $et;
-		else //off time before start time means off time is after midnight so logic is reversed
-			$lightson = !(time() >= $et and time() < $st);
-		$status['on'] = ($lightson? 'ON': 'OFF');
-		$status['tim'] = true;
+		$status['on'] = 'TIM'; // get-status will calculate $lightson from the settings
 	}
 	else if ($req == 'cou') {
-		// TODO Put a countdown sequence into the queue
+		// TODO: Put a countdown sequence into the queue
 		$status['on']='ON';
 	}
 	else if ($req == 'fon') {
@@ -57,9 +41,12 @@ else {
 	// Write back the modified status file
 	file_put_contents($status_file, json_encode($status));
 }
+// calculate $lightson from the status settings
+include "check-lights-on.php";
 ?>
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
 			button {
 				width: 200px;
@@ -108,8 +95,3 @@ else {
 		</script>
 	</body>
 </html>
-<!--
-TODO
-	Max brightness
-	Time on / off
--->

@@ -1,10 +1,12 @@
 <?php
+include "error-handler.php";
+
 // Read in the json-displays file, which may be locked by insert.php
 $fn = 'json-displays.json';
 $fp = fopen($fn, 'r');
 if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is released
 	//
-	//-------------- SHARE LOCKED -----------
+	//-------------- json-displays SHARE LOCKED -----------
 	//
     $content = fread($fp, filesize($fn));
     $disps=json_decode($content, true);
@@ -14,6 +16,10 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 	//-------------- UNLOCKED -----------
 	//
 }
+// read in the status file to see if the lights are on at the moment (fills in $status)
+include "get-status.php";
+include "check-lights-on.php";
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -22,7 +28,8 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 <style type="text/css">
 	th {color:blue; text-align:left}
 	#curSel, .curSel {color:white; background-color:blue; font-size:100%} /* Selected row in table */
-	.header {position: sticky; top: 0; background-color:white} /* will scroll to top of page then stop */
+	.header {position: sticky; top: 0; background-color:white;} /* will scroll to top of page then stop */	
+	.warning {position: sticky; top: 0; background-color:red;} /* will scroll to top of page then stop */
 	.footer {position: sticky; bottom: 0; width: 100%} /* stays at foot of page with text scrolling behind */
 	button {font-size:100%}
 	.hidden {display: none}
@@ -33,7 +40,62 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
     }
     */
 </style>
+<!-- -->
+<!-- ---------------------- HTML SECTION ------------------------- -->
+<!-- -->
+</head>
+<body>
+	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
+		The lights are switched off at the moment. They should be back
+		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
+	</div>
+	<div>
+		<p>Welcome to the St.Thomas Christmas Lights controller.
+		There are lots of different displays to choose from. 
+		<p>Once you've chosen a display you can either DISPLAY it on the 
+		church tower or CREATE a new display of your own based on the one
+		you've chosen. 
+		<p>Enjoy!
+	</div>
+	<div>
+		<p class="header">
+		  Sort:
+		  <select onchange="sortCol(this.value)" autocomplete="off">
+			  <option value="0,0,1">Display Name</option>
+			  <option value="1,0,1">Creator</option>
+			  <option value="2,1,0">Newest first</option>
+			  <option value="3,1,0">Most recently used</option>
+			  <option value="4,1,0" selected>Most popular</option>
+		   </select>
+		</p>
+		<table id="ta">
+			<tr>
+				<th>Display name</th>
+				<th>Created by</th>
+			</tr>
+			<?php foreach ($disps as $disp_id => $disp) {
+				// only show user displays (id begins "id")
+				if (substr($disp_id,0,2) == "id") {
+					$hd = $disp["hd"];
+					echo "<tr onclick='selRow(this)'>";
+					echo   "<td>",$hd[0],"</td>\n";
+					echo   "<td>",$hd[1],"</td>\n";
+					echo   "<td class='hidden'>",$hd[2],"</td>\n";
+					echo   "<td class='hidden'>",$hd[3],"</td>\n";
+					echo   "<td class='hidden'>",$hd[4],"</td>\n";
+					echo   "<td class='hidden'>",$disp_id,"</td>";
+					echo "</tr>";
+				}
+			}
+			?>
+		</table>
+	</div>
+	<div class="footer">
+		St.Thomas Church: the town church for Lymington offering
+		prayer and hospitality in Jesus' name.
+	</div>
 <script>
+//=========================== JAVASCRIPT ===============================
 //
 //---------------- Apallingly inefficient table sort --------------------
 //
@@ -160,50 +222,13 @@ function doProcess(action) {
 	}
 }
 </script>
-<!-- -->
-<!-- ---------------------- HTML SECTION ------------------------- -->
-<!-- -->
-</head>
-<body>
-	<div>
-		Welcome to the St.Thomas Christmas Lights controller. There are
-		currently <?php echo count($disps);?> different displays to choose
-		from. Enjoy!
-	</div>
-	<div>
-		<p class="header">
-		  Sort:
-		  <select onchange="sortCol(this.value)" autocomplete="off">
-			  <option value="0,0,1">Display Name</option>
-			  <option value="1,0,1">Creator</option>
-			  <option value="2,1,0">Newest first</option>
-			  <option value="3,1,0">Most recently used</option>
-			  <option value="4,1,0" selected>Most popular</option>
-		   </select>
-		</p>
-		<table id="ta">
-			<tr>
-				<th>Display name</th>
-				<th>Created by</th>
-			</tr>
-			<?php foreach ($disps as $disp_id => $disp) {
-				$hd = $disp["hd"];
-				echo "<tr onclick='selRow(this)'>";
-				echo   "<td>",$hd[0],"</td>\n";
-				echo   "<td>",$hd[1],"</td>\n";
-				echo   "<td class='hidden'>",$hd[2],"</td>\n";
-				echo   "<td class='hidden'>",$hd[3],"</td>\n";
-				echo   "<td class='hidden'>",$hd[4],"</td>\n";
-				echo   "<td class='hidden'>",$disp_id,"</td>";
-				echo "</tr>";
-			}
-			?>
-		</table>
-		<script>sortCol("4,1,0");</script>
-	</div>
-	<div class="footer">
-		Footer text 
-	</div>
-
+<script>
+//
+//---------------------- Initial sort of table ------------------------
+//
+	// params to sortCol are: field, type(0=str, 1=num), dir(0=desc, 1=asc)
+	// fields are: 0:Display Name; 1:Creator; 2:Creation; 3: Used date; 4:Used count
+	sortCol("4,1,0");
+</script>
 </body>
 </html>

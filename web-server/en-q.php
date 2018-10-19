@@ -2,6 +2,12 @@
 // Set up error handler and err function for logging errors
 include "error-handler.php";
 
+// Check if the system is running
+include "get-status.php";
+include "check-lights-on.php";
+if (! $lightson)
+	trigger_error("ERR:en-q:6 Lights not on until $until", E_USER_ERROR);
+	
 // Read the header information
 if ($_POST == null) $_POST = ["next_id"=>"id1"];
 $next_id = $_POST['next_id'];
@@ -50,7 +56,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 	if ($waiting) sleep(rand(0, 2));
 }
 if ($waiting) 
-	trigger_error("Couldn't open queue", E_USER_ERROR);
+	trigger_error("ERR:en-q:54 Couldn't open queue", E_USER_ERROR);
 
 //~ TODO
 ?>

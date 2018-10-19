@@ -5,7 +5,7 @@
 //::= <display details>*
 //<display details> ::= <id> <header> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
 //  <id> ::= id<int>
-//  <header> ::= <name> <creator> <pwd_hash> <created> <used> <uses>
+//  <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses>
 //    <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>

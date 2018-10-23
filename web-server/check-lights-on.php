@@ -4,7 +4,7 @@ if ($status['on'] == 'TIM') {
 	$st = strtotime($status['st']);
 	$et = strtotime($status['et']);
 	if ($st < $et) { //Normal case: start time before off time
-		$lightson = time() >= $st and time() < $et;
+		$lightson = (time() >= $st and time() < $et);
 	}
 	else {// end time before start time means off time is after midnight so logic is reversed
 		$lightson = !(time() >= $et and time() < $st);

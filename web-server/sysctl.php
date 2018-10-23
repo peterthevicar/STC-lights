@@ -4,8 +4,11 @@ include "error-handler.php";
 
 // System control interface
 
-$req=($_GET == []? '': $_GET['mode']);
-
+$req=(($_GET != [] and array_key_exists('mode',$_GET))? $_GET['mode']: '');
+if ($req == '' and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUERY_STRING'] == 'st')) {
+	echo '<html><body><p>Welcome to the St.Thomas IP logger, your IP ' . $_SERVER['SERVER_ADDR'] . ' has been recorded.</body></html>';
+	exit(1);
+}
 // read in current status
 include "get-status.php";
 //~ err('DEBUG:sysctl:11 status='.json_encode($status));
@@ -53,6 +56,10 @@ include "check-lights-on.php";
 				font-size: 15pt;
 				border-radius: 10px;
 			}
+			button.current {
+				border-color:magenta;
+				border-width:5px;
+			}
 			input {
 				display:block;
 				margin: 0 auto;
@@ -62,18 +69,24 @@ include "check-lights-on.php";
 				margin: 10px auto 0 auto;
 				text-align: center;
 			}
+			p.on {
+				background-color:yellow;
+			}
+			p.off {
+				background-color:silver;
+			}
 		</style>
 	</head>
 	<body>
-		<p>System status: <?php echo 'lightson='.($lightson?'true':'false').' until='.date('H:i', $until).' file='.file_get_contents($status_file);?>
+		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.date('H:i', $until).'<br>file='.file_get_contents($status_file);?>
 		<div>
-			<button type=button style="background-color:red" onclick="do_button('off')">OFF</button>
-			<button type=button style="background-color:orange" onclick="do_button('sta')">STANDBY</button>
+			<button type=button <?php echo ($status['on']=='OFF'?'class="current" ': ''); ?>style="background-color:red" onclick="do_button('off')">OFF</button>
+			<button type=button <?php echo ($status['on']=='STA'?'class="current" ': ''); ?>style="background-color:orange" onclick="do_button('sta')">STANDBY</button>
 			<button type=button style="background-color:cyan" onclick="do_button('cou')">Countdown</button>
-			<button type=button style="background-color:yellow" onclick="do_button('fon')">FORCE ON</button>
+			<button type=button <?php echo ($status['on']=='ON'?'class="current" ': ''); ?>style="background-color:yellow" onclick="do_button('fon')">FORCE ON</button>
 		</div>
 		<div style="border:5px solid lightgreen; width:200px; padding-bottom:10px;">
-			<button type=button style="background-color:lightgreen" onclick="do_button('tim')">Timer controlled</button>
+			<button type=button <?php echo ($status['on']=='TIM'?'class="current" ': ''); ?>style="background-color:lightgreen" onclick="do_button('tim')">Timer controlled</button>
 			<p class=head>On time</p>
 			<input type=time id=st autocomplete=off value="<?php echo $status['st'] ?>">
 			<p class=head>Off time</p>

@@ -20,7 +20,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 	if ($fp) {
 		if (flock($fp, LOCK_EX)) {
 			//
-			//--------------- EXCLUSIVE LOCKED -----------
+			//--------------- EXCLUSIVE LOCKED json-q -----------
 			//
 			$q = json_decode(file_get_contents($fn), true);
 			if ($q == null) { // queue has broken, start again with id1

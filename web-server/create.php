@@ -29,6 +29,7 @@
 //      <flood def> ::= <colour> <colour> <blend> <speed>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
+include "error-handler.php";
 
 // Read in the information we need from json file
 $this_disp = null;

@@ -25,7 +25,7 @@
 //  <spot> ::= <size> <colour> <motion> <speed> <reverse>
 //    <size> ::= <int 0-32>
 //  <floods> ::= <flood spec> <flood spec>
-//    <flood spec> ::= <int OFF, AUTO, TOGETHER, ALTERNATE> <flood def>
+//    <flood spec> ::= <int OFF, AUTO, IND_SAME, IND_ALT> <flood def>
 //      <flood def> ::= <colour> <colour> <blend> <speed>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
@@ -235,7 +235,9 @@ function build_colours () {
 			<?php build_colour("fl",1);?><?php build_colour("fl",2);?>
 		<p>Move between the colours smoothly or in a single step:
 			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
-		
+		<p>Speed of colour change: 
+			<?php build_select("fl",4,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
+
 		<p>Meteor shower effect lights (tubes with 'falling' white lights):
 			<?php build_select("me",0,["0"=>"No Meteors", "1"=>"Meteors ON"]);?>
 	</div>

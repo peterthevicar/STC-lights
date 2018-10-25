@@ -1,7 +1,7 @@
 import time
 # comment next line if animator is installed on the path
 import sys, os; sys.path.append(os.path.dirname(os.path.realpath(__file__))+'/../../ws2812-animator')
-from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
+from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_define_dmx, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
 import numpy
 from colours import *
@@ -9,7 +9,7 @@ import urllib.request
 import json
 
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
-trans_speed = [0.0, 40.0, 20.0, 5.0, 1.0, 0.5]
+trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]
 # ["0"=>"No spot", "1"=>"Tiny", "2"=>"Small", "3"=>"Medium", "4"=>"Large", "5"=>"Huge"]
 trans_spot_size = [0, 1, 2, 4, 10, 16]
 # ["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
@@ -40,9 +40,11 @@ if __name__ == '__main__':
 				time.sleep(spec['durn'])
 			else:
 				if spec['id'] != cur_id or spec['fq'] == '1': # Need to read the parameters for the new display
-					anim_init(led_count=150*5, max_brightness=180)
+					anim_init(led_count=150*4, max_brightness=180)
 					print ('DEBUG:main:41 spec=', spec)
 					print ('DEBUG:main:4 spec["co"]=', spec['co'])
+					
+					# Gradient spec
 					gra_colours = []
 					for c in spec['co']:
 						gra_colours.append(int(c[1:],16))
@@ -54,10 +56,30 @@ if __name__ == '__main__':
 					else: # Dot
 						bar_on = 6; bar_off = 2
 					gra_desc = GradientDesc(gra_colours, repeats=int(spec['gr'][0]), blend=int(spec['gr'][1]), bar_on=bar_on, bar_off=bar_off)
+					
+					# Main pattern
 					anim_define_pattern(gra_desc, segments=int(spec['se'][0]), seg_reverse=int(spec['se'][1]), motion=int(spec['se'][2]), repeat_s=trans_speed[int(spec['se'][3])], reverse=int(spec['se'][4]))
 					anim_define_spot(s_size=trans_spot_size[int(spec['st'][0])], s_colour=int(spec['st'][1][1:],16), s_motion=int(spec['st'][2]), s_secs=trans_speed[int(spec['st'][3])], s_reverse=int(spec['st'][4]))
+					
+					# Fading
 					anim_define_fade(f_secs=trans_fade[int(spec['fa'][0])], f_blend=int(spec['fa'][1]), f_min=trans_fade_min[int(spec['fa'][2])], f_max=100)
+					
+					# Sparkle
 					anim_define_sparkle(s_per_k=trans_spark[int(spec['sk'][0])], s_duration=0.1)
+					dmx_mode = int(spec['fl'][0])
+					
+					# DMX lights
+					if dmx_mode == 0: # off
+						dmx_posv=[]
+					elif dmx_mode == 1: # auto
+						dmx_posv = [25, 75]
+					elif dmx_mode == 2: # independent, same
+						dmx_posv = [0, 0]
+					elif dmx_mode == 3: # independent, alternate
+						dmx_posv = [0, 50]
+						dmx_mode = 2
+					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=trans_speed[int(spec['fl'][4])], d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0))
+
 					cur_id = spec['id']
 				anim_set_max_brightness(int(spec['br'])) # can change via sysctl interface
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back

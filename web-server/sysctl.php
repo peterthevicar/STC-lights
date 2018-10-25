@@ -78,7 +78,7 @@ include "check-lights-on.php";
 		</style>
 	</head>
 	<body>
-		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.date('H:i', $until).'<br>file='.file_get_contents($status_file);?>
+		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>file='.file_get_contents($status_file);?>
 		<div>
 			<button type=button <?php echo ($status['on']=='OFF'?'class="current" ': ''); ?>style="background-color:red" onclick="do_button('off')">OFF</button>
 			<button type=button <?php echo ($status['on']=='STA'?'class="current" ': ''); ?>style="background-color:orange" onclick="do_button('sta')">STANDBY</button>

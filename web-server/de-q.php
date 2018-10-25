@@ -54,8 +54,9 @@ else { // lights are currently off or standby
 	$next_id = 'sid0'; // all off
 	if ($status['on'] == 'OFF') $durn = 30;
 	else if ($status['on'] == 'TIM') {
-		//~ err('DEBUG:de-q:57 until='.$until.' time='.time());
-		$durn = max(0, min(30, $until - time()));
+		$add_day = ($until > time()? 0: 60*60*24); # in case on time is tomorrow
+		$durn = min(30, $until+$add_day - time());
+		//~ err('DEBUG:de-q:59 until='.$until.' time='.time().' durn='.$durn.' add_day='.$add_day);
 	}
 	else $durn = 1; // shorter runtime for standby
 }
@@ -75,7 +76,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for appropriate lock
 			$content = fread($fp, filesize($fn));
 			$disps=json_decode($content, true);
 			if ($lock == LOCK_EX) { // Exclusive lock, update stats
-				//~ err('DEBUG:de-q:72 next='.$next_id);
+				//~ err('DEBUG:de-q:79 next='.$next_id);
 				$disps[$next_id]['hd'][4] = time(); // last used date
 				$disps[$next_id]['hd'][5]++; // use count
 				file_put_contents($fn, json_encode($disps)); // write back modified file
@@ -97,11 +98,9 @@ if ($waiting) trigger_error("ERR:de-q:84 Couldn't open displays file", E_USER_ER
 $return = $disps[$next_id];
 $return['id'] = $next_id;
 $return['durn'] = $durn;
-//~ err('DEBUG:de-q:68 status='.file_get_contents('json-status.json'));
+//~ err('DEBUG:de-q:101 status='.file_get_contents('json-status.json'));
 $return['br'] = json_decode(file_get_contents('json-status.json'), true)['br'];
 $return['fq'] = ($from_q? '1': '0');
 // Return the info as a json string
 echo json_encode($return);
-//~ TODO
-//~ Check a password in the header
 ?>

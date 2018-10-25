@@ -15,5 +15,5 @@ else {
 	$lightson = ($status['on'] == 'ON');
 	$until = 0;
 }
-//~ err("DEBUG:check:19 lightson=".($lightson?'true':'false'));
+//~ err("DEBUG:check:18 lightson=".($lightson?'true':'false'));
 ?>

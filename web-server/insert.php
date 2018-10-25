@@ -54,7 +54,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				if ($new_id == null) $new_id = "id".(count($disps)+1);
 				$disps[$new_id] = $new_disp;
 				//~ err("DEBUG:insert:56 disps=".json_encode($disps));
-				fwrite($fp, json_encode($disps));
+				file_put_contents($fn, json_encode($disps));
 			}
 			flock($fp, LOCK_UN);
 			fclose($fp);

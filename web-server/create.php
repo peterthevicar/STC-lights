@@ -220,14 +220,13 @@ function build_colours () {
 	<div class="content">
 		<p>Speed of fading: 
 			<?php build_select("fa",0,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
-		<p>Fading should be smooth or flash from dim to bright:
-			<?php build_select("fa",1,["1"=>"Smooth", "2"=>"Flash"]);?>
-		<p>How dim to go:
+		<p>Fading should be smooth, or step from dim to bright:
+			<?php build_select("fa",1,["1"=>"Smooth", "2"=>"Step"]);?>
+		<p>How much to fade:
 			<?php build_select("fa",2,["1"=>"Subtle", "2"=>"Normal", "3"=>"Maximum"]);?>
-		
 	</div>
 	
-	<button class="collapsible">Other lights you can switch on</button>
+	<button class="collapsible">Coloured flood lights</button>
 	<div class="content">
 		<p>The two flood lights on the cupola can automatically pick up the colours from the rest of the display or can be set independently. If they are independent of the rest of the display the two sides can either be the same as each other, or alternate from side to side.
 			<?php build_select("fl",0,["0"=>"No flood lights", "1"=>"Automatic", "2"=>"Independent, both the same", "3"=>"Independent, alternating"]);?>
@@ -237,8 +236,11 @@ function build_colours () {
 			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
 		<p>Speed of colour change: 
 			<?php build_select("fl",4,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
-
-		<p>Meteor shower effect lights (tubes with 'falling' white lights):
+	</div>
+	
+	<button class="collapsible">Meteor shower lights</button>
+	<div class="content">
+		<p>Meteor shower effect (tubes with 'falling' white lights):
 			<?php build_select("me",0,["0"=>"No Meteors", "1"=>"Meteors ON"]);?>
 	</div>
 	

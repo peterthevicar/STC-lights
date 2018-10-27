@@ -86,6 +86,7 @@ if __name__ == '__main__':
 
 	except KeyboardInterrupt:
 			print("Interrupted")
+	anim_stop()
 
 # TODO
 # CHECK the parameters and do something sensible on error

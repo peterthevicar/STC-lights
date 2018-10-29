@@ -235,7 +235,7 @@ function build_colours () {
 		<p>Move between the colours smoothly or in a single step:
 			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
 		<p>Speed of colour change: 
-			<?php build_select("fl",4,["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]);?>
+			<?php build_select("fl",4,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]);?>
 	</div>
 	
 	<button class="collapsible">Meteor shower lights</button>

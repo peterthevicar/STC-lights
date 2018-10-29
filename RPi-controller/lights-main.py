@@ -18,6 +18,8 @@ trans_fade = [0.0, 15.0, 8.0, 2.0, 1.0, 0.15];
 trans_fade_min = [100, 80, 50, 0];
 # ["0"=>"No sparkle", "1"=>"Just a touch", "2"=>"Normal", "3"=>"Lots", "4"=>"Lots and lots"]
 trans_spark = [0, 10, 20, 100, 250];
+# ["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]
+trans_dmx_speed = [0, 10, 7, 4, 2];
 
 if __name__ == '__main__':
 	cur_id = "" # Current display ID (to spot changes)
@@ -69,6 +71,9 @@ if __name__ == '__main__':
 					dmx_mode = int(spec['fl'][0])
 					
 					# DMX lights
+					dmx_secs = trans_dmx_speed[int(spec['fl'][4])]
+					print('DEBUG:main:75 dmx_secs=',dmx_secs)
+					if int(spec['fl'][3]) == 1: dmx_secs *= 2 # Twice as long for fade
 					if dmx_mode == 0: # off
 						dmx_posv=[]
 					elif dmx_mode == 1: # auto
@@ -78,7 +83,7 @@ if __name__ == '__main__':
 					elif dmx_mode == 3: # independent, alternate
 						dmx_posv = [0, 50]
 						dmx_mode = 2
-					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=trans_speed[int(spec['fl'][4])], d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0))
+					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=dmx_secs, d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0))
 
 					cur_id = spec['id']
 				anim_set_max_brightness(int(spec['br'])) # can change via sysctl interface

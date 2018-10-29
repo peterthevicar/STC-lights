@@ -31,7 +31,11 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			$q_conts = &$q['q'];
 			$q_end = count($q_conts);
 			// Check if it's already in the queue and add up the queue time
-			$matched = $q['cur_id']==$next_id; // it's the current one
+			$matched = false;
+			if ($q['cur_id']==$next_id) { // it's the current one
+				$matched=true;
+				$q['mod']=true; // tell de-q that it may have been modified
+			}
 			$q_wait = ($matched? 0: max($q['next_t'] - time(), 0)); // how much left for this one
 			for ($i=0; $i<$q_end and !$matched; $i+=2) {
 				if ($q_conts[$i] == $next_id) $matched = true;

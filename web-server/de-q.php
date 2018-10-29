@@ -18,7 +18,7 @@ if ($lightson) {
 				//
 				$q = json_decode(file_get_contents($fn), true);
 				if ($q == null) { // queue has broken, start again with id1
-					$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
+					$q = ['cur_id'=>'id1', 'next_t'=>time(), 'mod'=>false, 'q'=>[]];
 				}
 				$q_conts = &$q['q']; // reference to the queue contents
 				if (count($q_conts) == 0) { // nothing in the queue

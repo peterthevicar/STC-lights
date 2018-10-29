@@ -34,7 +34,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			$matched = false;
 			if ($q['cur_id']==$next_id) { // it's the current one
 				$matched=true;
-				$q['mod']=true; // tell de-q that it may have been modified
+				$q['mod']=true; // tell de-q that it may have been modified (flag reset by de-q)
 			}
 			$q_wait = ($matched? 0: max($q['next_t'] - time(), 0)); // how much left for this one
 			for ($i=0; $i<$q_end and !$matched; $i+=2) {

@@ -30,6 +30,7 @@ _gpio_LED = 0
 _gpio_DMX = 1
 _gpio_MET = 2
 def init_gpio():
+	#~ return
 	RPi.GPIO.setmode(RPi.GPIO.BCM)
 	RPi.GPIO.setup(_gpio_chans, RPi.GPIO.OUT, initial=False)
 
@@ -50,12 +51,12 @@ if __name__ == '__main__':
 			spec = json.loads(text)
 			print("DEBUG:main:36 id=",spec['id'])
 			if spec['id'] == 'sid0': # switch everything off and wait
-				RPi.GPIO.output(_gpio_chans, False) # Power down the mains supplies
+				RPi.GPIO.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
-				# ~ TODO: hardware control of power
 				time.sleep(spec['durn'])
 			else:
 				RPi.GPIO.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
+				RPi.GPIO.output(_gpio_chans[_gpio_LED], True) # Switch on DMX as it takes a while to warm up
 				led_max_brightness = int(spec['br'])
 				if spec['id'] != cur_id or spec['fq'] == '1': # Need to read the parameters for the new display
 					anim_init(led_count=150*4, max_brightness=led_max_brightness)
@@ -87,7 +88,6 @@ if __name__ == '__main__':
 					
 					# DMX lights
 					dmx_mode = int(spec['fl'][0])
-					RPi.GPIO.output(_gpio_chans[_gpio_LED], dmx_mode != 0) # Switch on DMX mains unless set to off
 					dmx_secs = trans_dmx_speed[int(spec['fl'][4])]
 					#~ print('DEBUG:main:92 dmx_secs=',dmx_secs)
 					if int(spec['fl'][3]) == 1: dmx_secs *= 2 # Twice as long for fade

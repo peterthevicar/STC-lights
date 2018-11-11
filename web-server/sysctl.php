@@ -9,6 +9,7 @@ if ($req == '' and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUE
 	echo '<html><body><p>Welcome to the St.Thomas IP logger, your IP ' . $_SERVER['SERVER_ADDR'] . ' has been recorded.</body></html>';
 	exit(1);
 }
+//~ $req='cou'; // DEBUG: when running stand-alone, comment out above and use this
 // read in current status
 include "get-status.php";
 //~ err('DEBUG:sysctl:11 status='.json_encode($status));
@@ -34,7 +35,8 @@ else {
 		$status['on']='TIM'; // get-status will calculate $lightson from the settings
 	}
 	else if ($req == 'cou') {
-		// TODO: Put a countdown sequence into the queue
+		// Put a countdown sequence into the queue
+		$q = file_put_contents('json-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+30) . ',"q":[],"mod":true}');
 		$status['on']='ON';
 	}
 	else if ($req == 'fon') {

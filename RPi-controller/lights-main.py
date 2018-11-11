@@ -8,9 +8,10 @@ from colours import *
 import urllib.request
 import json
 try:
-	import RPi.GPIO
+	import RPi.GPIO as gpio
 except:
-	print('Failed to import RPi.GPIO')
+	print('Failed to import RPi.GPIO, using local dummy library')
+	import gpio
 
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
 trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]
@@ -31,8 +32,8 @@ _gpio_DMX = 1
 _gpio_MET = 2
 def init_gpio():
 	#~ return
-	RPi.GPIO.setmode(RPi.GPIO.BCM)
-	RPi.GPIO.setup(_gpio_chans, RPi.GPIO.OUT, initial=False)
+	gpio.setmode(gpio.BCM)
+	gpio.setup(_gpio_chans, gpio.OUT, initial=False)
 
 if __name__ == '__main__':
 	cur_id = "" # Current display ID (to spot changes)
@@ -40,7 +41,7 @@ if __name__ == '__main__':
 		init_gpio()
 		while True:
 			try:
-				download = urllib.request.urlopen('http://192.168.1.10/web-server/de-q.php')
+				download = urllib.request.urlopen('http://localhost/web-server/de-q.php')
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
 			except:
@@ -51,15 +52,15 @@ if __name__ == '__main__':
 			spec = json.loads(text)
 			print("DEBUG:main:36 id=",spec['id'])
 			if spec['id'] == 'sid0': # switch everything off and wait
-				RPi.GPIO.output(_gpio_chans, False) # Power down all the mains supplies
+				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
 				time.sleep(spec['durn'])
 			else:
-				RPi.GPIO.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
-				RPi.GPIO.output(_gpio_chans[_gpio_LED], True) # Switch on DMX as it takes a while to warm up
+				gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
+				gpio.output(_gpio_chans[_gpio_LED], True) # Switch on DMX as it takes a while to warm up
 				led_max_brightness = int(spec['br'])
 				if spec['id'] != cur_id or spec['fq'] == '1': # Need to read the parameters for the new display
-					anim_init(led_count=150*4, max_brightness=led_max_brightness)
+					anim_init(led_count=150*3, max_brightness=led_max_brightness)
 					print ('DEBUG:main:41 spec=', spec)
 					print ('DEBUG:main:4 spec["co"]=', spec['co'])
 					
@@ -103,7 +104,7 @@ if __name__ == '__main__':
 					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=dmx_secs, d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0))
 					
 					# Meteors - just switch on or off at the mains
-					RPi.GPIO.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1')
+					gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1')
 
 					cur_id = spec['id']
 					
@@ -115,5 +116,5 @@ if __name__ == '__main__':
 		raise
 	finally:
 		anim_stop()
-		RPi.GPIO.cleanup()
+		gpio.cleanup()
 		raise

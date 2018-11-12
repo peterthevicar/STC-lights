@@ -41,7 +41,9 @@ if __name__ == '__main__':
 		init_gpio()
 		while True:
 			try:
-				download = urllib.request.urlopen('http://localhost/web-server/de-q.php')
+				#~ download = urllib.request.urlopen('http://salisburys.net/test/de-q.php')
+				download = urllib.request.urlopen('http://192.168.1.10/web-server/de-q.php')
+				#~ download = urllib.request.urlopen('http://localhost/web-server/de-q.php')
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
 			except:

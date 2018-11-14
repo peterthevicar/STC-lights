@@ -25,9 +25,6 @@ if ($lightson) {
 					$durn = 5; // check back in 5 seconds
 					$q['next_t'] = time() + $durn;
 					$next_id = $q['cur_id'];
-					if ($from_q = $q['mod']) { // This makes lights-main re-show a modified display
-						$q['mod'] = false;
-					}
 				}
 				else { // have a queue, two elements per entry: id and duration
 					//~ err('DEBUG:de-q:30 q='.json_encode($q));

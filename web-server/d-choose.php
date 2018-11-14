@@ -181,7 +181,7 @@ function selRow(thisrow) {
 	newbut.onclick = function f() {doProcess(1);};
 	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
-	newbut.innerText = "EDIT";
+	newbut.innerText = "CREATE/EDIT";
 	newbut.onclick = function f() {doProcess(2);};
 	newtd.appendChild(newbut);
 	newtr.appendChild(newtd);
@@ -217,7 +217,7 @@ function doProcess(action) {
 			// send the id
 			xhr.send('next_id='+cursel.lastChild.innerText);
 		}
-		else // CREATE 
+		else // CREATE/EDIT
 			location.href = 'd-create.php?'+cursel.lastChild.innerText;
 	}
 }

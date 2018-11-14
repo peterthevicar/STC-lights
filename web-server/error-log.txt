@@ -109,3 +109,25 @@
 2018.Nov.14 16:07:31 
 2018.Nov.14 16:07:31 Ending script
 2018.Nov.14 16:07:31 ==========
+2018.Nov.14 23:07:48 DEBUG:de-q:53 status={"on":"TIM","st":"13:44","et":"21:55","br":"200"}
+2018.Nov.14 23:08:08 DEBUG:de-q:53 status={"on":"TIM","st":"13:44","et":"21:55","br":"200"}
+2018.Nov.14 23:09:42 ***Error: [8] Undefined offset: 6
+2018.Nov.14 23:09:42 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/d-insert.php] Line:[45]
+2018.Nov.14 23:09:42 
+2018.Nov.14 23:09:42 Ending script
+2018.Nov.14 23:09:42 ==========
+2018.Nov.14 23:18:40 ***Error: [8] Undefined offset: 6
+2018.Nov.14 23:18:40 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/d-insert.php] Line:[45]
+2018.Nov.14 23:18:40 
+2018.Nov.14 23:18:40 Ending script
+2018.Nov.14 23:18:40 ==========
+2018.Nov.14 23:24:48 ***Error: [8] Undefined index: QUERY_STRING
+2018.Nov.14 23:24:48 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/d-create.php] Line:[37]
+2018.Nov.14 23:24:48 {"_GET":[],"_POST":[],"_COOKIE":[],"_FILES":[],"argv":["d-create.php"],"argc":1,"_SERVER":{"LANGUAGE":"en_GB:en","J2SDKDIR":"\/usr\/lib\/jvm\/java-8-oracle","USER":"peter","XDG_SEAT":"seat0","XDG_SESSION_TYPE":"x11","SSH_AGENT_PID":"2029","SHLVL":"0","J2REDIR":"\/usr\/lib\/jvm\/java-8-oracle\/jre","HOME":"\/home\/peter","OLDPWD":"\/Disks\/Data\/Peter\/6-Resources\/Church-equipment\/Christmas-lights\/RPi-lights\/STC-Lights\/web-server","DESKTOP_SESSION":"xubuntu","XDG_SEAT_PATH":"\/org\/freedesktop\/DisplayManager\/Seat0","DBUS_SESSION_BUS_ADDRESS":"unix:path=\/run\/user\/1000\/bus","COLORTERM":"truecolor","GLADE_MODULE_PATH":":","MANDATORY_PATH":"\/usr\/share\/gconf\/xubuntu.mandatory.path","QT_QPA_PLATFORMTHEME":"gtk2","LOGNAME":"peter","WINDOWID":"119555990","DEFAULTS_PATH":"\/usr\/share\/gconf\/xubuntu.default.path","TERM":"xterm-256color","XDG_SESSION_ID":"c2","GTK_OVERLAY_SCROLLING":"0","CLUTTER_BACKEND":"x11","PATH":"\/usr\/local\/sbin:\/usr\/local\/bin:\/usr\/sbin:\/usr\/bin:\/sbin:\/bin:\/usr\/games:\/usr\/local\/games:\/snap\/bin:\/usr\/lib\/jvm\/java-8-oracle\/bin:\/usr\/lib\/jvm\/java-8-oracle\/db\/bin:\/usr\/lib\/jvm\/java-8-oracle\/jre\/bin","DERBY_HOME":"\/usr\/lib\/jvm\/java-8-oracle\/db","GDM_LANG":"en_GB","SESSION_MANAGER":"local\/Neelix:@\/tmp\/.ICE-unix\/2059,unix\/Neelix:\/tmp\/.ICE-unix\/2059","GLADE_PIXMAP_PATH":":","XDG_MENU_PREFIX":"xfce-","XDG_RUNTIME_DIR":"\/run\/user\/1000","XDG_SESSION_PATH":"\/org\/freedesktop\/DisplayManager\/Session0","DISPLAY":":0.0","LANG":"en_GB.UTF-8","XDG_CURRENT_DESKTOP":"XFCE","XAUTHORITY":"\/home\/peter\/.Xauthority","XDG_SESSION_DESKTOP":"xubuntu","XDG_GREETER_DATA_DIR":"\/var\/lib\/lightdm-data\/peter","SSH_AUTH_SOCK":"\/run\/user\/1000\/keyring\/ssh","GLADE_CATALOG_PATH":":","SHELL":"\/bin\/bash","GDMSESSION":"xubuntu","QT_ACCESSIBILITY":"1","GPG_AGENT_INFO":"\/run\/user\/1000\/gnupg\/S.gpg-agent:0:1","XDG_VTNR":"7","PWD":"\/Links\/Peter\/6-Resources\/Church-equipment\/Christmas-lights\/RPi-lights\/STC-Lights\/web-server","JAVA_HOME":"\/usr\/lib\/jvm\/java-8-oracle","XDG_CONFIG_DIRS":"\/etc\/xdg\/xdg-xubuntu:\/etc\/xdg:\/etc\/xdg","XDG_DATA_DIRS":"\/usr\/share\/xfce4:\/usr\/share\/xubuntu:\/usr\/local\/share:\/usr\/share:\/var\/lib\/snapd\/desktop:\/var\/lib\/snapd\/desktop:\/usr\/share","VTE_VERSION":"5202","PHP_SELF":"d-create.php","SCRIPT_NAME":"d-create.php","SCRIPT_FILENAME":"d-create.php","PATH_TRANSLATED":"d-create.php","DOCUMENT_ROOT":"","REQUEST_TIME_FLOAT":1542237888.680589,"REQUEST_TIME":1542237888,"argv":["d-create.php"],"argc":1},"this_disp":null}
+2018.Nov.14 23:24:48 Ending script
+2018.Nov.14 23:24:48 ==========
+2018.Nov.14 23:44:49 DEBUG:insert:33:spec=["sid0 - OFF","sys","90bfbf8c",1539986424,0,0,99] new=["Milky Way","Peter","90bfbf8c",1542239089,0,0,1]
+2018.Nov.14 23:44:49 DEBUG:insert:33:spec=["sid1 - COUNTDOWN","sys","90bfbf8c",1539986424,1542211809,2,99] new=["Milky Way","Peter","90bfbf8c",1542239089,0,0,1]
+2018.Nov.14 23:44:49 DEBUG:insert:33:spec=["Rainbow","Peter","90bfbf8c",1540586101,1541975703,5,1] new=["Milky Way","Peter","90bfbf8c",1542239089,0,0,1]
+2018.Nov.14 23:44:49 DEBUG:insert:33:spec=["Knight Rider","Peter","90bfbf8c",1542212079,1542212083,1,1] new=["Milky Way","Peter","90bfbf8c",1542239089,0,0,1]
+2018.Nov.14 23:44:49 DEBUG:insert:33:spec=["Milky Way","Peter","90bfbf8c",1542238959,0,0,2] new=["Milky Way","Peter","90bfbf8c",1542239089,0,0,1]

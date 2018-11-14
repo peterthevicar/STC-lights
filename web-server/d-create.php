@@ -341,26 +341,31 @@ function build_colours () {
 			var i, e;
 			new_disp[section_id] = [];
 			// The header needs to be filled in specially
-			if (section_id == "hd") {
+			if (section_id == 'hd') {
 				new_disp['hd'][0] = document.getElementById('hd0').value;
 				new_disp['hd'][1] = document.getElementById('hd1').value;
 				new_disp['hd'][2] = document.getElementById('hd2').value;
 				new_disp['hd'][3] = seconds(); // Creation date
 				new_disp['hd'][4] = 0; // Last used
 				new_disp['hd'][5] = 0; // Uses
+				new_disp['hd'][6] = 1; // Version number
 				// Basic sanity checking
 				if (new_disp['hd'][2] == '') {
 					alert("You must specify a password");
 					return;
 				}
 				if (new_disp['hd'][0] == orig_sect[0]) {
-					if ($action == 1) {
+					if ($action == 1) { // Create new display
 						alert("You can't use the same name for a new display");
 						return;
 					}
-					else if (new_disp['hd'][1] != orig_sect[1]) {
-						alert("You can't change either name when modifying a display");
-						return;
+					else { // Modify existing display
+						if (new_disp['hd'][1] != orig_sect[1]) {
+							alert("You can't change either name when modifying a display");
+							return;
+						}
+						new_disp['hd'][6] = orig_sect[6]; // Version number
+						//~ alert('DEBUG:create:367 orig6='+orig_sect[6]);
 					}
 				}
 
@@ -369,7 +374,7 @@ function build_colours () {
 				for (i=0; i<=last_colour_visible; i++) {
 					var cv = document.getElementById("c"+i).value;
 					new_disp[section_id][i] = cv;
-					if (orig_sect[i] != cv)
+					if (i >= orig_sect.len || orig_sect[i] != cv)
 						changed = true;
 				}
 			}
@@ -391,24 +396,28 @@ function build_colours () {
 				}
 			}
 		}
-		//~ alert((changed? "Something changed": "NOTHING changed"));
-		//~ alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
+		if (!changed) {
+			alert('You haven\'t changed anything!');
+		}
+		else {
+			//~ alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
 
-		// Send the json to create a new display
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function () {
-			if (this.readyState != 4) return;
-			// Do something with the retrieved data ( found in .responseText )
-			alert(this.responseText);
-			location.href = 'd-choose.php?new';
-		};
-		xhr.open("POST", "d-insert.php", true);
-		// can't get application/json to work so have to use form encoding
-		xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
-		//xhr.setRequestHeader('Content-type', 'application/json');
+			// Send the json to create a new display
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function () {
+				if (this.readyState != 4) return;
+				// Do something with the retrieved data ( found in .responseText )
+				alert(this.responseText);
+				location.href = 'd-choose.php?new';
+			};
+			xhr.open("POST", "d-insert.php", true);
+			// can't get application/json to work so have to use form encoding
+			xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+			//xhr.setRequestHeader('Content-type', 'application/json');
 
-		// send the collected data as JSON
-		xhr.send('json='+JSON.stringify(new_disp));
+			// send the collected data as JSON
+			xhr.send('json='+JSON.stringify(new_disp));
+		}
 	}
 </script>	
 <script>

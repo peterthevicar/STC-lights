@@ -6,7 +6,7 @@ include "s-error-handler.php";
 //------------------ Code to insert new display spec -----------------//
 //
 // Read the header information (a json with the spec for the new display)
-if ($_POST == null) $_POST = ['json' => '{"hd":["4 colours","Peter","fred",1539552196,0,0],"co":["#0000ff","#00ff00","#ff0000","#000000"],"gr":["1","2","0"],"se":["2","1","2","5","2"],"fa":["0","2","1"],"sk":["0",8.3],"st":["0","#000000","1","1","1"],"fl":["0","#000000","#ffffff","1","3.0"],"me":["0"]}'];
+if ($_POST == null) $_POST = ['json' => '{"hd":["4 colours","Peter","90bfbf8c",1539552196,0,0,1],"co":["#0000ff","#00ff00","#ff0000","#000000"],"gr":["1","2","0"],"se":["2","1","2","5","2"],"fa":["0","2","1"],"sk":["0",8.3],"st":["0","#000000","1","1","1"],"fl":["0","#000000","#ffffff","1","3.0"],"me":["0"]}'];
 //~ err('DEBUG:insert:10 POST[json]='.$_POST['json']);
 $new_disp = json_decode($_POST['json'], true);
 //~ err('DEBUG:insert:12 POST='.json_encode($_POST));
@@ -33,25 +33,22 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				//~ err('DEBUG:insert:33:spec='.json_encode($spec['hd']).' new='.json_encode($new_disp['hd']));
 				// See if the name is already in the list
 				if ($spec['hd'][0] == $new_disp['hd'][0]) {
-					// Names are the same, check create date to spot duplicate/automated requests
-					if ($spec['hd'][3] == $new_disp['hd'][3]) {
-						$duplicate = true;
-						break;
-					}
-					else if ($spec['hd'][1] == $new_disp['hd'][1]
-					and $spec['hd'][2] == $new_disp['hd'][2]) {
-						// We are modifying an existing display
+					// Names are the same, see if it's a valid request for modifying an existing display
+					if ($spec['hd'][1] == $new_disp['hd'][1] // Creator matches
+					and $spec['hd'][2] == $new_disp['hd'][2] // Password matches
+					and $spec['hd'][3] != $new_disp['hd'][3]) { // Create date should change else it's automated
 						$new_id = $id;
+						$new_disp['hd'][6]++; // Increment the version number
 					}
 					else {
-						// Creator name or password don't match
+						// It's just a duplicate so ignore it
 						$duplicate = true;
-						break;
 					}
+					break;
 				}
 			}
 			if (!$duplicate) {
-				if ($new_id == null) $new_id = "id".(count($disps)+1);
+				if ($new_id == null) $new_id = "id".(count($disps)+1); // doesn't matter if some are missed
 				$disps[$new_id] = $new_disp;
 				//~ err("DEBUG:insert:56 disps=".json_encode($disps));
 				file_put_contents($fn, json_encode($disps));

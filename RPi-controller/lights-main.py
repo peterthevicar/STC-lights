@@ -36,23 +36,23 @@ def init_gpio():
 	gpio.setup(_gpio_chans, gpio.OUT, initial=False)
 
 if __name__ == '__main__':
-	cur_id = "" # Current display ID (to spot changes)
+	cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
 	try:
 		init_gpio()
 		while True:
 			try:
-				#~ download = urllib.request.urlopen('http://salisburys.net/test/q-de-q.php')
-				download = urllib.request.urlopen('http://192.168.1.10/web-server/q-de-q.php')
-				#~ download = urllib.request.urlopen('http://localhost/web-server/q-de-q.php')
+				# ~ download = urllib.request.urlopen('http://salisburys.net/test/q-de-q.php')
+				# ~ download = urllib.request.urlopen('http://192.168.1.10/web-server/q-de-q.php')
+				download = urllib.request.urlopen('http://localhost/web-server/q-de-q.php')
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
+				print("DEBUG:main:49 text=",text)
 			except:
-				print("DEBUG:main:31 error reading de-q")
-				text = '{"co": ["#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff"], "br": "80", "hd": ["Rainbow", "Peter", "90bfbf8c", 1539615910, 0, 0], "id": "id1", "st": ["0", "#062af9", "1", "3", "2"], "durn": 5, "se": ["4", "2", "2", "2", "2"], "gr": ["1", "1", "0"], "fq": "0", "fa": ["0", "1", "3"], "me": ["1"], "fl": ["1", "#000000", "#ffffff", "1", "3"], "sk": ["1", 8.3]}'
+				print('DEBUG:main:31 error reading de-q')
+				text = '{"co": ["#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff"], "br": "80", "hd": ["Rainbow", "Peter", "90bfbf8c", 1539615910, 0, 0, 1], "id": "id1", "st": ["0", "#062af9", "1", "3", "2"], "durn": 5, "se": ["4", "2", "2", "2", "2"], "gr": ["1", "1", "0"], "fq": "0", "fa": ["0", "1", "3"], "me": ["1"], "fl": ["1", "#000000", "#ffffff", "1", "3"], "sk": ["1", 8.3]}'
 
-			print("DEBUG:main:33 text=",text)
 			spec = json.loads(text)
-			print("DEBUG:main:36 id=",spec['id'])
+			print('DEBUG:main:36 id=',spec['id'], 'version=', spec['hd'][6])
 			if spec['id'] == 'sid0': # switch everything off and wait
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 				gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
 				gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
 				led_max_brightness = int(spec['br'])
-				if spec['id'] != cur_id or spec['fq'] == '1': # Need to read the parameters for the new display
+				if spec['id'] != cur_id or spec['fq'] == '1' or spec['hd'][6] != cur_vn: # Changed, need to read the parameters for the new display
 					anim_init(led_count=150*3, max_brightness=led_max_brightness)
 					print ('DEBUG:main:41 spec=', spec)
 					print ('DEBUG:main:4 spec["co"]=', spec['co'])
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 					if dmx_mode == 0: # off
 						dmx_posv=[]
 					elif dmx_mode == 1: # auto
-						dmx_posv = [25, 75]
+						dmx_posv = [33, 67]
 					elif dmx_mode == 2: # independent, same
 						dmx_posv = [0, 0]
 					elif dmx_mode == 3: # independent, alternate
@@ -107,11 +107,12 @@ if __name__ == '__main__':
 					
 					# Meteors - just switch on or off at the mains
 					gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1')
-
-					cur_id = spec['id']
 					
 				anim_set_max_brightness(int(spec['br'])) # can change via sysctl interface
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back
+
+			cur_id = spec['id']
+			cur_vn = spec['hd'][6]
 
 	except:
 		print('ERROR:main:99 Exception')

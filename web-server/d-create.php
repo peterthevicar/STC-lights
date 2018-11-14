@@ -29,7 +29,7 @@
 //      <flood def> ::= <colour> <colour> <blend> <speed>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
-include "error-handler.php";
+include "s-error-handler.php";
 
 // Read in the information we need from json file
 $this_disp = null;
@@ -37,7 +37,7 @@ $this_disp = null;
 $disp_id=$_SERVER['QUERY_STRING'];
 if ($disp_id == null) $disp_id = "id1"; // in case we don't have a query string
 // Read the header information (name, creator etc)
-$disps=json_decode(file_get_contents("json-displays.json"), true);
+$disps=json_decode(file_get_contents("j-displays.json"), true);
 $this_disp=$disps[$disp_id];
 
 // build a <select> with current value pre-selected
@@ -400,9 +400,9 @@ function build_colours () {
 			if (this.readyState != 4) return;
 			// Do something with the retrieved data ( found in .responseText )
 			alert(this.responseText);
-			location.href = 'choose.php?new';
+			location.href = 'd-choose.php?new';
 		};
-		xhr.open("POST", "insert.php", true);
+		xhr.open("POST", "d-insert.php", true);
 		// can't get application/json to work so have to use form encoding
 		xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
 		//xhr.setRequestHeader('Content-type', 'application/json');
@@ -419,7 +419,7 @@ function build_colours () {
 // Reset colours to original values
 // Preview of pattern, done some of this but it's complex, probably remove to a separate file
 // Complete the editing collapsibles to cover all the parameters
-// Check return from insert.php
+// Check return from d-insert.php
 // Process dots and dashes in "gr" section
 // Check for unique name, check for identical values
 // Most selects and number inputs: move to generic qualitative statments

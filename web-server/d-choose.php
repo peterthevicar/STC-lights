@@ -1,8 +1,8 @@
 <?php
-include "error-handler.php";
+include "s-error-handler.php";
 //~ err('DEBUG:choose:3 query='.(array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']:'null'));
-// Read in the json-displays file, which may be locked by insert.php
-$fn = 'json-displays.json';
+// Read in the json-displays file, which may be locked by d-insert.php
+$fn = 'j-displays.json';
 $fp = fopen($fn, 'r');
 if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is released
 	//
@@ -17,8 +17,8 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 	//
 }
 // read in the status file to see if the lights are on at the moment (fills in $status)
-include "get-status.php";
-include "check-lights-on.php";
+include "s-get-status.php";
+include "s-check-lights-on.php";
 
 ?>
 <!DOCTYPE html>
@@ -212,13 +212,13 @@ function doProcess(action) {
 			// Send the id to display for queueing
 			var xhr = new XMLHttpRequest();
 			xhr.onreadystatechange = processResponse;
-			xhr.open("POST", "en-q.php", true);
+			xhr.open("POST", "q-en-q.php", true);
 			xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
 			// send the id
 			xhr.send('next_id='+cursel.lastChild.innerText);
 		}
 		else // CREATE 
-			location.href = 'create.php?'+cursel.lastChild.innerText;
+			location.href = 'd-create.php?'+cursel.lastChild.innerText;
 	}
 }
 </script>

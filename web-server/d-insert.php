@@ -1,6 +1,6 @@
 <?php
 // Set up error handler and err function for logging errors
-include "error-handler.php";
+include "s-error-handler.php";
 
 //
 //------------------ Code to insert new display spec -----------------//
@@ -15,7 +15,7 @@ $new_disp = json_decode($_POST['json'], true);
 $new_disp['hd'][2] = substr(hash("md5",$new_disp['hd'][2]),4,8);
 
 // Get an exclusive lock on json-displays
-$fn = 'json-displays.json';
+$fn = 'j-displays.json';
 $waiting = true;
 $duplicate = false; // Assume it's not already in there
 for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to the file

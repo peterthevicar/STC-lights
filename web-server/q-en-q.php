@@ -1,10 +1,10 @@
 <?php
 // Set up error handler and err function for logging errors
-include "error-handler.php";
+include "s-error-handler.php";
 
 // Check if the system is running
-include "get-status.php";
-include "check-lights-on.php";
+include "s-get-status.php";
+include "s-check-lights-on.php";
 if (! $lightson)
 	trigger_error("ERR:en-q:6 Lights not on until $until", E_USER_ERROR);
 	
@@ -13,7 +13,7 @@ if ($_POST == null) $_POST = ["next_id"=>"id1"];
 $next_id = $_POST['next_id'];
 //~ err('DEBUG:en-q:14 POST='.json_encode($_POST).' next_id='.$next_id);
 // Get an exclusive lock on json-q
-$fn = 'json-q.json';
+$fn = 'j-q.json';
 $waiting = true;
 for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to the file
 	$fp = fopen($fn, "c+"); // try to open file but don't truncate

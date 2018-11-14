@@ -2,7 +2,7 @@
 // Get the current status
 // set up $status with all the status stuff,
 // set up $lightson and $until with current timer settings
-$status_file = 'json-status.json';
+$status_file = 'j-status.json';
 if (file_exists($status_file)) $status = json_decode(file_get_contents($status_file), true);
 else $status = '';
 if ($status == '' or 

@@ -1,13 +1,13 @@
 <?php
 // Set up error handler and err function for logging errors
-include "error-handler.php";
-include "get-status.php";
-include "check-lights-on.php";
+include "s-error-handler.php";
+include "s-get-status.php";
+include "s-check-lights-on.php";
 $durn = 5;
 $from_q = false;
 if ($lightson) {
 	// Get an exclusive lock on json-q
-	$fn = 'json-q.json';
+	$fn = 'j-q.json';
 	$waiting = true; // waiting for lock
 	for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to the file
 		$fp = fopen($fn, "c+"); // try to open file but don't truncate
@@ -64,8 +64,8 @@ else { // lights are currently off or standby
 	else $durn = 1; // shorter runtime for standby
 }
 
-// Read in the json-displays file, which may be locked by insert.php
-$fn = 'json-displays.json';
+// Read in the json-displays file, which may be locked by d-insert.php
+$fn = 'j-displays.json';
 $lock = ($from_q? LOCK_EX: LOCK_SH); // Only update stats when display first comes in from the queue
 
 $waiting = true;
@@ -101,8 +101,8 @@ if ($waiting) trigger_error("ERR:de-q:84 Couldn't open displays file", E_USER_ER
 $return = $disps[$next_id];
 $return['id'] = $next_id;
 $return['durn'] = $durn;
-//~ err('DEBUG:de-q:101 status='.file_get_contents('json-status.json'));
-$return['br'] = json_decode(file_get_contents('json-status.json'), true)['br'];
+//~ err('DEBUG:de-q:101 status='.file_get_contents('j-status.json'));
+$return['br'] = json_decode(file_get_contents('j-status.json'), true)['br'];
 $return['fq'] = ($from_q? '1': '0');
 // Return the info as a json string
 echo json_encode($return);

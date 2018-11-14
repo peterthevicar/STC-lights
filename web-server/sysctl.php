@@ -1,17 +1,21 @@
 <?php
 // Set up error handler and err function for logging errors
-include "error-handler.php";
+
+include "s-error-handler.php";
 
 // System control interface
 
 $req=(($_GET != [] and array_key_exists('mode',$_GET))? $_GET['mode']: '');
-if ($req == '' and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUERY_STRING'] == 'st')) {
+if ($req == '' 
+and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUERY_STRING'] == 'st') 
+and (array_key_exists('SERVER_ADDR',$_SERVER))) {
 	echo '<html><body><p>Welcome to the St.Thomas IP logger, your IP ' . $_SERVER['SERVER_ADDR'] . ' has been recorded.</body></html>';
 	exit(1);
 }
+//~ err('DEBUG:sysctl:12 req='.$req);
 //~ $req='cou'; // DEBUG: when running stand-alone, comment out above and use this
 // read in current status
-include "get-status.php";
+include "s-get-status.php";
 //~ err('DEBUG:sysctl:11 status='.json_encode($status));
 
 // see if we're being called to change things or just to update
@@ -36,7 +40,7 @@ else {
 	}
 	else if ($req == 'cou') {
 		// Put a countdown sequence into the queue
-		$q = file_put_contents('json-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+30) . ',"q":[],"mod":true}');
+		$q = file_put_contents('j-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+30) . ',"q":[],"mod":true}');
 		$status['on']='ON';
 	}
 	else if ($req == 'fon') {
@@ -46,7 +50,7 @@ else {
 	file_put_contents($status_file, json_encode($status));
 }
 // calculate $lightson from the status settings
-include "check-lights-on.php";
+include "s-check-lights-on.php";
 ?>
 <html>
 	<head>

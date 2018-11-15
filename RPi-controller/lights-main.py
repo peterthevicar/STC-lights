@@ -13,6 +13,9 @@ except:
 	print('Failed to import RPi.GPIO, using local dummy library')
 	import gpio
 
+# Number of LEDs we're driving (3 strips of 150 plus two in the box)
+NUM_LEDS = 150*3+2
+
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
 trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]
 # ["0"=>"No spot", "1"=>"Tiny", "2"=>"Small", "3"=>"Medium", "4"=>"Large", "5"=>"Huge"]
@@ -28,6 +31,10 @@ trans_dmx_speed = [0, 10, 7, 4, 2];
 # ["0"=>"None", "1"=>"Slow", "2"=>"Fast"]
 trans_dmx_strobe = [0, 10, 100];
 
+def pause(n):
+	"""How long to pause for this step of the countdown"""
+	return n/20+1
+	
 _gpio_chans = [17,27,22] # Three GPIO channels for: LEDs, DMX, Meteors
 _gpio_LED = 0
 _gpio_DMX = 1
@@ -59,12 +66,87 @@ if __name__ == '__main__':
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
 				time.sleep(spec['durn'])
+			elif spec['id'] == 'sid1': # countdown sequence
+				if cur_id != 'sid1': # don't keep repeating the countdown sequence
+					gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
+					gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
+					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['br']))
+					print('DEBUG:main:69 countdown sequence')
+					# 10 green blocks
+					gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_render(time.time()+pause(10))
+					# 9 Green blocks
+					gra_colours = ([RGB_Black]+[RGB_Green]*4)*9+[RGB_Black]*5
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_render(time.time()+pause(9))
+					# 8 Cyan blocks
+					gra_colours = ([RGB_Black]+[RGB_Cyan]*4)*8+[RGB_Black]*10
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_render(time.time()+pause(8))
+					# 7 Blue blocks
+					gra_colours = ([RGB_Black]+[RGB_Blue]*4)*7+[RGB_Black]*15
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_render(time.time()+pause(7))
+					# 6 Magenta blocks + meteors
+					gra_colours = ([RGB_Black]+[RGB_Magenta]*4)*6+[RGB_Black]*20
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					gpio.output(_gpio_chans[_gpio_MET], True)
+					anim_render(time.time()+pause(6))
+					# 5 Red blocks + meteors
+					gra_colours = ([RGB_Black]+[RGB_Red]*4)*5+[RGB_Black]*25
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					gpio.output(_gpio_chans[_gpio_MET], True)
+					anim_render(time.time()+pause(5))
+					# 4 Orange blocks + meteors + red spot
+					gra_colours = ([RGB_Black]+[RGB_Orange]*4)*4+[RGB_Black]*30
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_define_spot(2, RGB_Red, RIGHT, 1.5)
+					gpio.output(_gpio_chans[_gpio_MET], True)
+					anim_render(time.time()+pause(4))
+					# 3 Yellow blocks + meteors + red spot twice
+					gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*3+[RGB_Black]*35
+					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+					anim_define_spot(2, RGB_Red, RIGHT, 0.75, REPEAT)
+					gpio.output(_gpio_chans[_gpio_MET], True)
+					anim_render(time.time()+pause(3))
+					# 2 white blocks moving fast, no meteors or spot
+					gra_colours = ([RGB_Black]*5+[RGB_White]*10)
+					gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1, reverse=REVERSE)
+					gpio.output(_gpio_chans[_gpio_MET], False)
+					anim_render(time.time()+pause(2))
+					# 1 rapid rainbow all together no spot or meteors
+					gra_colours = [RGB_Red, RGB_Blue]
+					gra_desc = GradientDesc(gra_colours, repeats=2, blend=SMOOTH, bar_on=0)
+					anim_define_pattern(gra_desc, segments=0, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1/2, reverse=REVERSE)
+					anim_define_sparkle(200)
+					anim_render(time.time()+pause(1))
+					# 0 rainbow, sparkly, DMX auto
+					gra_colours = [RGB_Red, RGB_Yellow, RGB_Green, RGB_Cyan, RGB_Blue, RGB_Magenta]
+					gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
+					anim_define_pattern(gra_desc, segments=6, seg_reverse=REPEAT, motion=RIGHT, repeat_s=5, reverse=REVERSE)
+					anim_define_sparkle(50)
+					anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
+					anim_define_dmx(d_off_auto_indep=1, d_strobe=100)
+					gpio.output(_gpio_chans[_gpio_MET], True)
+					cur_id = 'sid1'
+					anim_render(time.time()+5) # A bit of extra time the first time round
+				anim_render(time.time()+5)				
 			else:
 				gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
 				gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
 				led_max_brightness = int(spec['br'])
 				if spec['id'] != cur_id or spec['hd'][6] != cur_vn: # Changed, need to read the parameters for the new display
-					anim_init(led_count=150*3, max_brightness=led_max_brightness)
+					anim_init(led_count=NUM_LEDS, max_brightness=led_max_brightness)
 					print ('DEBUG:main:41 spec=', spec)
 					print ('DEBUG:main:4 spec["co"]=', spec['co'])
 					
@@ -72,7 +154,7 @@ if __name__ == '__main__':
 					gra_colours = []
 					for c in spec['co']:
 						gra_colours.append(int(c[1:],16))
-					print(gra_colours)
+					# ~ print(gra_colours)
 					if spec['gr'][2] == "0": # Off
 						bar_on = bar_off = 0
 					elif spec['gr'][2] == "1": # Dash

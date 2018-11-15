@@ -40,7 +40,7 @@ else {
 	}
 	else if ($req == 'cou') {
 		// Put a countdown sequence into the queue
-		$q = file_put_contents('j-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+30) . ',"q":[],"mod":true}');
+		$q = file_put_contents('j-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+20) . ',"q":[]}');
 		$status['on']='ON';
 	}
 	else if ($req == 'fon') {

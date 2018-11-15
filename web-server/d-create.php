@@ -26,7 +26,8 @@
 //    <size> ::= <int 0-32>
 //  <floods> ::= <flood spec> <flood spec>
 //    <flood spec> ::= <int OFF, AUTO, IND_SAME, IND_ALT> <flood def>
-//      <flood def> ::= <colour> <colour> <blend> <speed>
+//      <flood def> ::= <colour> <colour> <blend> <speed> <strobe>
+//        <strobe> ::= <int OFF, SLOW, FAST>
 //  <meteor> ::= <int ON, OFF, AUTO>
 
 include "s-error-handler.php";
@@ -159,7 +160,7 @@ function build_colours () {
 	<div>
 		<h2>Create New Display</h2>
 		<p>You have chosen to create a new display based on 
-		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'" which has been chosen '.$this_disp['hd'][5].' times.')); ?>
+		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'" (version '.$this_disp["hd"][6].') which has been chosen '.$this_disp['hd'][5].' times.')); ?>
 		<p>Change anything you like below, then click on the CREATE button.
 	</div>
 
@@ -204,8 +205,8 @@ function build_colours () {
 
 	<button class="collapsible">Repeat the pattern</button>
 	<div class="content">
-		<p>Number of times to repeat the pattern along the string of lights. The more repeats you have, the smaller each segment will be: 
-			<?php build_number("se",0,1,16,1); ?>
+		<p>Number of times to repeat the pattern along the string of lights. The more repeats you have, the smaller each segment will be. If you choose 0, all the lights will be the same colour, changing together: 
+			<?php build_number("se",0,0,16,1); ?>
 		<p>All repeats of the pattern should be the same way round, or first one way then the other: 
 			<?php build_select("se",1,["1"=>"All the same", "2"=>"Alternate"]);?>
 	</div>
@@ -236,6 +237,8 @@ function build_colours () {
 			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
 		<p>Speed of colour change: 
 			<?php build_select("fl",4,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]);?>
+		<p>Do you want the lights to flash on and off (strobe)?: 
+			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Slow", "2"=>"Fast"]);?>
 	</div>
 	
 	<button class="collapsible">Meteor shower lights</button>

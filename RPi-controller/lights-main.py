@@ -55,23 +55,26 @@ if __name__ == '__main__':
 				download = urllib.request.urlopen('http://localhost/web-server/q-de-q.php')
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
-				print("DEBUG:main:49 text=",text)
+				print("DEBUG:main:60 text=",text)
 			except:
-				print('DEBUG:main:31 error reading de-q')
-				text = '{"co": ["#ff0000", "#ffff00", "#00ff00", "#00ffff", "#0000ff", "#ff00ff"], "br": "80", "hd": ["Rainbow", "Peter", "90bfbf8c", 1539615910, 0, 0, 1], "id": "id1", "st": ["0", "#062af9", "1", "3", "2"], "durn": 5, "se": ["4", "2", "2", "2", "2"], "gr": ["1", "1", "0"], "fa": ["0", "1", "3"], "me": ["1"], "fl": ["1", "#000000", "#ffffff", "1", "3"], "sk": ["1", 8.3]}'
+				print('DEBUG:main:60 error reading de-q, using default display spec')
+				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"br":"200"}'
 
 			spec = json.loads(text)
-			print('DEBUG:main:36 id=',spec['id'], 'version=', spec['hd'][6])
-			if spec['id'] == 'sid0': # switch everything off and wait
+			print('DEBUG:main:64 id=',spec['id'],'cur_id=',cur_id)
+			if spec['id'] == 'OFF': # switch everything off
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
 				time.sleep(spec['durn'])
-			elif spec['id'] == 'sid1': # countdown sequence
-				if cur_id != 'sid1': # don't keep repeating the countdown sequence
+				if spec['stat'] == 'REB': # REBOOT RPi
+					os.system('sudo shutdown -r now')
+			elif spec['id'] == 'COU': # countdown sequence
+				if cur_id != 'COU': # don't keep repeating the countdown sequence
+					cur_id = 'COU'
 					gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
 					gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
 					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['br']))
-					print('DEBUG:main:69 countdown sequence')
+					print('DEBUG:main:77 countdown sequence')
 					# 10 green blocks
 					gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
 					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
@@ -138,7 +141,6 @@ if __name__ == '__main__':
 					anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
 					anim_define_dmx(d_off_auto_indep=1, d_strobe=100)
 					gpio.output(_gpio_chans[_gpio_MET], True)
-					cur_id = 'sid1'
 					anim_render(time.time()+5) # A bit of extra time the first time round
 				anim_render(time.time()+5)				
 			else:
@@ -146,9 +148,13 @@ if __name__ == '__main__':
 				gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
 				led_max_brightness = int(spec['br'])
 				if spec['id'] != cur_id or spec['hd'][6] != cur_vn: # Changed, need to read the parameters for the new display
+					
+					# Remember for next time
+					cur_id = spec['id']; cur_vn = spec['hd'][6]
+					
+					# Start a new display specification
 					anim_init(led_count=NUM_LEDS, max_brightness=led_max_brightness)
-					print ('DEBUG:main:41 spec=', spec)
-					print ('DEBUG:main:4 spec["co"]=', spec['co'])
+					print ('DEBUG:main:156 spec=', spec)
 					
 					# Gradient spec
 					gra_colours = []
@@ -196,9 +202,6 @@ if __name__ == '__main__':
 					
 				anim_set_max_brightness(int(spec['br'])) # can change via sysctl interface
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back
-
-			cur_id = spec['id']
-			cur_vn = spec['hd'][6]
 
 	except:
 		print('ERROR:main:99 Exception')

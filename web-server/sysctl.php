@@ -30,21 +30,24 @@ else {
 	if (array_key_exists('br',$_GET)) $status['br'] = $_GET['br'];
 	// Process the request itself
 	if ($req == 'off') {
-		$status['on']='OFF'; // de-q handles this
+		$status['on']='OFF'; // s-check-lights-on handles this
 	}
 	else if ($req == 'sta') {
-		$status['on']='STA'; // de-q handles this
+		$status['on']='STA'; // s-check-lights-on handles this
 	}
 	else if ($req == 'tim') {
-		$status['on']='TIM'; // get-status will calculate $lightson from the settings
+		$status['on']='TIM'; // s-check-lights-on will calculate $lightson from the settings
 	}
 	else if ($req == 'cou') {
 		// Put a countdown sequence into the queue
-		$q = file_put_contents('j-q.json', '{"cur_id":"sid1","next_t":' . strval(time()+20) . ',"q":[]}');
+		$q = file_put_contents('j-q.json', '{"cur_id":"COU","next_t":' . strval(time()+20) . ',"q":[]}');
 		$status['on']='ON';
 	}
 	else if ($req == 'fon') {
 		$status['on']='ON';
+	}
+	else if ($req == 'reb') {
+		$status['on']='REB'; // s-check-lights-on handles this
 	}
 	// Write back the modified status file
 	file_put_contents($status_file, json_encode($status));
@@ -84,7 +87,8 @@ include "s-check-lights-on.php";
 		</style>
 	</head>
 	<body>
-		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>file='.file_get_contents($status_file);?>
+		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
+		<p>Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last pulse: <b>'.strval(time()-filemtime('s-pulse')).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).'</b>; queue: '.json_encode($q['q']); ?>
 		<div>
 			<button type=button <?php echo ($status['on']=='OFF'?'class="current" ': ''); ?>style="background-color:red" onclick="do_button('off')">OFF</button>
 			<button type=button <?php echo ($status['on']=='STA'?'class="current" ': ''); ?>style="background-color:orange" onclick="do_button('sta')">STANDBY</button>
@@ -102,6 +106,8 @@ include "s-check-lights-on.php";
 			<p class=head>Brightness</p>
 			<input type=number id=br autocomplete=off value="<?php echo $status['br'] ?>" max=255 min=0>
 		</div>
+		<p style="display:block; padding-top:100px">HERE<br>BE<br>DRAGONS!!</p>
+		<button type=button <?php echo ($status['on']=='REB'?'class="current" ': ''); ?>style="background-color:black; color:white;" onclick="do_button('reb')">REBOOT RPi</button>
 		<script>
 			function do_button(id) {
 				// Call this file again with the button id

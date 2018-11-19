@@ -3,7 +3,12 @@
 // set up $status with all the status stuff,
 // set up $lightson and $until with current timer settings
 $status_file = 'j-status.json';
-if (file_exists($status_file)) $status = json_decode(file_get_contents($status_file), true);
+if (file_exists($status_file)) 
+  try { $status = json_decode(file_get_contents($status_file), true); }
+  catch (Exception $e) {
+	  err('Problem with decoding j-status, resetting');
+	  $status = '';
+  }
 else $status = '';
 if ($status == '' or 
 !array_key_exists('st',$status) or 

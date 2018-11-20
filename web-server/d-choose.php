@@ -25,12 +25,42 @@ include "s-check-lights-on.php";
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- -->
+<!-- ---------------------- CSS ------------------- -->
+<!-- -->
 <style type="text/css">
+    #countdown {  /* Countdown to chosen display */
+		position:fixed; padding:0; margin:0; top:0; left:0;
+		width: 100%; height: 100%;
+		background-color:black; opacity:0.8;
+		display:none;		
+    }
+    .cdDigits { /* Countdown digits */
+		font-size:300%; color:yellow;
+	}
+	#cdText { /* Text in the countdown div - centred vertically*/
+		position:relative; margin: 0 auto;
+		top:50%; transform:translateY(-50%);
+		font-size:100%; color:white; text-align:center;
+	}
+	#cdNow { font-size:150%; color:yellow; }
 	th {color:blue; text-align:left}
-	#curSel, .curSel {color:white; background-color:blue; font-size:100%} /* Selected row in table */
-	.header {position: sticky; top: 0; background-color:white;} /* will scroll to top of page then stop */	
-	.warning {position: sticky; top: 0; background-color:red;} /* will scroll to top of page then stop */
-	.footer {position: sticky; bottom: 0; width: 100%} /* stays at foot of page with text scrolling behind */
+	#curSel, .curSel { /* Selected row in table */
+		color:white; background-color:blue; 
+		font-size:100%
+	}
+	.header { /* will scroll to top of page then stop */	
+		position: sticky; top: 0; 
+		background-color:white;
+	}
+	.warning { /* will scroll to top of page then stop */
+		position: sticky; top: 0; 
+		background-color:red;
+	}
+	.footer { /* stays at foot of page with text scrolling behind */
+		position: sticky; bottom: 0; width: 100%;
+		background-color:white;
+	}
 	button {font-size:100%}
 	.hidden {display: none}
 	/* 
@@ -93,6 +123,8 @@ include "s-check-lights-on.php";
 	<div class="footer">
 		St.Thomas Church: the town church for Lymington offering
 		prayer and hospitality in Jesus' name.
+	</div>
+	<div id="countdown">
 	</div>
 <script>
 //=========================== JAVASCRIPT ===============================
@@ -190,16 +222,36 @@ function selRow(thisrow) {
 //
 //-------------------------- EN-QUEUE the display request -----------
 //
+//------- countdown window ------
+var intervalID;
+var countdownEnd;
+var countdownDiv = document.getElementById("countdown");
+function updateCountdown(q_wait) {	
+	if (q_wait > 1) countdownDiv.innerHTML = "<div id=cdText><p>Your display should start in about</p><p class=cdDigits>" + q_wait + "</p><p>seconds</p></div>";
+	else countdownDiv.innerHTML = "<div id=cdText><p id=cdNow>Your display should start immediately</p></div>";
+}
+function tickCountdown() {
+	var diff = countdownEnd - Date.now();
+	var q_wait = Math.floor(diff / 1000);
+	if (q_wait > -1) updateCountdown(q_wait);
+	else {
+		clearInterval(intervalID);
+		countdownDiv.style.display = 'none';
+	}
+}
+function showCountdown(q_wait) {
+	countdownDiv.style.display = 'block';
+	countdownEnd = Date.now() + 1000*q_wait;
+	updateCountdown(q_wait);
+	intervalID = setInterval(tickCountdown, 1000);
+}
+//--------- En-q and process the response
 function processResponse() {
 	if (this.readyState != 4) return;
 	if (this.status == 200) { // success
 		// responseText is the Queue wait returned from the en-q process
 		var q_wait = parseInt(this.responseText, 10);
-		if (q_wait > 0) {
-			alert("Thank you, your chosen display has been queued and should start in about " +
-				q_wait + " seconds.");
-		}
-		else alert("Thank you, your chosen display should start immediately.");
+		showCountdown(q_wait);
 	}
 	else // error of some sort
 		alert("Sorry, unable to contact the server. Please try again later");

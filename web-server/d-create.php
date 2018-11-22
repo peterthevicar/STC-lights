@@ -21,8 +21,7 @@ include "s-nocache.php";
 //  <fading> ::= <fade speed> <blend> <fade min>
 //    <blend> ::= <int STEP, SMOOTH>
 //    <fade min> ::== <int 0-255>
-//  <sparkle> ::== <sparks per thousand> <speed>
-//    <sparks per thousand> ::= <int 0-1000>
+//  <sparkle> ::== <int NONE TOUCH NORMAL LOTS LOTSANDLOTS>
 //  <spot> ::= <size> <colour> <motion> <speed> <reverse>
 //    <size> ::= <int 0-32>
 //  <floods> ::= <flood spec> <flood spec>

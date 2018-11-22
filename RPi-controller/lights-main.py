@@ -33,7 +33,7 @@ trans_spark = [0, 10, 20, 100, 250];
 # ["0"=>"None", "1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]
 trans_dmx_speed = [0, 10, 7, 4, 2];
 # ["0"=>"None", "1"=>"Slow", "2"=>"Fast"]
-trans_dmx_strobe = [0, 10, 100];
+trans_dmx_strobe = [0, 100, 250];
 
 def pause(n):
 	"""How long to pause for this step of the countdown"""
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 					anim_define_pattern(gra_desc, segments=6, seg_reverse=REPEAT, motion=RIGHT, repeat_s=5, reverse=REVERSE)
 					anim_define_sparkle(50)
 					anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
-					anim_define_dmx(d_off_auto_indep=1, d_strobe=100)
+					anim_define_dmx(d_off_auto_indep=1, d_strobe=250)
 					gpio.output(_gpio_chans[_gpio_MET], True)
 					anim_render(time.time()+5) # A bit of extra time the first time round
 				anim_render(time.time()+5)				

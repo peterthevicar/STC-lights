@@ -17,7 +17,7 @@ if (file_exists($jf)) {
 
 // Find the latest backup
 $bf = $backdir.scandir($backdir, 1)[0];
-print_r($bf);
+//~ print_r($bf);
 if (file_exists($bf)) {
 	try {
 		err('DEBUG:s-jd-check:23 Reading backup '.$bf);
@@ -45,5 +45,5 @@ if ($displays == '' or
 		file_put_contents($backdir.date('Ymd-his-').$jf, json_encode($displays));
 	else err('DEBUG:s-jd-check:46 No change, no backup made');
 }	
-
+echo '<html><body><a href="error-log.txt">Complete, check error-log.txt for results</a></body></html>'
 ?>

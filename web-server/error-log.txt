@@ -2,3 +2,7 @@
 2018.Nov.22 00:31:51 DEBUG:s-jd-check:23 Reading backup jd-backups/20181119-125027-j-displays.json
 2018.Nov.22 00:36:48 DEBUG:s-jd-check:23 Reading backup jd-backups/20181122-123151-j-displays.json
 2018.Nov.22 00:36:48 DEBUG:s-jd-check:46 No change, no backup made
+2018.Nov.22 00:44:25 DEBUG:s-jd-check:23 Reading backup jd-backups/20181122-123151-j-displays.json
+2018.Nov.22 00:44:25 DEBUG:s-jd-check:46 No change, no backup made
+2018.Nov.22 00:45:00 DEBUG:s-jd-check:23 Reading backup jd-backups/20181122-123151-j-displays.json
+2018.Nov.22 00:45:00 DEBUG:s-jd-check:46 No change, no backup made

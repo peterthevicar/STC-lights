@@ -5,18 +5,21 @@ include "s-error-handler.php";
 touch('ts-error-check');
 ?>
 <html>
-	<style>
-	.header { /* will scroll to top of page then stop */	
-		position: sticky; top: 0;
-		background-color:rgb(192, 159, 128);
-		color:white;
-		padding: 15px 15px 15px 5px;
-		border: none;
-		text-align: left;
-		outline: none;
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+		.header { /* will scroll to top of page then stop */	
+			position: sticky; top: 0;
+			background-color:rgb(192, 159, 128);
+			color:white;
+			padding: 15px 15px 15px 5px;
+			border: none;
+			text-align: left;
+			outline: none;
 
-	}
-	</style>
+		}
+		</style>
+	</head>
 	<body>
 		<div class="header">
 			error-log.txt

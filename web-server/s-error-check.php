@@ -1,4 +1,5 @@
 <?php
+include "s-nocache.php";
 // Set up error handler and err function for logging errors
 include "s-error-handler.php";
 touch('ts-error-check');

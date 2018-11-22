@@ -6,9 +6,9 @@ include "s-error-handler.php";
 //------------------ Code to insert new display spec -----------------//
 //
 // Read the header information (a json with the spec for the new display)
-if ($_POST == null) $_POST = ['json' => '{"hd":["4 colours","Peter","90bfbf8c",1539552196,0,0,1],"co":["#0000ff","#00ff00","#ff0000","#000000"],"gr":["1","2","0"],"se":["2","1","2","5","2"],"fa":["0","2","1"],"sk":["0",8.3],"st":["0","#000000","1","1","1"],"fl":["0","#000000","#ffffff","1","3.0"],"me":["0"]}'];
+if ($_POST == null) $_POST = ['json' => '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542800758,10,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"]}'];
 //~ err('DEBUG:insert:10 POST[json]='.$_POST['json']);
-$new_disp = json_decode($_POST['json'], true);
+$new_disp = json_decode(strip_tags($_POST['json']), true);
 //~ err('DEBUG:insert:12 POST='.json_encode($_POST));
 //~ err('DEBUG:insert:13 new='.json_encode($new_disp));
 // Hash the plain text password for comparison - very basic security
@@ -65,20 +65,14 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 	if ($waiting) sleep(rand(0, 2));
 }
 if ($waiting) {
-	$msg = "Couldn't open displays database";
-	echo $msg;
-	die(1);
-	trigger_error($msg, E_USER_ERROR);
+	$msg = '{"err":1,"id":"","msg":"Couldn\'t open displays database"}';
 }
-if ($duplicate) {
-	$msg = 'Display "'.$new_disp['hd'][0].'" is already in the list. (Or your password didn\'t match)';
-	echo $msg;
-	die(2);
-	trigger_error($msg, E_USER_ERROR);
+elseif ($duplicate) {
+	$msg = '{"err":2,"id":"'.$new_id.'","msg":"Display \"'.$new_disp['hd'][0].'\" is already in the list. (Or your password didn\'t match)"}';
 }
-
-// Added the new display to the json file, so now let the user know
-echo '"'.$new_disp['hd'][0].'" has been added to the list of displays. (Or modified)';
+else// Added the new display to the json file, so now let the user know
+	$msg = '{"err":0,"id":"'.$new_id.'","msg":"\"'.$new_disp['hd'][0].'\" has been added to the list of displays (or modified)"}';
+echo $msg;
 //~ TODO: work out how to respond after errors etc
 //~ Complete file writing code
 //~ Thorough parameter checking before accepting

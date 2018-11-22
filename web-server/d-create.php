@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <?php
+include "s-nocache.php";
 // Format of json-displays
 //
 //::= <display details>*
 //<display details> ::= <id> <header> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
 //  <id> ::= id<int>
-//  <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses>
+//  <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses> <6 version>
 //    <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
@@ -35,7 +36,7 @@ include "s-error-handler.php";
 // Read in the information we need from json file
 $this_disp = null;
 // The display id is passed in as the query string
-$disp_id=$_SERVER['QUERY_STRING'];
+$disp_id=(array_key_exists('QUERY_STRING',$_SERVER)?$_SERVER['QUERY_STRING']:'');
 if ($disp_id == null) $disp_id = "id1"; // in case we don't have a query string
 // Read the header information (name, creator etc)
 $disps=json_decode(file_get_contents("j-displays.json"), true);
@@ -99,7 +100,7 @@ function build_colours () {
 		$grad_colours .= ",$col"; 
 	}
     echo "</div>\n";
-    echo "<div style='display:block'>\n";
+    echo "<div style='display:block;margin-bottom:16px'>\n";
     echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible+1)'>Insert +</button>\n";
     echo "   <button style='display:inline-block' type='button' onclick='javascript:update_colours(last_colour_visible-1)'>- Remove</button>\n";
     echo "  </div>\n";
@@ -117,59 +118,101 @@ function build_colours () {
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style type="text/css">
+	@import url('https://fonts.googleapis.com/css?family=Paprika');
+	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+	html {
+		background-color:white;
+		color:rgb(102, 102, 102);
+		font-family:'Open Sans';
+	}
+	body {
+		margin: 0 5px 0 5px;
+		font-size: 15px;
+	}
+	h1 {
+		font-family: 'Paprika', serif;
+		background-image: url('http://stt.woodcom.co.uk/wp-content/uploads/2018/06/h1-flourish.png');
+		background-repeat: no-repeat;
+		background-position: bottom left;
+		color: rgb(118, 50, 63);
+		font-weight: 600;
+		text-transform: uppercase;
+		min-height: 70px;
+		font-size: 34px;
+		padding-bottom: 10px !important;
+	}
+	.go-button {
+		height:100px; width:120px;
+		border-radius:8px;
+		padding: 5px;
+		font-size:20px; color:white;
+		display:inline-block;
+		vertical-align: top;
+	}
+	.footer {
+		width: 100%;
+	}
+	.footer-text {
+		background-color:rgb(86, 86, 86);
+		color: rgb(150, 150, 150);
+		padding: 5px;
+		margin: 0 0 0 0;
+	}
+	.footer a { /* stays at foot of page with text scrolling behind */
+		color:white; font-weight: bold;
+		text-decoration: none;
+	}
 	/*----------------- COLLAPSIBLE ---*/
 	/* Style the button that is used to open and close the collapsible content */
 	.collapsible {
-	  background-color: #eee;
-	  color: #444;
-	  cursor: pointer;
-	  padding: 18px;
-	  width: 100%;
-	  border: none;
-	  text-align: left;
-	  outline: none;
-	  font-size: 15px;
-	}
-	.collapsible:after {
-		content: '\02795'; /* Unicode character for "plus" sign (+) */
-		font-size: 13px;
+		background-color:rgb(192, 159, 128);
+		font-size:18px; 
 		color: white;
-		float: right;
-		margin-left: 5px;
+		cursor: pointer;
+		padding: 15px 15px 15px 5px;
+		width: 100%;
+		border: none;
+		text-align: left;
+		outline: none;
+	}
+	.collapsible:before {
+		content: '\025B6'; /* Unicode character for "plus" sign (+) */
+		color: white;
+		float: left;
+		margin: 0px 15px 0px 5px;
 	}
 
-	.active:after {
-		content: "\2796"; /* Unicode character for "minus" sign (-) */
+	.active:before {
+		content: "\025BC";
 	}
 
 	/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-	.active, .collapsible:hover {
-	  background-color: #ccc;
+	.collapsible:hover {
+	  background-color:rgb(118, 50, 63);
 	}
 
 	/* Style the collapsible content. Note: hidden by default */
 	.content {
-	  padding: 0 18px;
 	  display: none;
 	  overflow: hidden;
-	  background-color: #f1f1f1;
+	  background-color:white;
 	}
 </style>
 </head>
 <body>
 	<div>
-		<h2>Create New Display</h2>
+		<h1>Create or Edit Display</h1>
 		<p>You have chosen to create a new display based on 
 		<?php print(htmlspecialchars('"'.$this_disp["hd"][0].'" by "'.$this_disp["hd"][1].'" (version '.$this_disp["hd"][6].') which has been chosen '.$this_disp['hd'][5].' times.')); ?>
-		<p>Change anything you like below, then click on the CREATE button.
+		<p>Change anything you like below, then click on the <strong>CREATE</strong> button to create a new display with a new name, or the <strong>MODIFY</strong> button to change this display (you will need to know the display's password to do this).
 	</div>
 
 	<button class="collapsible">Choose your colours</button>
 	<div class="content">
-	  <p>Colours to be used in the display:
+		<p>Colours to be used in the display:
 		<?php build_colours();?>
 	</div>
-		<button class="collapsible">Blend the colours into a gradient</button>
+	<button class="collapsible">Blend the colours into a gradient</button>
 	<div class="content">
 		<p>Blend the colours smoothly from one to another, or go in steps?
 			<?php build_select("gr",1,["1"=>"Smooth", "2"=>"Steps"]);?>
@@ -248,19 +291,30 @@ function build_colours () {
 	</div>
 	
 	<button class="collapsible">Now name your creation</button>
-	<div class="content" style="display:block">
-		<p>A unique and descriptive name for your display: 
+	<div class="content">
+		<p>A unique and descriptive name for your display: <br>
 			<?php build_text("hd",0);?>
-		<p>Your name (this will be shown in the list of displays as the creator of this display): 
+		<p>Your name (this will be shown in the list of displays as the creator of this display): <br>
 			<?php build_text("hd",1);?>
-		<p>A password to prevent other people changing your display: 
-			<?php build_password("hd",2);?>
 	</div>
+	<p><strong>*Password</strong> for this display: <br>
+			<?php build_password("hd",2);?>
 
-	
-	<button type="reset" onclick="reset_all();">RESET ALL values</button>
-	<button type="button" onclick="create_new(1);">CREATE new display</button>
-	<button type="button" onclick="create_new(2);">MODIFY this display</button>
+	<div>
+		<button class='go-button' type="button" onclick="create_new(2);" style="background-color:orange">MODIFY this display</button>
+		<button class='go-button' type="button" onclick="create_new(1);" style="background-color:green">CREATE new display</button>
+		<button class='go-button' type="button" onclick="reset_all();" style="background-color:gray">RESET all values</button>
+		<button class='go-button' type="button" onclick="location.href = 'd-choose.php?<?php echo $disp_id;?>';" style="background-color:red">CANCEL</button>
+	</div>
+	<div style='margin-bottom:50px'></div>
+	<div class="footer">
+		<div class="footer-text">
+			St.Thomas Church:
+			the town church for Lymington offering
+			prayer and hospitality in Jesus' name.<br>
+			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
+		</div>
+	</div>
 
 <script>
 	//
@@ -270,15 +324,17 @@ function build_colours () {
 	var i;
 
 	for (i = 0; i < coll.length; i++) {
-	  coll[i].addEventListener("click", function() {
-		this.classList.toggle("active");
-		var content = this.nextElementSibling;
-		if (content.style.display === "block") {
-		  content.style.display = "none";
-		} else {
-		  content.style.display = "block";
-		}
-	  });
+		coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+			if (content.style.display === "block") {
+			  content.style.display = "none";
+			} else {
+			  content.style.display = "block";
+			  //~ content.scrollIntoView(false);
+			  //~ content.scrollIntoViewIfNeeded(true);
+			}
+		});
 	}
 </script>	
 <script>
@@ -405,13 +461,14 @@ function build_colours () {
 		else {
 			//~ alert("Original display spec was\n" + JSON.stringify(original_disp) + "\nNew display spec is\n" + JSON.stringify(new_disp));
 
-			// Send the json to create a new display
+//------------------------ Send the json to create a new display -------------------
 			var xhr = new XMLHttpRequest();
 			xhr.onreadystatechange = function () {
 				if (this.readyState != 4) return;
 				// Do something with the retrieved data ( found in .responseText )
-				alert(this.responseText);
-				location.href = 'd-choose.php?new';
+				resp = JSON.parse(this.responseText, true);
+				alert (resp.msg);
+				if (resp.err == 0) location.href = 'd-choose.php?'+resp.id;
 			};
 			xhr.open("POST", "d-insert.php", true);
 			// can't get application/json to work so have to use form encoding

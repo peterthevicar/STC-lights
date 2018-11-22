@@ -1,4 +1,5 @@
 <?php
+include "s-nocache.php";
 include "s-error-handler.php";
 //~ err('DEBUG:choose:3 query='.(array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']:'null'));
 // Read in the json-displays file, which may be locked by d-insert.php
@@ -20,6 +21,13 @@ if($fp != null and flock($fp, LOCK_SH)){ // wait until any write lock is release
 include "s-get-status.php";
 include "s-check-lights-on.php";
 
+// Header format for displays entry
+// <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses> <6 version>
+
+//-------------- If called back from CREATE, may have an id to select initially
+$init_id = (array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']: '');
+if (substr($init_id, 0, 2) != 'id') $init_d = '';
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,6 +37,25 @@ include "s-check-lights-on.php";
 <!-- ---------------------- CSS ------------------- -->
 <!-- -->
 <style type="text/css">
+	@import url('https://fonts.googleapis.com/css?family=Paprika');
+	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+	html {
+		background-color:white;
+		color:rgb(102, 102, 102);
+		font-family:'Open Sans';
+	}
+	h1 {
+		font-family: 'Paprika', serif;
+		background-image: url('http://stt.woodcom.co.uk/wp-content/uploads/2018/06/h1-flourish.png');
+		background-repeat: no-repeat;
+		background-position: bottom left;
+		color: rgb(118, 50, 63);
+		font-weight: 600;
+		text-transform: uppercase;
+		min-height: 70px;
+		font-size: 34px;
+		padding-bottom: 10px !important;
+	}
     #countdown {  /* Countdown to chosen display */
 		position:fixed; padding:0; margin:0; top:0; left:0;
 		width: 100%; height: 100%;
@@ -43,76 +70,98 @@ include "s-check-lights-on.php";
 		top:50%; transform:translateY(-50%);
 		font-size:100%; color:white; text-align:center;
 	}
-	#cdNow { font-size:150%; color:yellow; }
-	th {color:blue; text-align:left}
+	#cdNow {
+		font-size:150%; color:yellow;
+	}
+	th {
+		color:rgb(118, 50, 63); text-align:left;
+		font-family:'Paprika';
+		padding-right:5px;
+	}
+	td {
+		padding-right:5px;
+	}
 	#curSel, .curSel { /* Selected row in table */
-		color:white; background-color:blue; 
-		font-size:100%
+		color:white; background-color:rgb(192, 159, 128);
+		font-size:100%;
 	}
 	.header { /* will scroll to top of page then stop */	
-		position: sticky; top: 0; 
-		background-color:white;
+		position: sticky; top: 0;
+		background-color:rgb(192, 159, 128);
+		color:white;
+		padding: 15px 15px 15px 5px;
+		border: none;
+		text-align: left;
+		outline: none;
+
 	}
 	.warning { /* will scroll to top of page then stop */
 		position: sticky; top: 0; 
-		background-color:red;
+		background-color:rgb(118, 50, 63);
+		padding:5px;
+		color:white;
 	}
 	.footer { /* stays at foot of page with text scrolling behind */
 		position: sticky; bottom: 0; width: 100%;
-		background-color:white;
+		margin-top:20px;
 	}
-	button {font-size:100%}
+	.footer-text {
+		background-color:rgb(86, 86, 86);
+		color: rgb(150, 150, 150);
+		padding: 5px;
+		margin: 0 0 0 0;
+	}
+	.footer a { /* stays at foot of page with text scrolling behind */
+		color:white; font-weight: bold;
+		text-decoration: none;
+	}
+	button, #sortselect {font-size:15px}
 	.hidden {display: none}
-	/* 
-	@media (min-width: 858px) {
-    html {
-        font-size: 1em;
-    }
-    */
 </style>
 <!-- -->
 <!-- ---------------------- HTML SECTION ------------------------- -->
 <!-- -->
 </head>
 <body>
+	<h1>St.Thomas Christmas Lights</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
 	</div>
 	<div>
 		<p>Welcome to the St.Thomas Christmas Lights controller.
-		There are lots of different displays to choose from. 
-		<p>Once you've chosen a display you can either DISPLAY it on the 
-		church tower or CREATE a new display of your own based on the one
-		you've chosen. 
-		<p>Enjoy!
+		There are lots of different displays to choose from.
+		Once you've chosen a display you can either <strong>DISPLAY</strong> it on the 
+		church tower or <strong>CREATE</strong> a new display of your own based on the one
+		you've chosen. <strong>Enjoy!</strong>
 	</div>
 	<div>
 		<p class="header">
 		  Sort:
-		  <select id=sortselect onchange="sortCol(this.value)" autocomplete="off">
+		  <select id="sortselect" onchange="sortCol(this.value)" autocomplete="off">
+			  <option value="2,1,0">Newest first</option>
+			  <option value="4,1,0" selected="true">Most popular</option>
+			  <option value="3,1,0">Most recently used</option>
 			  <option value="0,0,1">Display Name</option>
 			  <option value="1,0,1">Creator</option>
-			  <option value="2,1,0">Newest first</option>
-			  <option value="3,1,0">Most recently used</option>
-			  <option value="4,1,0">Most popular</option>
 		   </select>
 		</p>
-		<table id="ta">
+		<table id="ta" style="border-collapse:collapse">
 			<tr>
 				<th>Display name</th>
-				<th>Created by</th>
+				<th>Creator</th>
+				<th>#Views</th>
 			</tr>
 			<?php foreach ($disps as $disp_id => $disp) {
 				// only show user displays (id begins "id")
 				if (substr($disp_id,0,2) == "id") {
 					$hd = $disp["hd"];
-					echo "<tr onclick='selRow(this)'>";
-					echo   "<td>",$hd[0],"</td>\n";
-					echo   "<td>",$hd[1],"</td>\n";
+					echo '<tr onclick="selRow(this)"'.($disp_id==$init_id?'id="init_id"':'').'>';
+					echo   "<td>",strip_tags($hd[0]),"</td>\n";
+					echo   "<td>",strip_tags($hd[1]),"</td>\n";
 					echo   "<td class='hidden'>",$hd[3],"</td>\n";
 					echo   "<td class='hidden'>",$hd[4],"</td>\n";
-					echo   "<td class='hidden'>",$hd[5],"</td>\n";
+					echo   "<td>",$hd[5],"</td>\n";
 					echo   "<td class='hidden'>",$disp_id,"</td>";
 					echo "</tr>";
 				}
@@ -121,8 +170,12 @@ include "s-check-lights-on.php";
 		</table>
 	</div>
 	<div class="footer">
-		St.Thomas Church: the town church for Lymington offering
-		prayer and hospitality in Jesus' name.
+		<div class="footer-text">
+			St.Thomas Church:
+			the town church for Lymington offering
+			prayer and hospitality in Jesus' name.<br>
+			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
+		</div>
 	</div>
 	<div id="countdown">
 	</div>
@@ -211,10 +264,12 @@ function selRow(thisrow) {
 	var newbut = document.createElement("button");
 	newbut.innerText = "DISPLAY";
 	newbut.onclick = function f() {doProcess(1);};
+	newbut.style.margin = '0px 5px 0px 5px';
 	newtd.appendChild(newbut);
 	newbut = document.createElement("button");
 	newbut.innerText = "CREATE/EDIT";
 	newbut.onclick = function f() {doProcess(2);};
+	newbut.style.margin = '0px 5px 0px 5px';
 	newtd.appendChild(newbut);
 	newtr.appendChild(newtd);
 	thisrow.parentNode.insertBefore(newtr, thisrow.nextSibling);
@@ -222,6 +277,7 @@ function selRow(thisrow) {
 //
 //-------------------------- EN-QUEUE the display request -----------
 //
+var next_id='id1';
 //------- countdown window ------
 var intervalID;
 var countdownEnd;
@@ -237,6 +293,7 @@ function tickCountdown() {
 	else {
 		clearInterval(intervalID);
 		countdownDiv.style.display = 'none';
+		location.href = 'd-choose.php?'+next_id;
 	}
 }
 function showCountdown(q_wait) {
@@ -259,6 +316,7 @@ function processResponse() {
 function doProcess(action) {
 	var cursel;
 	cursel = document.getElementById("curSel");
+	next_id = cursel.lastChild.innerText;
 	if (cursel) {
 		if (action == 1) { // DISPLAY
 			// Send the id to display for queueing
@@ -267,10 +325,10 @@ function doProcess(action) {
 			xhr.open("POST", "q-en-q.php", true);
 			xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
 			// send the id
-			xhr.send('next_id='+cursel.lastChild.innerText);
+			xhr.send('next_id='+next_id);
 		}
 		else // CREATE/EDIT
-			location.href = 'd-create.php?'+cursel.lastChild.innerText;
+			location.href = 'd-create.php?'+next_id;
 	}
 }
 </script>
@@ -278,9 +336,9 @@ function doProcess(action) {
 //
 //---------------------- Initial sort of table ------------------------
 //
-	// params to sortCol are: field, type(0=str, 1=num), dir(0=desc, 1=asc)
-	// fields are: 0:Display Name; 1:Creator; 2:Creation; 3: Used date; 4:Used count
-	document.getElementById('sortselect').selectedIndex = <?php echo ((array_key_exists('QUERY_STRING',$_SERVER) and ($_SERVER['QUERY_STRING'] == 'new'))? '2': '4'); ?>;
+	sortCol('4,1,0');
+	e=document.getElementById('init_id');
+	if (e != null) selRow(e);
 </script>
 </body>
 </html>

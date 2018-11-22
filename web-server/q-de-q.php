@@ -17,6 +17,8 @@ if (!$lightson) {
 		//~ err('DEBUG:de-q:19 until='.$until.' time='.time().' durn='.$durn.' add_day='.$add_day);
 	}
 	else $durn = ($cur_stat == 'OFF'? 30: 1);
+	
+	//------------------------ Lights are OFF return what sort (standby, reboot etc) in 'stat' field
 	echo '{"id":"OFF","durn":'.strval($durn).',"stat":"'.$cur_stat.'"}';
 	return;
 }

@@ -63,6 +63,7 @@ if __name__ == '__main__':
 			spec = json.loads(text)
 			print('DEBUG:main:64 id=',spec['id'],'cur_id=',cur_id)
 			if spec['id'] == 'OFF': # switch everything off
+				cur_id = '';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
 				time.sleep(spec['durn'])

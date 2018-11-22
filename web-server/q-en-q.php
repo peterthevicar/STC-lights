@@ -25,8 +25,9 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			$q = json_decode(file_get_contents($fn), true);
 			if ($q == null) { // queue has broken, start again with id1
 				$q = ['cur_id'=>'id1', 'next_t'=>time(), 'q'=>[]];
+				err('ERR:en-q:28 broken queue, replaced with: '.json_encode($q));
 			}
-			//~ err("DEBUG:en-q:29 q=".json_encode($q));
+			//~ err("DEBUG:en-q:30 q=".json_encode($q).' time()='.strval(time()));
 			// Add this id to the end of the queue
 			$q_conts = &$q['q'];
 			$q_end = count($q_conts);
@@ -35,6 +36,7 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			if ($q['cur_id']==$next_id) { // it's the current one
 				$matched=true;
 			}
+			//~ err('DEBUG:en-q:39 next_t='.$q['next_t'].' wait='.strval($q['next_t']-time()));
 			$q_wait = ($matched? 0: max($q['next_t'] - time(), 0)); // how much left for this one
 			for ($i=0; $i<$q_end and !$matched; $i+=2) {
 				if ($q_conts[$i] == $next_id) $matched = true;

@@ -306,9 +306,13 @@ function showCountdown(q_wait) {
 function processResponse() {
 	if (this.readyState != 4) return;
 	if (this.status == 200) { // success
-		// responseText is the Queue wait returned from the en-q process
-		var q_wait = parseInt(this.responseText, 10);
-		showCountdown(q_wait);
+		var resp = JSON.parse(this.responseText);
+		if (resp.err == 0)
+			// responseText is the Queue wait returned from the en-q process
+			showCountdown(resp.msg);
+		else
+			// response text is error message
+			alert(resp.msg);
 	}
 	else // error of some sort
 		alert("Sorry, unable to contact the server. Please try again later");

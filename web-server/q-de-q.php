@@ -6,7 +6,7 @@ include "s-get-status.php";
 include "s-check-lights-on.php";
 
 // Touch heartbeat file
-touch('s-pulse');
+touch('ts-pulse');
 
 // First handle situations where lights are off so no need to look in queue etc
 if (!$lightson) {
@@ -43,8 +43,10 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 			}
 			$q_conts = &$q['q']; // reference to the queue contents
 			if (count($q_conts) == 0) { // nothing in the queue
-				$durn = 5; // check back in 5 seconds
-				$q['next_t'] = time() + $durn;
+				// Use remainder of time (or 5 seconds if we've finished)
+				// Need this in case multiple systems are running
+				$durn = ($q['next_t'] - time());
+				if ($durn < 1) $q['next_t'] = time() + 5;
 				$next_id = $q['cur_id'];
 			}
 			else { // have a queue, two elements per entry: id and duration

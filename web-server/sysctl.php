@@ -66,6 +66,7 @@ include "s-check-lights-on.php";
 				height: 100px;
 				font-size: 15pt;
 				border-radius: 10px;
+				vertical-align: top;
 			}
 			button.current {
 				border-color:magenta;
@@ -86,11 +87,20 @@ include "s-check-lights-on.php";
 			p.off {
 				background-color:silver;
 			}
+			p.warn {
+				background-color:red;
+				color:white;
+			}
+			p.ok {
+				background-color:white;
+				color:green;
+			}
 		</style>
 	</head>
 	<body>
 		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
-		<p>Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval(time()-filemtime('s-pulse')).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).'/'.strval($q['next_t']-time()).'</b>; queue: '.json_encode($q['q']); ?>
+		<p class="<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval($d).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q']); ?>
+		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t<filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('H:i:s', $t).' ('.strval($d).'</b> seconds ago)'; ?>
 		<div>
 			<button type=button <?php echo ($status['on']=='OFF'?'class="current" ': ''); ?>style="background-color:red" onclick="do_button('off')">OFF</button>
 			<button type=button <?php echo ($status['on']=='STA'?'class="current" ': ''); ?>style="background-color:orange" onclick="do_button('sta')">STANDBY</button>
@@ -110,7 +120,7 @@ include "s-check-lights-on.php";
 		</div>
 		<div>
 			<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
-			<p><a href="error-log.txt">Check error-log.txt</a>
+			<button type=button style="background-color:cream;color:black" onclick="location.href='s-error-check.php'">Check error log</button>
 		</div>
 
 		<p style="display:block; padding-top:100px">HERE BE DRAGONS!!<br><br>

@@ -108,6 +108,8 @@ include "s-check-lights-on.php";
 			<p class=head>Brightness</p>
 			<input type=number id=br autocomplete=off value="<?php echo $status['br'] ?>" max=255 min=0>
 		</div>
+		<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
+
 		<p style="display:block; padding-top:100px">HERE BE DRAGONS!!<br><br>
 		Check the de-q pulse at the top of this page to see if the reboot call has been picked up. <br>
 		Make sure to select another button once it has been picked up or you will get a<br>

@@ -3,8 +3,6 @@ include "s-nocache.php";
 // Set up error handler and err function for logging errors
 include "s-error-handler.php";
 
-// System control interface
-
 $req=(($_GET != [] and array_key_exists('mode',$_GET))? $_GET['mode']: '');
 if ($req == '' 
 and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUERY_STRING'] == 'st') 
@@ -16,7 +14,7 @@ and (array_key_exists('SERVER_ADDR',$_SERVER))) {
 //~ $req='cou'; // DEBUG: when running stand-alone, comment out above and use this
 // read in current status
 include "s-get-status.php";
-//~ err('DEBUG:sysctl:11 status='.json_encode($status));
+//~ err('DEBUG:sysctl:17 status='.json_encode($status));
 
 // see if we're being called to change things or just to update
 if ($req == '') {
@@ -24,10 +22,12 @@ if ($req == '') {
 }
 else {
 	// Have a request
-	// Overwrite st and et if provided
+	// Overwrite values if provided
 	if (array_key_exists('st',$_GET)) $status['st'] = $_GET['st'];
 	if (array_key_exists('et',$_GET)) $status['et'] = $_GET['et'];
-	if (array_key_exists('br',$_GET)) $status['br'] = $_GET['br'];
+	if (array_key_exists('brled',$_GET)) $status['brled'] = $_GET['brled'];
+	if (array_key_exists('brdmx',$_GET)) $status['brdmx'] = $_GET['brdmx'];
+	if (array_key_exists('brmet',$_GET)) $status['brmet'] = $_GET['brmet'];
 	// Process the request itself
 	if ($req == 'off') {
 		$status['on']='OFF';
@@ -98,7 +98,8 @@ include "s-check-lights-on.php";
 		</style>
 	</head>
 	<body>
-		<p class="<?php echo ($lightson?'on': 'off');?>">System status at <?php echo date('H:i', time()).'<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
+		<h2>System status at <?php echo date('H:i:s', time())?></h2>
+		<p class="<?php echo ($lightson?'on': 'off');?>"><?php echo '<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
 		<p class="<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval($d).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q']); ?>
 		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t<filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('H:i:s', $t).' ('.strval($d).'</b> seconds ago)'; ?>
 		<div>
@@ -115,8 +116,12 @@ include "s-check-lights-on.php";
 			<input type=time id=et autocomplete=off value="<?php echo $status['et'] ?>">
 		</div>
 		<div style="border:5px solid gray; width:200px; padding-bottom:10px;">
-			<p class=head>Brightness</p>
-			<input type=number id=br autocomplete=off value="<?php echo $status['br'] ?>" max=255 min=0>
+			<p class=head>LED Brightness</p>
+			<input type=number id=brled autocomplete=off value="<?php echo $status['brled'] ?>" max=255 min=0>
+			<p class=head>DMX Brightness</p>
+			<input type=number id=brdmx autocomplete=off value="<?php echo $status['brdmx'] ?>" max=255 min=0>
+			<p class=head>Meteors</p>
+			<input type=checkbox id=brmet autocomplete=off <?php echo ($status['brmet']=='true'?'checked=checked':'') ?>>
 		</div>
 		<div>
 			<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
@@ -134,7 +139,9 @@ include "s-check-lights-on.php";
 				location.href = 'sysctl.php?mode=' + id +
 					'&st='+document.getElementById("st").value +
 					'&et='+document.getElementById("et").value +
-					'&br='+document.getElementById("br").value;
+					'&brled='+document.getElementById("brled").value+
+					'&brdmx='+document.getElementById("brdmx").value+
+					'&brmet='+(document.getElementById("brmet").checked?'true':'false');
 			}
 		</script>
 	</body>

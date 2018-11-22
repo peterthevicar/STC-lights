@@ -13,7 +13,10 @@ else $status = '';
 if ($status == '' or 
 !array_key_exists('st',$status) or 
 !array_key_exists('et',$status) or 
-!array_key_exists('br',$status)) {
-	$status = json_decode('{"on":"ON", "st":"16:00", "et":"01:00", "br":"128"}', true);
+!array_key_exists('brled',$status) or
+!array_key_exists('brdmx',$status) or
+!array_key_exists('brmet',$status)) {
+	$status = json_decode('{"on":"ON", "st":"16:00", "et":"01:00", "brled":"128", "brdmx":"255", "brmet":"1"}', true);
+	err('ERR:get-status:20 Malformed status file, reset to default.');
 }
 ?>

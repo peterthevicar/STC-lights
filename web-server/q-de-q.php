@@ -110,8 +110,9 @@ $return = $disps[$next_id];
 $return['id'] = $next_id;
 $return['durn'] = $durn;
 //~ err('DEBUG:de-q:111 status='.file_get_contents('j-status.json'));
-$return['br'] = json_decode(file_get_contents('j-status.json'), true)['br'];
-//~ $return['fq'] = ($from_q? '1': '0');
+$return['brled'] = $status['brled'];
+$return['brdmx'] = $status['brdmx'];
+$return['brmet'] = $status['brmet'];
 // Return the info as a json string
 echo json_encode($return);
 ?>

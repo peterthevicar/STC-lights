@@ -1,5 +1,5 @@
 # local error log
-error_log.txt
+error-log.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

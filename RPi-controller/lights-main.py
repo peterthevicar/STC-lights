@@ -12,6 +12,10 @@ try:
 except:
 	print('Failed to import RPi.GPIO, using local dummy library')
 	import gpio
+# ~ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
+# ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
+# ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
+SERVER_URL='http://localhost/web-server/q-de-q.php'
 
 # Number of LEDs we're driving (3 strips of 150 plus two in the box)
 NUM_LEDS = 150*3+2
@@ -46,23 +50,22 @@ def init_gpio():
 
 if __name__ == '__main__':
 	cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
+	cur_brled = ''; cur_brdmx = ''; cur_brmet = ''; 
+
 	try:
 		init_gpio()
 		while True:
 			try:
-				download = urllib.request.urlopen('http://lymingtonchurch.org/lights/q-de-q.php')
-				# ~ download = urllib.request.urlopen('http://salisburys.net/test/q-de-q.php')
-				# ~ download = urllib.request.urlopen('http://192.168.1.10/web-server/q-de-q.php')
-				# ~ download = urllib.request.urlopen('http://localhost/web-server/q-de-q.php')
+				download = urllib.request.urlopen(SERVER_URL)
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
-				print("DEBUG:main:60 text=",text)
+				# ~ print("DEBUG:main:60 text=",text)
 			except:
-				print('DEBUG:main:60 error reading de-q, using default display spec')
-				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"br":"200"}'
+				print('ERR:main:62 Error reading de-q, using default display spec')
+				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"brled":"200","brdmx":"100","brmet":"true"}'
 
 			spec = json.loads(text)
-			print('DEBUG:main:64 id=',spec['id'],'cur_id=',cur_id)
+			print('DEBUG:main:65 id=',spec['id'],'cur_id=',cur_id,'Display=',spec['hd'][0])
 			if spec['id'] == 'OFF': # switch everything off
 				cur_id = '';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
@@ -75,7 +78,7 @@ if __name__ == '__main__':
 					cur_id = 'COU'
 					gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
 					gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
-					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['br']))
+					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
 					print('DEBUG:main:77 countdown sequence')
 					# 10 green blocks
 					gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
@@ -146,17 +149,23 @@ if __name__ == '__main__':
 					anim_render(time.time()+5) # A bit of extra time the first time round
 				anim_render(time.time()+5)				
 			else:
-				gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
-				gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
-				led_max_brightness = int(spec['br'])
-				if spec['id'] != cur_id or spec['hd'][6] != cur_vn: # Changed, need to read the parameters for the new display
+				if spec['id'] != cur_id \
+				or spec['hd'][6] != cur_vn \
+				or spec['brled'] != cur_brled \
+				or spec['brdmx'] != cur_brdmx \
+				or spec['brmet'] != cur_brmet: # Changed, need to read the parameters for the new display
 					
 					# Remember for next time
 					cur_id = spec['id']; cur_vn = spec['hd'][6]
+					cur_brled = spec['brled']; cur_brdmx = spec['brdmx']; cur_brmet = spec['brmet']; 
+
+					# Make sure the mains is on for LEDs and DMX if required
+					gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)
+					gpio.output(_gpio_chans[_gpio_DMX], cur_brdmx != 0)
 					
 					# Start a new display specification
-					anim_init(led_count=NUM_LEDS, max_brightness=led_max_brightness)
-					print ('DEBUG:main:156 spec=', spec)
+					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
+					print ('DEBUG:main:158 NEW DISPLAY spec=', spec)
 					
 					# Gradient spec
 					gra_colours = []
@@ -197,12 +206,11 @@ if __name__ == '__main__':
 					elif dmx_mode == 3: # independent, alternate
 						dmx_posv = [0, 50]
 						dmx_mode = 2
-					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=dmx_secs, d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0), d_strobe=trans_dmx_strobe[int(spec['fl'][5])])
+					anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=dmx_secs, d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0), d_strobe=trans_dmx_strobe[int(spec['fl'][5])], d_brightness=int(spec['brdmx']))
 					
 					# Meteors - just switch on or off at the mains
-					gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1')
+					gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1' and spec['brmet'] == 'true')
 					
-				anim_set_max_brightness(int(spec['br'])) # can change via sysctl interface
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back
 
 	except:

@@ -65,7 +65,7 @@ if __name__ == '__main__':
 				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"brled":"200","brdmx":"100","brmet":"true"}'
 
 			spec = json.loads(text)
-			print('DEBUG:main:65 id=',spec['id'],'cur_id=',cur_id,'Display=',spec['hd'][0])
+			print('DEBUG:main:65 id=',spec['id'],'cur_id=',cur_id)
 			if spec['id'] == 'OFF': # switch everything off
 				cur_id = '';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
@@ -149,6 +149,7 @@ if __name__ == '__main__':
 					anim_render(time.time()+5) # A bit of extra time the first time round
 				anim_render(time.time()+5)				
 			else:
+				print('Display name =',spec['hd'][0])
 				if spec['id'] != cur_id \
 				or spec['hd'][6] != cur_vn \
 				or spec['brled'] != cur_brled \

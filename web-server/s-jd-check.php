@@ -20,7 +20,7 @@ $bf = $backdir.scandir($backdir, 1)[0];
 //~ print_r($bf);
 if (file_exists($bf)) {
 	try {
-		err('DEBUG:s-jd-check:23 Reading backup '.$bf);
+		//~ err('DEBUG:s-jd-check:23 Reading backup '.$bf);
 		$bf_conts = file_get_contents($bf);
 		}
 	catch (Exception $e) {
@@ -41,9 +41,12 @@ if ($displays == '' or
 		err('ERR:s-jd-check:41 Failed to write from backup');
 	}
 } else { // all is well, make a backup if anything's changed
-	if ($jd_conts != $bf_conts)
-		file_put_contents($backdir.date('Ymd-his-').$jf, json_encode($displays));
-	else err('DEBUG:s-jd-check:46 No change, no backup made');
+	if (strcmp($jd_conts,$bf_conts) != 0) {
+		$fn = $backdir.date('Ymd-his-').$jf;
+		file_put_contents($fn, json_encode($displays));
+		err('DEBUG:s-jd-check:46 Backup stored to '.$fn);
+	}
+	else err('DEBUG:s-jd-check:46 No change from '.$bf.', no backup made');
 }	
-echo '<html><body><a href="error-log.txt">Complete, check error-log.txt for results</a></body></html>'
+echo '<html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><a href="error-log.txt">Complete, check error-log.txt for results</a></body></html>'
 ?>

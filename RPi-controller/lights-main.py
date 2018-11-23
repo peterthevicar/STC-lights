@@ -1,3 +1,4 @@
+import logging
 import time
 # comment next line if animator is installed on the path
 import sys, os; sys.path.append(os.path.dirname(os.path.realpath(__file__))+'/../../ws2812-animator')
@@ -10,7 +11,7 @@ import json
 try:
 	import RPi.GPIO as gpio
 except:
-	print('Failed to import RPi.GPIO, using local dummy library')
+	print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
 	import gpio
 SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 # ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
@@ -49,6 +50,17 @@ def init_gpio():
 	gpio.setup(_gpio_chans, gpio.OUT, initial=False)
 
 if __name__ == '__main__':
+	logging.basicConfig(
+		level=logging.INFO,
+		format="%(asctime)s [%(levelname)s] [%(module)s:%(lineno)d:%(funcName)s] %(message)s",
+		datefmt='%m/%d/%Y %H:%M:%S',
+		handlers=[
+			logging.FileHandler("/home/pi/Desktop/RPi-lights/lights.log"),
+			logging.StreamHandler()
+		])
+	# ~ logging.basicConfig(filename='/home/pi/Desktop/RPi-lights/lights.log', format='%(asctime)s %(message)s', level=logging.INFO)
+	logging.info('Started logging')
+
 	cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
 	cur_brled = ''; cur_brdmx = ''; cur_brmet = ''; 
 
@@ -59,13 +71,13 @@ if __name__ == '__main__':
 				download = urllib.request.urlopen(SERVER_URL)
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
-				# ~ print("DEBUG:main:60 text=",text)
+				# ~ logging.debug("text="+text)
 			except:
-				print('ERR:main:62 Error reading de-q, using default display spec')
+				logging.error('Error reading de-q, using default display spec')
 				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"brled":"200","brdmx":"100","brmet":"true"}'
 
 			spec = json.loads(text)
-			print('DEBUG:main:65 id=',spec['id'],'cur_id=',cur_id)
+			logging.info('id='+spec['id']+', cur_id='+cur_id)
 			if spec['id'] == 'OFF': # switch everything off
 				cur_id = '';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
@@ -79,7 +91,7 @@ if __name__ == '__main__':
 					gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
 					gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
 					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
-					print('DEBUG:main:77 countdown sequence')
+					logging.info('Start countdown sequence')
 					# 10 green blocks
 					gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
 					gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
@@ -149,7 +161,7 @@ if __name__ == '__main__':
 					anim_render(time.time()+5) # A bit of extra time the first time round
 				anim_render(time.time()+5)				
 			else:
-				print('Display name =',spec['hd'][0])
+				logging.info('Display name: '+spec['hd'][0])
 				if spec['id'] != cur_id \
 				or spec['hd'][6] != cur_vn \
 				or spec['brled'] != cur_brled \
@@ -166,13 +178,13 @@ if __name__ == '__main__':
 					
 					# Start a new display specification
 					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
-					print ('DEBUG:main:158 NEW DISPLAY spec=', spec)
+					logging.info('NEW DISPLAY, spec: '+str(spec))
 					
 					# Gradient spec
 					gra_colours = []
 					for c in spec['co']:
 						gra_colours.append(int(c[1:],16))
-					# ~ print(gra_colours)
+					# ~ logging.debug(str(gra_colours))
 					if spec['gr'][2] == "0": # Off
 						bar_on = bar_off = 0
 					elif spec['gr'][2] == "1": # Dash
@@ -196,7 +208,7 @@ if __name__ == '__main__':
 					# DMX lights
 					dmx_mode = int(spec['fl'][0])
 					dmx_secs = trans_dmx_speed[int(spec['fl'][4])]
-					#~ print('DEBUG:main:92 dmx_secs=',dmx_secs)
+					#~ logging.debug('dmx_secs='+str(dmx_secs))
 					if int(spec['fl'][3]) == 1: dmx_secs *= 2 # Twice as long for fade
 					if dmx_mode == 0: # off
 						dmx_posv=[]
@@ -215,7 +227,7 @@ if __name__ == '__main__':
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back
 
 	except:
-		print('ERROR:main:99 Exception')
+		logging.error('Exception handled in lights-main')
 		raise
 	finally:
 		anim_stop()

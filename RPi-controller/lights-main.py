@@ -227,7 +227,7 @@ if __name__ == '__main__':
 				anim_render(time.time()+int(spec['durn'])) # run until we need to check back
 
 	except:
-		logging.error('Exception handled in lights-main')
+		logging.exception('Exception handled in lights-main')
 		raise
 	finally:
 		anim_stop()

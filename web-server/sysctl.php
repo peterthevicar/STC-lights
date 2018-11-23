@@ -62,7 +62,7 @@ include "s-check-lights-on.php";
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style>
 			button {
-				width: 200px;
+				width: 120px;
 				height: 100px;
 				font-size: 15pt;
 				border-radius: 10px;
@@ -103,6 +103,11 @@ include "s-check-lights-on.php";
 		<p class="<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval($d).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q']); ?>
 		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('H:i:s', $t).' ('.strval($d).'</b> seconds ago)'; ?>
 		<div>
+			<button type=button style="background-color:white" onclick="location.href='http://lymingtonchurch.org/lights/sysctl.php?st'">REFRESH</button>
+			<button type=button style="background-color:cream;color:black" onclick="location.href='s-error-check.php'">Check error log</button>
+			<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
+		</div>
+		<div>
 			<button type=button <?php echo ($status['on']=='OFF'?'class="current" ': ''); ?>style="background-color:red" onclick="do_button('off')">OFF</button>
 			<button type=button <?php echo ($status['on']=='STA'?'class="current" ': ''); ?>style="background-color:orange" onclick="do_button('sta')">STANDBY</button>
 			<button type=button style="background-color:cyan" onclick="do_button('cou')">Countdown</button>
@@ -122,10 +127,6 @@ include "s-check-lights-on.php";
 			<input type=number id=brdmx autocomplete=off value="<?php echo $status['brdmx'] ?>" max=255 min=0>
 			<p class=head>Meteors</p>
 			<input type=checkbox id=brmet autocomplete=off <?php echo ($status['brmet']=='true'?'checked=checked':'') ?>>
-		</div>
-		<div>
-			<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
-			<button type=button style="background-color:cream;color:black" onclick="location.href='s-error-check.php'">Check error log</button>
 		</div>
 
 		<p style="display:block; padding-top:100px">HERE BE DRAGONS!!<br><br>

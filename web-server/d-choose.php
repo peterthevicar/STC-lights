@@ -140,8 +140,8 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 		  Sort:
 		  <select id="sortselect" onchange="sortCol(this.value)" autocomplete="off">
 			  <option value="2,1,0">Newest first</option>
-			  <option value="4,1,0" selected="true">Most popular</option>
-			  <option value="3,1,0">Most recently used</option>
+			  <option value="4,1,0">Most popular</option>
+			  <option value="3,1,0" selected="true">Most recently used</option>
 			  <option value="0,0,1">Display Name</option>
 			  <option value="1,0,1">Creator</option>
 		   </select>
@@ -340,7 +340,7 @@ function doProcess(action) {
 //
 //---------------------- Initial sort of table ------------------------
 //
-	sortCol('4,1,0');
+	sortCol('3,1,0');
 	e=document.getElementById('init_id');
 	if (e != null) selRow(e);
 </script>

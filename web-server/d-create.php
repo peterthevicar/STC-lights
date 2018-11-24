@@ -70,7 +70,7 @@ function build_colour($id, $i) {
 	global $this_disp;
 	// Retrieve the current colour
 	$cur_val=$this_disp[$id][$i];
-	echo "<input id='$id$i' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$cur_val'>\n";
+	echo "<input id='$id$i' class='color-input' type='color' autocomplete='off' style='border-width:2px; display:inline-block' value='$cur_val'>\n";
 }
 // build a text input box
 function build_text($id, $i) {
@@ -208,7 +208,7 @@ function build_colours () {
 
 	<button class="collapsible">Choose your colours</button>
 	<div class="content">
-		<p>Colours to be used in the display:
+		<p>Colours to be used in the display. Note: iPhones don't all give nice colour selectors here. If you see #00FF00 etc, then try colour names such as 'Pink' instead and we'll do what we can. Or get an Android phone!
 		<?php build_colours();?>
 	</div>
 	<button class="collapsible">Blend the colours into a gradient</button>
@@ -388,6 +388,13 @@ function build_colours () {
 	// If it finds one it puts the new value into new_disp ready for 
 	// creating a display with the new spec.
 	
+	// Insanely clever function from https://stackoverflow.com/questions/1573053/javascript-function-to-convert-color-names-to-hex-codes
+	// Understands red, #ff0000, #f00, rgb(255,0,0) etc and returns #FF0000
+	function standardise_colour(str){
+		var ctx = document.createElement('canvas').getContext('2d'); 
+		ctx.fillStyle = str;
+		return ctx.fillStyle;
+	}
 	var original_disp = JSON.parse('<?php echo json_encode($this_disp);?>');
 	
 	function create_new ($action) {
@@ -430,7 +437,7 @@ function build_colours () {
 			}
 			else if (section_id == "co") { // The colour list is variable length
 				for (i=0; i<=last_colour_visible; i++) {
-					var cv = document.getElementById("c"+i).value;
+					var cv = standardise_colour(document.getElementById("c"+i).value);
 					new_disp[section_id][i] = cv;
 					if (i >= orig_sect.len || orig_sect[i] != cv)
 						changed = true;
@@ -440,14 +447,15 @@ function build_colours () {
 				// Go through each element in this section
 				for (i in orig_sect) {
 					// We've labeled the elements with section id and index
-					e = document.getElementById(section_id + i);
+					id = section_id + i;
+					e = document.getElementById(id);
 					if (e == null) {
 						// nothing there so copy the original
 						new_disp[section_id][i] = orig_sect[i];
 					}
 					else {
 						// found a matching element so get its value
-						new_disp[section_id][i] = e.value;
+						new_disp[section_id][i] = (id=='st1' || id=='fl1' || id=='fl2'? standardise_colour(e.value): e.value);
 						if (orig_sect[i] != e.value)
 							changed = true;
 					}

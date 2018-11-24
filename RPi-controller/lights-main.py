@@ -13,10 +13,10 @@ try:
 except:
 	print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
 	import gpio
-SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
+# ~ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 # ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
 # ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
-# ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
+SERVER_URL='http://localhost/web-server/q-de-q.php'
 
 # Number of LEDs we're driving (3 strips of 150 plus two in the box)
 NUM_LEDS = 150*3+2

@@ -13,10 +13,11 @@ try:
 except:
 	print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
 	import gpio
-SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
+# ~ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 # ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
 # ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
 # ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
+SERVER_URL='fail'
 
 # Number of LEDs we're driving (3 strips of 150 plus two in the box)
 NUM_LEDS = 150*3+2
@@ -68,18 +69,22 @@ if __name__ == '__main__':
 		init_gpio()
 		while True:
 			try:
+				text = ''
 				download = urllib.request.urlopen(SERVER_URL)
 				data = download.read() # read into a 'bytes' object
 				text = data.decode('utf-8') # convert to a 'str' object
+				spec = json.loads(text)
 				# ~ logging.debug("text="+text)
 			except:
-				logging.error('Error reading de-q, using default display spec')
-				text = '{"hd":["Rainbow","Peter","90bfbf8c",1542244227,1542584796,8,2],"co":["#ff0000","#ffff00","#00ff00","#00ffff","#0000ff","#ff00ff"],"gr":["1","1","0"],"se":["4","2","2","2","2"],"fa":["0","1","3"],"sk":["2",8.3],"st":["0","#062af9","1","3","2"],"fl":["1","#000000","#ffffff","2","3","0"],"me":["1"],"id":"id1","durn":10,"brled":"200","brdmx":"100","brmet":"true"}'
+				logging.error('Error reading de-q. text="'+text+'"')
+				if cur_id == '':
+					logging.error('No current id, setting to OFF')
+					text = '{"id":"OFF","stat":"OFF","durn":5,"brled":"0","brdmx":"0","brmet":"false"}'
+					spec = json.loads(text)
 
-			spec = json.loads(text)
 			logging.info('id='+spec['id']+', cur_id='+cur_id)
 			if spec['id'] == 'OFF': # switch everything off
-				cur_id = '';
+				cur_id = 'OFF';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
 				time.sleep(spec['durn'])

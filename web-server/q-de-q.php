@@ -46,7 +46,10 @@ for ($i=1; $waiting and $i<=3; $i++) { // try 3 times for exclusive access to th
 				// Use remainder of time (or 5 seconds if we've finished)
 				// Need this in case multiple systems are running
 				$durn = ($q['next_t'] - time());
-				if ($durn < 1) $q['next_t'] = time() + 5;
+				if ($durn < 1) {
+					$durn = 5;
+					$q['next_t'] = time() + 5;
+				}
 				$next_id = $q['cur_id'];
 			}
 			else { // have a queue, two elements per entry: id and duration

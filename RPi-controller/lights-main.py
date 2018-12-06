@@ -179,24 +179,29 @@ if __name__ == '__main__':
 			with threading.Lock():
 				spec = copy.deepcopy(_get_spec) # make a copy as _get_spec can change at any time
 				next_t = _get_next # when we need to check back with the server
-			if next_t <= time.time():
+			if next_t <= time.time(): # not got anything since the last get so just keep going for another second
 				logging.info('next_t is '+str(time.time()-next_t)+' seconds in the past')
 				next_t = time.time()+1
+				
+			# Have our spec, now do it
 			logging.info('id='+spec['id']+', cur_id='+cur_id+', tsecs='+time.strftime('%S.')+str(time.time()).split('.')[1])
+			
 			if spec['id'] == 'OFF': # switch everything off
 				cur_id = 'OFF';
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				anim_stop()
-				time.sleep(spec['durn'])
 				if spec['stat'] == 'REB': # REBOOT RPi
 					os.system('sudo shutdown -r now')
+				time.sleep(max(0, next_t - time.time()))
+				
 			elif spec['id'] == 'COU': # countdown sequence
 				if cur_id != 'COU': # don't keep repeating the countdown sequence
 					cur_id = 'COU'
 					do_countdown()
 				# Keep going with the final display until something else comes along
-				anim_render(time.time()+5)
-			else:
+				anim_render(next_t)
+				
+			else: # Normal display
 				#logging.info('Display name: '+spec['hd'][0])
 				if spec['id'] != cur_id \
 				or spec['hd'][6] != cur_vn \
@@ -264,7 +269,9 @@ if __name__ == '__main__':
 					gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1' and spec['brmet'] == 'true')
 					
 				anim_render(next_t) # run until we need to check back
-
+				# end of normal display section
+			# end of while loop
+		# end try
 	except:
 		logging.exception('Exception handled in lights-main')
 		raise

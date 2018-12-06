@@ -1,1 +1,31 @@
 
+2018.Nov.30 07:57:19 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Nov.30 07:57:19 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Nov.30 07:57:19 
+2018.Nov.30 07:57:19 Ending script
+2018.Nov.30 07:57:19 ==========
+2018.Nov.30 07:58:04 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Nov.30 07:58:04 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Nov.30 07:58:04 
+2018.Nov.30 07:58:04 Ending script
+2018.Nov.30 07:58:04 ==========
+2018.Nov.30 07:59:19 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Nov.30 07:59:19 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Nov.30 07:59:19 
+2018.Nov.30 07:59:19 Ending script
+2018.Nov.30 07:59:19 ==========
+2018.Dec.01 21:11:19 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Dec.01 21:11:19 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.01 21:11:19 
+2018.Dec.01 21:11:19 Ending script
+2018.Dec.01 21:11:19 ==========
+2018.Dec.01 21:11:58 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Dec.01 21:11:58 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.01 21:11:58 
+2018.Dec.01 21:11:58 Ending script
+2018.Dec.01 21:11:58 ==========
+2018.Dec.02 14:01:33 ***Error: [2] fopen(j-displays.json): failed to open stream: Permission denied
+2018.Dec.02 14:01:33 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.02 14:01:33 
+2018.Dec.02 14:01:33 Ending script
+2018.Dec.02 14:01:33 ==========

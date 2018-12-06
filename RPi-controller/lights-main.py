@@ -203,6 +203,10 @@ if __name__ == '__main__':
 				or spec['brled'] != cur_brled \
 				or spec['brdmx'] != cur_brdmx \
 				or spec['brmet'] != cur_brmet: # Changed, need to read the parameters for the new display
+
+					# Stopp the old animation
+					logging.info('NEW DISPLAY, spec: '+str(spec))
+					anim_stop()
 					
 					# Remember for next time
 					cur_id = spec['id']; cur_vn = spec['hd'][6]
@@ -214,7 +218,6 @@ if __name__ == '__main__':
 					
 					# Start a new display specification
 					anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
-					logging.info('NEW DISPLAY, spec: '+str(spec))
 					
 					# Gradient spec
 					gra_colours = []

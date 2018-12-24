@@ -340,9 +340,13 @@ function doProcess(action) {
 //
 //---------------------- Initial sort of table ------------------------
 //
-	sortCol('3,1,0');
-	e=document.getElementById('init_id');
-	if (e != null) selRow(e);
+window.addEventListener("load", 
+	function(event){ 
+		sortCol('3,1,0');
+		e=document.getElementById('init_id');
+		if (e != null) selRow(e);
+	 }
+);	
 </script>
 </body>
 </html>

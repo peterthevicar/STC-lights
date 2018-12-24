@@ -29,3 +29,53 @@
 2018.Dec.02 14:01:33 
 2018.Dec.02 14:01:33 Ending script
 2018.Dec.02 14:01:33 ==========
+2018.Dec.24 21:55:44 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:44 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:44 
+2018.Dec.24 21:55:44 Ending script
+2018.Dec.24 21:55:44 ==========
+2018.Dec.24 21:55:45 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:45 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:45 
+2018.Dec.24 21:55:45 Ending script
+2018.Dec.24 21:55:45 ==========
+2018.Dec.24 21:55:46 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:46 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:46 
+2018.Dec.24 21:55:46 Ending script
+2018.Dec.24 21:55:46 ==========
+2018.Dec.24 21:55:47 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:47 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:47 
+2018.Dec.24 21:55:47 Ending script
+2018.Dec.24 21:55:47 ==========
+2018.Dec.24 21:55:48 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:48 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:48 
+2018.Dec.24 21:55:48 Ending script
+2018.Dec.24 21:55:48 ==========
+2018.Dec.24 21:55:49 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:49 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:49 
+2018.Dec.24 21:55:49 Ending script
+2018.Dec.24 21:55:49 ==========
+2018.Dec.24 21:55:50 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:50 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:50 
+2018.Dec.24 21:55:50 Ending script
+2018.Dec.24 21:55:50 ==========
+2018.Dec.24 21:55:51 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:51 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:51 
+2018.Dec.24 21:55:51 Ending script
+2018.Dec.24 21:55:51 ==========
+2018.Dec.24 21:55:52 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:52 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:52 
+2018.Dec.24 21:55:52 Ending script
+2018.Dec.24 21:55:52 ==========
+2018.Dec.24 21:55:53 ***Error: [2] fopen(j-displays.json): failed to open stream: No such file or directory
+2018.Dec.24 21:55:53 File:[/Disks/Data/Peter/6-Resources/Church-equipment/Christmas-lights/RPi-lights/STC-Lights/web-server/q-de-q.php] Line:[84]
+2018.Dec.24 21:55:53 
+2018.Dec.24 21:55:53 Ending script
+2018.Dec.24 21:55:53 ==========

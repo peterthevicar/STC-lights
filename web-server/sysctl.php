@@ -15,7 +15,11 @@ and (array_key_exists('SERVER_ADDR',$_SERVER))) {
 // read in current status
 include "s-get-status.php";
 //~ err('DEBUG:sysctl:17 status='.json_encode($status));
-
+function secondsToTime($seconds) {
+    $dtF = new \DateTime('@0');
+    $dtT = new \DateTime("@$seconds");
+    return $dtF->diff($dtT)->format('%ad,%h:%i:%s');
+}
 // see if we're being called to change things or just to update
 if ($req == '') {
 	// Just an update
@@ -98,10 +102,10 @@ include "s-check-lights-on.php";
 		</style>
 	</head>
 	<body>
-		<h2>System status at <?php echo date('H:i:s', time())?></h2>
+		<h2>System status: <?php echo date('D H:i:s', time())?></h2>
 		<p class="<?php echo ($lightson?'on': 'off');?>"><?php echo '<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
 		<p class="<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval($d).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q']); ?>
-		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('H:i:s', $t).' ('.strval($d).'</b> seconds ago)'; ?>
+		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('D H:i:s', $t).' ('.secondsToTime($d).'</b> ago)'; ?>
 		<div>
 			<button type=button style="background-color:white" onclick="location.href='http://lymingtonchurch.org/lights/sysctl.php?st'">REFRESH</button>
 			<button type=button style="background-color:cream;color:black" onclick="location.href='s-error-check.php'">Check error log</button>

@@ -4,7 +4,7 @@
 //
 // Handle errors ourselves. See https://www.w3schools.com/php/php_error.asp
 function err($msg) {
-	//~ echo $msg;
+	echo $msg;
 	error_log("".date('Y.M.d H:i:s')." $msg\n", 3, "error-log.txt");
 }
 function customError($error_number, $error_string, $error_file, $error_line, $error_context) {

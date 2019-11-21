@@ -4,6 +4,10 @@ include "s-error-handler.php";
 // read in the status file to see if the lights are on at the moment
 include "s-get-status.php";
 include "s-check-lights-on.php";
+$fn="j-laser.json";
+$content = file_get_contents($fn);
+$laser=json_decode($content, true);
+if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","turn":"3"}', true);
 //
 // ----------------------------- END PHP -----------------------------//
 ?>
@@ -75,20 +79,26 @@ include "s-check-lights-on.php";
 		display:inline-block;
 		vertical-align: top;
 	}
+	.go-button.off {
+		opacity: 0.5;
+	}
+	.go-button.on {
+		opacity: 1.0;
+	}
+	
 </style>
 </head>
 <body>
-	<h1>St.Thomas Christmas Lights</h1>
+	<h1>Laser Control</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
 	</div>
 	</div>
 	<div>
-		<h2>What do you want to change?</h2>
-		<button class="go-button" onclick="window.location.href='d-choose.php'" style="background-color:red">Display</button>
-		<button class="go-button" onclick="window.location.href='x-laser.php'" style="background-color:green">Laser</button>
-		<button class="go-button" onclick="window.location.href='x-floods.php'" style="background-color:blue">Floods</button>
+		<button id="R" class="go-button <?php echo ($laser["R"]=="on"? "on": "off");?>" onclick="toggleBut('R')" style="background-color:red">Red</button>
+		<button id="G" class="go-button" onclick="toggleBut('G')" style="background-color:green">Green</button>
+		<button id="B" class="go-button" onclick="toggleBut('B')" style="background-color:blue">Blue</button>
 	</div>
 	<div class="footer">
 		<div class="footer-text">
@@ -98,6 +108,33 @@ include "s-check-lights-on.php";
 			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
 		</div>
 	</div>
+
+<script>
+var laserState=<?php echo (json_encode($laser)); ?>;
+
+function toggleBut(id) {
+	// Change internal representation
+	laserState[id] = (laserState[id] == "on"? "off": "on");
+	// Now the class for CSS styling
+	e=document.getElementById(id);
+	e.className="go-button " + laserState[id];
 	
+
+    // Send the json to update laser state
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function () {
+		if (this.readyState != 4) return;
+	};
+	xhr.open("POST", "x-put.php", true);
+	// can't get application/json to work so have to use form encoding
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	//xhr.setRequestHeader('Content-type', 'application/json');
+
+	// send the collected data as JSON
+	xhr.send('json='+JSON.stringify(laserState));
+	//alert('json='+JSON.stringify(laserState));
+}
+</script>
+		
 </body>
 </html>

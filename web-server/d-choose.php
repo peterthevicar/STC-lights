@@ -123,14 +123,13 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 <!-- -->
 </head>
 <body>
-	<h1>St.Thomas Christmas Lights</h1>
+	<h1>Display Control</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
 	</div>
 	<div>
-		<p>Welcome to the St.Thomas Christmas Lights controller.
-		There are lots of different displays to choose from.
+		<p>There are lots of different displays to choose from.
 		Once you've chosen a display you can either <strong>DISPLAY</strong> it on the 
 		church tower or <strong>CREATE</strong> a new display of your own based on the one
 		you've chosen. <strong>Enjoy!</strong>

@@ -96,9 +96,12 @@ if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","
 	</div>
 	</div>
 	<div>
-		<button id="R" class="go-button <?php echo ($laser["R"]=="on"? "on": "off");?>" onclick="toggleBut('R')" style="background-color:red">Red</button>
-		<button id="G" class="go-button" onclick="toggleBut('G')" style="background-color:green">Green</button>
-		<button id="B" class="go-button" onclick="toggleBut('B')" style="background-color:blue">Blue</button>
+		<button id="R" class="go-button <?php echo ($laser["R"]=="on"? "on": "off");?>" 
+			onclick="toggleBut('R')" style="background-color:red">Red</button>
+		<button id="G" class="go-button <?php echo ($laser["G"]=="on"? "on": "off");?>" 
+			onclick="toggleBut('G')" style="background-color:green">Green</button>
+		<button id="B" class="go-button <?php echo ($laser["B"]=="on"? "on": "off");?>" 
+			onclick="toggleBut('B')" style="background-color:blue">Blue</button>
 	</div>
 	<div class="footer">
 		<div class="footer-text">

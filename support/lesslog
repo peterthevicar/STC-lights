@@ -1,0 +1,3 @@
+#!/bin/bash
+logf="/home/pi/Desktop/RPi-lights/lights.log"
+less $logf

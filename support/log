@@ -1,0 +1,4 @@
+#!/bin/bash
+logf="/home/pi/Desktop/RPi-lights/lights.log"
+ls -lh $logf
+tail -f -n5 $logf

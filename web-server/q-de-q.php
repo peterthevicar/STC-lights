@@ -11,15 +11,15 @@ touch('ts-pulse');
 // First handle situations where lights are off so no need to look in queue etc
 if (!$lightson) {
 	$cur_stat = $status['on'];
-	if ($cur_stat == 'TIM') { // Timer is off, wait 30 or until lights are on again
+	if ($cur_stat == 'TIM') { // Timer is off, wait until lights are on again
 		$add_day = ($until > time()? 0: 60*60*24); # in case 'on' time is tomorrow
-		$durn = min(30, $until+$add_day - time());
-		//~ err('DEBUG:de-q:19 until='.$until.' time='.time().' durn='.$durn.' add_day='.$add_day);
+		$next_t = $until+$add_day;
+		//~ err('DEBUG:de-q:19 until='.$until.' time='.time().' next_t='.$next_t.' add_day='.$add_day);
 	}
-	else $durn = ($cur_stat == 'OFF'? 30: 1);
+	else $next_t = 0; // Leave it to the RPi to decide when to check back
 	
 	//------------------------ Lights are OFF return what sort (standby, reboot etc) in 'stat' field
-	echo '{"id":"OFF","durn":'.strval($durn).',"stat":"'.$cur_stat.'"}';
+	echo '{"id":"OFF","next_t":'.strval($next_t).',"stat":"'.$cur_stat.'"}';
 	return;
 }
 

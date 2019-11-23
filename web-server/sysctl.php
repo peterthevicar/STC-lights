@@ -107,7 +107,7 @@ include "s-check-lights-on.php";
 		<p class="<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo 'last de-q pulse: <b>'.strval($d).'</b> seconds ago; cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q']); ?>
 		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('D H:i:s', $t).' ('.secondsToTime($d).'</b> ago)'; ?>
 		<div>
-			<button type=button style="background-color:white" onclick="location.href='http://lymingtonchurch.org/lights/sysctl.php?st'">REFRESH</button>
+			<button type=button style="background-color:white" onclick="location.href='sysctl.php?st'">REFRESH</button>
 			<button type=button style="background-color:cream;color:black" onclick="location.href='s-error-check.php'">Check error log</button>
 			<button type=button style="background-color:grey;color:white" onclick="location.href='s-jd-check.php'">Check and back up j-displays</button>
 		</div>

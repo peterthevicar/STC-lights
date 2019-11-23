@@ -182,6 +182,8 @@ if __name__ == '__main__':
 
     cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
     cur_brled = ''; cur_brdmx = ''; cur_brmet = ''; 
+    # Set up the animation structures
+    anim_init(led_count=NUM_LEDS)
 
     try:
         get_loop = threading.Thread(target=net_get_loop)
@@ -237,9 +239,8 @@ if __name__ == '__main__':
                     gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)
                     gpio.output(_gpio_chans[_gpio_DMX], cur_brdmx != 0)
                     
-                    # Start a new display specification
-                    anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
-                    
+                    # Put together a new display specification
+                    anim_set_max_brightness(int(cur_brled))
                     # Gradient spec
                     gra_colours = []
                     for c in spec['co']:

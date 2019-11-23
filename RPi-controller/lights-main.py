@@ -155,7 +155,10 @@ def net_get_loop():
             with threading.Lock():
                 _get_spec = json.loads(text)
                 next_t = int(_get_spec['next_t'])
-                dmx_ts = int(_get_spec['dmx']['dmx_ts'])
+                try: # dmx not filled in if the lights are off
+                    dmx_ts = int(_get_spec['dmx']['dmx_ts'])
+                except KeyError:
+                    dmx_ts = 0
                 tnow = time.time()
                 # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
                 _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))

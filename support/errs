@@ -1,4 +1,4 @@
 #!/bin/bash
-logf="/home/pi/Desktop/RPi-lights/lights.log"
+logf="/home/pi/Desktop/STC-Lights/RPi-controller/lights.log"
 ls -lh $logf
 grep -A5 '\[ERROR\]' $logf | tail 

@@ -1,8 +1,10 @@
 import logging
 import time
 # comment next line if animator is installed on the path
-import sys, os; sys.path.append(os.path.dirname(os.path.realpath(__file__))+'/../../ws2812-animator')
-from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_define_dmx, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
+import sys, os
+script_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(script_path + '/../../ws2812-animator')
+from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
 import numpy
 from colours import *
@@ -16,10 +18,10 @@ try:
 except:
     print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
     import gpio
-SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
+# ~ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 # ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
 # ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
-# ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
+SERVER_URL='http://localhost/web-server/q-de-q.php'
 # ~ SERVER_URL='fail'
 
 # Number of LEDs we're driving (3 strips of 150 plus two in the box)
@@ -139,6 +141,11 @@ def net_get_loop():
     Keep looping round, waiting for the duration specified in spec['durn']
     """
     global _get_spec, _get_next
+    def wait_t(ts, tnow):
+        # Work out when to re-get the data. The longer it is since the time stamp the longer we wait
+        age = tnow - ts
+        return tnow + (1 if age < 5 else 2 if age < 10 else 3 if age < 20 else 4 if age < 30 else 5)
+        
     while _get_run: # run until told to stop by main thread setting this to False (only on exception)
         try:
             text = ''
@@ -147,10 +154,13 @@ def net_get_loop():
             text = data.decode('utf-8') # convert to a 'str' object
             with threading.Lock():
                 _get_spec = json.loads(text)
-                durn = int(_get_spec['durn'])
-                _get_next = time.time() + durn
-            logging.info('Fetched id='+_get_spec['id']+', durn='+str(durn)+', tsecs='+time.strftime('%S.')+str(time.time()).split('.')[1])
-            time.sleep(max(0, durn - _get_LAT)) # Start the get a bit early to allow for the latency
+                next_t = int(_get_spec['next_t'])
+                dmx_ts = int(_get_spec['dmx']['dmx_ts'])
+                tnow = time.time()
+                # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
+                _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
+            # ~ logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
+            time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
         except:
             logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
             time.sleep(1) # wait a second then try again
@@ -161,7 +171,7 @@ if __name__ == '__main__':
         format="%(asctime)s [%(levelname)s] [%(module)s:%(lineno)d:%(funcName)s] %(message)s",
         datefmt='%m/%d/%Y %H:%M:%S',
         handlers=[
-            logging.FileHandler("/home/pi/Desktop/RPi-lights/lights.log"),
+            logging.FileHandler(script_path+"/lights.log"),
             logging.StreamHandler()
         ])
     # ~ logging.basicConfig(filename='/home/pi/Desktop/RPi-lights/lights.log', format='%(asctime)s %(message)s', level=logging.INFO)
@@ -209,7 +219,10 @@ if __name__ == '__main__':
                 or spec['brdmx'] != cur_brdmx \
                 or spec['brmet'] != cur_brmet: # Changed, need to read the parameters for the new display
 
-                    # Stopp the old animation
+                    # DMX lights and lasers
+                    dmx_mode = int(spec['fl'][0])
+
+                    # Stop the old animation
                     logging.info('NEW DISPLAY, spec: '+str(spec))
                     anim_stop()
                     
@@ -248,25 +261,6 @@ if __name__ == '__main__':
                     
                     # Sparkle
                     anim_define_sparkle(s_per_k=trans_spark[int(spec['sk'][0])], s_duration=0.1)
-                    
-                    # DMX lights
-                    dmx_mode = int(spec['fl'][0])
-                    dmx_secs = trans_dmx_speed[int(spec['fl'][4])]
-                    #~ logging.debug('dmx_secs='+str(dmx_secs))
-                    if int(spec['fl'][3]) == 1: dmx_secs *= 2 # Twice as long for fade
-                    if dmx_mode == 0: # off
-                        dmx_posv=[]
-                    elif dmx_mode == 1: # auto
-                        dmx_posv = [33, 67]
-                    elif dmx_mode == 2: # independent, same
-                        dmx_posv = [0, 0]
-                    elif dmx_mode == 3: # independent, alternate
-                        dmx_posv = [0, 50]
-                        dmx_mode = 2
-                    anim_define_dmx(d_off_auto_indep=dmx_mode, d_posv=dmx_posv, d_secs=dmx_secs, d_gradient_desc=GradientDesc([int(spec['fl'][1][1:],16),int(spec['fl'][2][1:],16)], 1, int(spec['fl'][3]), bar_on=0), d_strobe=trans_dmx_strobe[int(spec['fl'][5])], d_brightness=int(spec['brdmx']))
-                    
-                    # Meteors - just switch on or off at the mains
-                    gpio.output(_gpio_chans[_gpio_MET], spec['fl'][0] == '1' and spec['brmet'] == 'true')
                     
                 anim_render(next_t) # run until we need to check back
                 # end of normal display section

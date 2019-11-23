@@ -4,10 +4,8 @@ include "s-error-handler.php";
 // read in the status file to see if the lights are on at the moment
 include "s-get-status.php";
 include "s-check-lights-on.php";
-$fn="j-laser.json";
-$content = file_get_contents($fn);
-$laser=json_decode($content, true);
-if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","turn":"3"}', true);
+// Read in the current dmx state (into $dmx)
+include "x-get-dmx.php";
 //
 // ----------------------------- END PHP -----------------------------//
 ?>
@@ -33,7 +31,7 @@ if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","
 	}
 	h1 {
 		font-family: 'Paprika', serif;
-		background-image: url('http://stt.woodcom.co.uk/wp-content/uploads/2018/06/h1-flourish.png');
+		background-image: url('https://lymingtonchurch.org/wp-content/uploads/2018/06/h1-flourish.png');
 		background-repeat: no-repeat;
 		background-position: bottom left;
 		color: rgb(118, 50, 63);
@@ -96,11 +94,11 @@ if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","
 	</div>
 	</div>
 	<div>
-		<button id="R" class="go-button <?php echo ($laser["R"]=="on"? "on": "off");?>" 
+		<button id="R" class="go-button <?php echo ($dmx["R"]=="on"? "on": "off");?>" 
 			onclick="toggleBut('R')" style="background-color:red">Red</button>
-		<button id="G" class="go-button <?php echo ($laser["G"]=="on"? "on": "off");?>" 
+		<button id="G" class="go-button <?php echo ($dmx["G"]=="on"? "on": "off");?>" 
 			onclick="toggleBut('G')" style="background-color:green">Green</button>
-		<button id="B" class="go-button <?php echo ($laser["B"]=="on"? "on": "off");?>" 
+		<button id="B" class="go-button <?php echo ($dmx["B"]=="on"? "on": "off");?>" 
 			onclick="toggleBut('B')" style="background-color:blue">Blue</button>
 	</div>
 	<div class="footer">
@@ -113,29 +111,29 @@ if ($laser==null) $laser=json_decode('{"R":"off","G":"on","B":"on","blink":"3","
 	</div>
 
 <script>
-var laserState=<?php echo (json_encode($laser)); ?>;
+var dmxState=<?php echo (json_encode($dmx)); ?>;
 
 function toggleBut(id) {
 	// Change internal representation
-	laserState[id] = (laserState[id] == "on"? "off": "on");
+	dmxState[id] = (dmxState[id] == "on"? "off": "on");
 	// Now the class for CSS styling
 	e=document.getElementById(id);
-	e.className="go-button " + laserState[id];
+	e.className="go-button " + dmxState[id];
 	
 
-    // Send the json to update laser state
+    // Send the json to update dmx state
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {
 		if (this.readyState != 4) return;
 	};
-	xhr.open("POST", "x-put.php", true);
+	xhr.open("POST", "x-put-dmx.php", true);
 	// can't get application/json to work so have to use form encoding
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	//xhr.setRequestHeader('Content-type', 'application/json');
 
 	// send the collected data as JSON
-	xhr.send('json='+JSON.stringify(laserState));
-	//alert('json='+JSON.stringify(laserState));
+	xhr.send('json='+JSON.stringify(dmxState));
+	//alert('json='+JSON.stringify(dmxState));
 }
 </script>
 		

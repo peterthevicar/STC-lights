@@ -11,7 +11,6 @@ from time import sleep, time
 import threading
 
 _DMX_UNIVERSE_SIZE = 512
-_DMX_CHANS_PER_UNIT = 7
 _dmx = None
 _dmx_buffer = bytearray([0]*_DMX_UNIVERSE_SIZE)
 
@@ -36,7 +35,7 @@ def usb_transfer_loop():
             _dmx.send_multi_value(1, _dmx_buffer)
         except ValueError:
             pass
-            # ~ print('ERR:dmx:37 ValueError - no DMX device?')
+            print('ERR:dmx:38 ValueError - no DMX device?')
         #~ _dmx_debug_f += 1
         #~ sleep(max(0, frame_end - time()))
     print('DEBUG:dmx:28 End USB transfer loop')
@@ -46,7 +45,7 @@ def dmx_blank():
 
 def dmx_init():
     global _dmx
-    print('DEBUG:dmx:35 Starting DMX controller')
+    print('DEBUG:dmx:48 Starting DMX controller')
     _dmx = pyudmx.uDMXDevice()
     _dmx.open()
 
@@ -57,14 +56,17 @@ def dmx_init():
 
     dmx_blank()
 
-def dmx_put_unit(unit=0, colour=0x000000, brightness=255, strobe=0):
+def dmx_put_flood_colour(dmx_addr=1, colour=0x000000, brightness=255, strobe=0):
     b = colour & 0xFF
     g = (colour >> 8) & 0xFF
     r = (colour >> 16) & 0xFF
-    chan_offs = _DMX_CHANS_PER_UNIT * unit
     # Order correctly for the particular channel use of the unit
-    _dmx_buffer[chan_offs:chan_offs+_DMX_CHANS_PER_UNIT] = [brightness & 0xFF, r, g, b, strobe & 0xFF, 0, 0]
-    #~ if unit==0: print('DEBUG:dmx:63 put unit=', unit, 'colour=', colour)
+    _dmx_buffer[dmx_addr-1:7] = [brightness & 0xFF, r, g, b, strobe & 0xFF, 0, 0]
+    #~ if unit==0: print('DEBUG:dmx:65 dmx_addr=', dmx_addr, 'colour=', colour)
+
+def dmx_put_value(dmx_addr=1, value=0):
+    _dmx_buffer[dmx_addr-1] = (value & 0xFF)
+    #~ if unit==0: print('DEBUG:dmx:69 put dmx_addr=', dmx_addr, 'value=', value)
 
 def dmx_close():
     dmx_blank()
@@ -76,32 +78,18 @@ def dmx_close():
     
 if __name__ == "__main__":
     dmx_init()
-    
-    #~ print('Blue, Black, steady')
-    #~ dmx_put_unit(0, 0x0000FF, 254)
-    #~ dmx_put_unit(1, 0x000000, 254)
-    #~ sleep(5)
-    
-    #~ print('Ramp two units')
-    #~ t_start = time()
-    #~ frames = 5
-    #~ for f in range (frames):
-        #~ dmx_put_unit(0, 0x0000FF, int(f/frames*254))
-        #~ dmx_put_unit(1, 0x00FF00, int(f/frames*254))
-        #~ sleep(1)
-
     print('Flash black/red')
     t_start = time()
     pause=0.3; frames = int(5/(5*pause));
     for f in range (frames):
-        dmx_put_unit(0, 0xFF0000, int(f/frames*254))
-        dmx_put_unit(1, 0x000000, int(f/frames*254))
+        dmx_put_flood_colour(0, 0xFF0000, int(f/frames*254))
+        dmx_put_flood_colour(1, 0x000000, int(f/frames*254))
         sleep(pause)
-        dmx_put_unit(1, 0xFF0000, int(f/frames*254))
-        dmx_put_unit(0, 0x000000, int(f/frames*254))
+        dmx_put_flood_colour(1, 0xFF0000, int(f/frames*254))
+        dmx_put_flood_colour(0, 0x000000, int(f/frames*254))
         sleep(pause)
-        dmx_put_unit(1, 0x000000, int(f/frames*254))
-        dmx_put_unit(0, 0x000000, int(f/frames*254))
+        dmx_put_flood_colour(1, 0x000000, int(f/frames*254))
+        dmx_put_flood_colour(0, 0x000000, int(f/frames*254))
         sleep(pause*3)
         
         # ~ sleep(max(0, frame_end - time()))

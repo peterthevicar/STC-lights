@@ -25,7 +25,7 @@ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
 # ~ SERVER_URL='fail'
 
 # Number of LEDs we're driving (3 strips of 150 plus two in the box)
-NUM_LEDS = 591+2
+NUM_LEDS = 584+2
 
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
 trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]

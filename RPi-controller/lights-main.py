@@ -6,6 +6,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(script_path + '/../../ws2812-animator')
 from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
+from dmx import dmx_init, dmx_put_value, dmx_put_flood_colour, dmx_close
 import numpy
 from colours import *
 import urllib.request
@@ -66,7 +67,7 @@ def do_countdown():
     """
     gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
     gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
-    anim_init(led_count=NUM_LEDS, max_brightness=int(spec['brled']))
+    anim_set_max_brightness(int(spec['brled']))
     logging.info('Start countdown sequence')
     # 10 green blocks
     gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
@@ -88,52 +89,58 @@ def do_countdown():
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_render(time.time()+pause(7))
-    # 6 Magenta blocks + meteors
+    # 6 Magenta blocks + floods
     gra_colours = ([RGB_Black]+[RGB_Magenta]*4)*6+[RGB_Black]*20
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
-    gpio.output(_gpio_chans[_gpio_MET], True)
+    dmx_put_flood_colour(0, RGB_Magenta)
+    dmx_put_flood_colour(1, RGB_Magenta)
     anim_render(time.time()+pause(6))
-    # 5 Red blocks + meteors
+    # 5 Red blocks + floods
     gra_colours = ([RGB_Black]+[RGB_Red]*4)*5+[RGB_Black]*25
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     gpio.output(_gpio_chans[_gpio_MET], True)
+    dmx_put_flood_colour(0, RGB_Red)
+    dmx_put_flood_colour(1, RGB_Red)
     anim_render(time.time()+pause(5))
-    # 4 Orange blocks + meteors + red spot
+    # 4 Orange blocks + red spot + floods
     gra_colours = ([RGB_Black]+[RGB_Orange]*4)*4+[RGB_Black]*30
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 1.5)
-    gpio.output(_gpio_chans[_gpio_MET], True)
+    dmx_put_flood_colour(0, RGB_Orange)
+    dmx_put_flood_colour(1, RGB_Orange)
     anim_render(time.time()+pause(4))
-    # 3 Yellow blocks + meteors + red spot twice
+    # 3 Yellow blocks + red spot twice + floods
     gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*3+[RGB_Black]*35
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 0.75, REPEAT)
-    gpio.output(_gpio_chans[_gpio_MET], True)
+    dmx_put_flood_colour(0, RGB_Yellow)
+    dmx_put_flood_colour(1, RGB_Yellow)
     anim_render(time.time()+pause(3))
-    # 2 white blocks moving fast, no meteors or spot
+    # 2 white blocks moving fast, floods flashing
     gra_colours = ([RGB_Black]*5+[RGB_White]*10)
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1, reverse=REVERSE)
-    gpio.output(_gpio_chans[_gpio_MET], False)
+    dmx_put_flood_colour(0, RGB_White, strobe='fast')
+    dmx_put_flood_colour(1, RGB_White, strobe='fast')
     anim_render(time.time()+pause(2))
-    # 1 rapid rainbow all together no spot or meteors
+    # 1 rapid rainbow all together no spot, floods still flashing
     gra_colours = [RGB_Red, RGB_Blue]
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=SMOOTH, bar_on=0)
     anim_define_pattern(gra_desc, segments=0, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1/2, reverse=REVERSE)
     anim_define_sparkle(200)
+    dmx_put_flood_colour(0, RGB_Cyan, strobe='fast')
+    dmx_put_flood_colour(1, RGB_Magenta, strobe='fast')
     anim_render(time.time()+pause(1))
-    # 0 rainbow, sparkly, DMX auto
+    # 0 rainbow, sparkly, floods colour changing
     gra_colours = [RGB_Red, RGB_Yellow, RGB_Green, RGB_Cyan, RGB_Blue, RGB_Magenta]
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=6, seg_reverse=REPEAT, motion=RIGHT, repeat_s=5, reverse=REVERSE)
     anim_define_sparkle(50)
     anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
-    anim_define_dmx(d_off_auto_indep=1, d_strobe=250)
-    gpio.output(_gpio_chans[_gpio_MET], True)
     anim_render(time.time()+5) # A bit of extra time the first time round
 def net_get_loop():
     """
@@ -184,6 +191,7 @@ if __name__ == '__main__':
     cur_brled = ''; cur_brdmx = ''; cur_brmet = ''; 
     # Set up the animation structures
     anim_init(led_count=NUM_LEDS)
+    dmx_init()
 
     try:
         get_loop = threading.Thread(target=net_get_loop)
@@ -276,5 +284,6 @@ if __name__ == '__main__':
     finally:
         _get_run = False # probably won't make any difference but it feels good!
         anim_stop()
+        dmx_close()
         gpio.cleanup()
         raise

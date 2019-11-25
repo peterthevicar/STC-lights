@@ -56,18 +56,22 @@ def dmx_init():
 
     dmx_blank()
 
-def dmx_put_flood_colour(dmx_addr=1, colour=0x000000, brightness=255, strobe=0):
-    b = colour & 0xFF
-    g = (colour >> 8) & 0xFF
-    r = (colour >> 16) & 0xFF
-    # Order correctly for the particular channel use of the unit
-    _dmx_buffer[dmx_addr-1:7] = [brightness & 0xFF, r, g, b, strobe & 0xFF, 0, 0]
-    print(len(_dmx_buffer))
-    #~ if unit==0: print('DEBUG:dmx:65 dmx_addr=', dmx_addr, 'colour=', colour)
-
 def dmx_put_value(dmx_addr=1, value=0):
     _dmx_buffer[dmx_addr-1] = (value & 0xFF)
     #~ if unit==0: print('DEBUG:dmx:69 put dmx_addr=', dmx_addr, 'value=', value)
+
+_UNIT_0_OFFS = 0
+_FLOOD_CHANS = 7
+def dmx_put_flood_colour(unit=0, colour=0x000000, brightness=255, strobe='off'):
+    b = colour & 0xFF
+    g = (colour >> 8) & 0xFF
+    r = (colour >> 16) & 0xFF
+    # Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast (channel 6 must be 0-10)
+    s = {'off':0, 'slow':128, 'med':192, 'fast':240}[strobe]
+    # Order correctly for the particular channel use of the unit
+    start_ix = _UNIT_0_OFFS + unit*_FLOOD_CHANS
+    _dmx_buffer[start_ix: start_ix+_FLOOD_CHANS] = [brightness & 0xFF, r, g, b, s, 0, 0]
+    print('DEBUG:dmx:72 unit=', unit, 'colour=', colour, "[0:7]=", _dmx_buffer[0:7])
 
 def dmx_close():
     dmx_blank()
@@ -81,13 +85,14 @@ if __name__ == "__main__":
     dmx_init()
     print('Flash black/red')
     t_start = time()
-    dmx_put_value(1,255) # brightness
+    #dmx_put_value(1,255) # brightness
     pause=0.5; frames = 25;
     _dmx_buffer[0]=255
     for f in range (frames):
-        dmx_put_value(2,f*10) # ramp up red
+        #dmx_put_value(2,f*10) # ramp up red
+        dmx_put_flood_colour(0,f*10)
         sleep(pause)
-        dmx_put_value(2,0) # black
+        dmx_put_flood_colour(0,0) # black
         sleep(pause)
         # ~ sleep(max(0, frame_end - time()))
     #~ print('DEBUG:dmx:93', _dmx_debug_f/(time()-_dmx_debug_start_t), 'USB FPS')

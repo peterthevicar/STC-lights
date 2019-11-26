@@ -50,14 +50,6 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 		padding:5px;
 		color:white;
 	}
-	.go-button {
-		height:100px; width:120px;
-		border-radius:8px;
-		padding: 5px;
-		font-size:20px; color:white;
-		display:inline-block;
-		vertical-align: top;
-	}
 	.footer {
 		width: 100%;
 		margin-top: 10px;
@@ -72,19 +64,40 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 		color:white; font-weight: bold;
 		text-decoration: none;
 	}
-	.go-button {
-		height:100px; width:120px;
-		border-radius:8px;
-		padding: 5px;
-		font-size:20px; color:white;
-		display:inline-block;
-		vertical-align: top;
+	/*----------------- Slider ---*/
+	.colour-slider {
+	  -webkit-appearance: none;
+	  width: 100%;
+	  height: 25px;
+	  background: #d3d3d3;
+	  background-image: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
+	  outline: none;
+	  opacity: 0.7;
+	  -webkit-transition: .2s;
+	  transition: opacity .2s;
 	}
-	.go-button.off {
-		opacity: 0.5;
+	/*----------------- COLLAPSIBLE ---*/
+	/* Style the button that is used to open and close the collapsible content */
+	.collapsible {
+		background-color:rgb(192, 159, 128);
+		font-size:18px; 
+		color: white;
+		cursor: pointer;
+		padding: 15px 15px 15px 5px;
+		width: 100%;
+		border: none;
+		text-align: left;
+		outline: none;
 	}
-	.go-button.on {
-		opacity: 1.0;
+	.collapsible:before {
+		content: '\025B6'; /* Unicode character for "plus" sign (+) */
+		color: white;
+		float: left;
+		margin: 0px 15px 0px 5px;
+	}
+
+	.active:before {
+		content: "\025BC";
 	}
 	
 </style>
@@ -95,14 +108,29 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
 	</div>
+	<button id="off" class="collapsible">OFF</button>
+	<div style="display:none;">
+		<p>You have now switched the lasers OFF</p>
 	</div>
-	<div>
-		<button id="R" class="go-button <?php echo ($j_arr["R"]=="on"? "on": "off");?>" 
-			onclick="toggleBut('R')" style="background-color:red">Red</button>
-		<button id="G" class="go-button <?php echo ($j_arr["G"]=="on"? "on": "off");?>" 
-			onclick="toggleBut('G')" style="background-color:green">Green</button>
-		<button id="B" class="go-button <?php echo ($j_arr["B"]=="on"? "on": "off");?>" 
-			onclick="toggleBut('B')" style="background-color:blue">Blue</button>
+	<button id="tur" class="collapsible">Turning</button>
+	<div style="display:none;">
+		<p>Laser brightness</p>
+		<p>Red</p>
+		<input id="l_R" onchange="sendChange('l_R')" type="range" min="0" max="255" class="colour-slider" style="	  background-image: linear-gradient(to right, black, red);" value="<?php echo $j_arr['l_R']?>">
+		<p>Green</p>
+		<input id="l_G" onchange="sendChange('l_G')" type="range" min="0" max="255" class="colour-slider" style="	  background-image: linear-gradient(to right, black, green);" value="<?php echo $j_arr['l_G']?>">
+		<p>Blue</p>
+		<input id="l_B" onchange="sendChange('l_B')" type="range" min="0" max="255" class="colour-slider" style="	  background-image: linear-gradient(to right, black, blue);" value="<?php echo $j_arr['l_B']?>">
+		<p>Turning speed and direction. Stop is in the middle</p>
+		<input id="l_spd" onchange="sendChange('l_spd')" type="range" min="1" max="10" value="<?php echo $j_arr['l_spd']?>">
+		<p>Flash speed, stop is on the left</p>
+		<input id="l_strobe" onchange="sendChange('l_strobe')" type="range" min="0" max="4" value="<?php echo $j_arr['l_strobe']?>">
+	</div>
+	<button id="seq" class="collapsible">Random</button>
+	<div style="display:none;">
+		<p>Choose how intense you want the sequence to be</p>
+		<p>Speed and density</p>
+		<input id="l_seq" onchange="sendChange('l_seq')" type="range" min="1" max="5" value="<?php echo $j_arr['l_seq']?>">
 	</div>
 	<div class="footer">
 		<div class="footer-text">
@@ -116,14 +144,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 <script>
 var dmxState=<?php echo (json_encode($j_arr)); ?>;
 
-function toggleBut(id) {
-	// Change internal representation
-	dmxState[id] = (dmxState[id] == "on"? "off": "on");
-	// Now the class for CSS styling
-	e=document.getElementById(id);
-	e.className="go-button " + dmxState[id];
-	
-
+function sendChange(id) {
     // Send the json to update dmx state
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {
@@ -135,12 +156,38 @@ function toggleBut(id) {
 	//xhr.setRequestHeader('Content-type', 'application/json');
 
 	// send the collected data as JSON
+	if (id != '') dmxState[id] = document.getElementById(id).value;
 	dmxState['fn'] = 'j-dmx-las.json';
 	dmxState['l_ts'] = Math.floor(Date.now()/1000).toString();
 	xhr.send('json='+JSON.stringify(dmxState));
 	//alert('json='+JSON.stringify(dmxState));
 }
 </script>
+<script>
+	//
+	//-------------- onClick for Collapsible sections ----------------//
+	//
+	var coll = document.getElementsByClassName("collapsible");
+	var i;
+
+	for (i = 0; i < coll.length; i++) {
+		coll[i].addEventListener("click", function() {
+			for (i = 0; i < coll.length; i++) {
+				var content = coll[i].nextElementSibling;
+			    if (coll[i] == this) {
+					this.classList.add("active");
+					content.style.display = "block";
+				}
+				else {
+					coll[i].classList.remove("active");
+					content.style.display = "none";
+				}
+			}
+			dmxState['l_mode'] = this.id;
+			sendChange('');
+		});
+	}
+</script>	
 		
 </body>
 </html>

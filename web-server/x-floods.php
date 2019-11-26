@@ -51,14 +51,6 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 		padding:5px;
 		color:white;
 	}
-	.go-button {
-		height:100px; width:120px;
-		border-radius:8px;
-		padding: 5px;
-		font-size:20px; color:white;
-		display:inline-block;
-		vertical-align: top;
-	}
 	.footer {
 		width: 100%;
 		margin-top: 10px;
@@ -73,26 +65,13 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 		color:white; font-weight: bold;
 		text-decoration: none;
 	}
-	.go-button {
-		height:100px; width:120px;
-		border-radius:8px;
-		padding: 5px;
-		font-size:20px; color:white;
-		display:inline-block;
-		vertical-align: top;
-	}
-	.go-button.off {
-		opacity: 0.5;
-	}
-	.go-button.on {
-		opacity: 1.0;
-	}
-	.slider {
+	/*----------------- Slider ---*/
+	.colour-slider {
 	  -webkit-appearance: none;
 	  width: 100%;
 	  height: 25px;
 	  background: #d3d3d3;
-	  background-image: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
+	  background-image: linear-gradient(to right, black, red, yellow, green, cyan, blue, magenta, red, white);
 	  outline: none;
 	  opacity: 0.7;
 	  -webkit-transition: .2s;
@@ -151,9 +130,9 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 	<div style="display:none;">
 		<p>Choose the colours for the two floodlights and whether you want them to flash</p>
 		<p>Left hand flood light colour</p>
-		<input id="f_colL" onchange="sendChange('f_colL')" type="range" min="1" max="360" class="slider" value="<?php echo $j_arr['f_colL']?>">
+		<input id="f_colL" onchange="sendChange('f_colL')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_colL']?>">
 		<p>Right hand flood light colour</p>
-		<input id="f_colR" onchange="sendChange('f_colR')" type="range" min="1" max="360" class="slider" value="<?php echo $j_arr['f_colR']?>">
+		<input id="f_colR" onchange="sendChange('f_colR')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_colR']?>">
 		<p>Flash speed</p>
 		<input id="f_strobe" onchange="sendChange('f_strobe')" type="range" min="0" max="3" value="<?php echo $j_arr['f_strobe']?>">
 	</div>
@@ -176,7 +155,6 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 var dmxState=<?php echo (json_encode($j_arr)); ?>;
 
 function sendChange(id) {
-
     // Send the json to update dmx state
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function () {

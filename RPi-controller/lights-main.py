@@ -6,7 +6,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(script_path + '/../../ws2812-animator')
 from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
-from dmx import dmx_init, dmx_put_value, dmx_set_flood_colour, dmx_set_flood_sequence, dmx_blank, dmx_close
+from dmx import dmx_init, dmx_put_value, dmx_set_flood_colour, dmx_set_flood_sequence, dmx_set_laser_turn, dmx_set_laser_auto, dmx_blank, dmx_close
 import numpy
 from colours import *
 import urllib.request
@@ -91,20 +91,29 @@ def net_get_loop():
             logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
             time.sleep(1) # wait a second then try again
 
-def process_dmx_spec(ds):
+def process_dmx_spec(ds, brdmx):
     """Look in dmx_spec and make calls to dmx library according to the mode in use"""
+    # First the floods
     if ds['f_mode'] == 'off':
-        dmx_blank()
+        dmx_set_flood_colour(0, 0, brightness=int(brdmx))
+        dmx_set_flood_colour(1, 0, brightness=int(brdmx))
     elif ds['f_mode'] == 'col':
-        dmx_set_flood_colour(0, hue=int(ds['f_colL']), strobe=int(ds['f_strobe']))
-        dmx_set_flood_colour(1, hue=int(ds['f_colR']), strobe=int(ds['f_strobe']))
+        dmx_set_flood_colour(0, hue=int(ds['f_colL']), brightness=int(brdmx), strobe=int(ds['f_strobe']))
+        dmx_set_flood_colour(1, hue=int(ds['f_colR']), brightness=int(brdmx), strobe=int(ds['f_strobe']))
     elif ds['f_mode'] == 'seq':
         dmx_set_flood_sequence(0, int(ds['f_seq']))
         dmx_set_flood_sequence(1, int(ds['f_seq']))
+    # Now the laser
+    if ds['l_mode'] == 'off':
+        dmx_set_laser_turn(0,0,0)
+    elif ds['l_mode'] == 'tur':
+        dmx_set_laser_turn(int(ds['l_R']), int(ds['l_G']), int(ds['l_B']), int(ds['l_spd']), int(ds['l_strobe']))
+    elif ds['l_mode'] == 'seq':
+        dmx_set_laser_auto(int(ds['l_seq']))
 
 def pause(step):
     """How long to pause for this step of the countdown"""
-    return step/20 + 0.75 # i.e. from 1.25 seconds, getting faster to 0.75
+    return step/20 + 0.5 # i.e. from 1 second, getting faster to 0.55
 def do_countdown():
     """
     A ten step countdown. Each step has its own display spec
@@ -243,22 +252,28 @@ if __name__ == '__main__':
                 if spec['id'] != cur_id \
                 or spec['hd'][6] != cur_vn \
                 or spec['brled'] != cur_brled \
+                or spec['brdmx'] != cur_brdmx \
                 or spec['dmx']['f_ts'] != cur_dmx_f_ts \
                 or spec['dmx']['l_ts'] != cur_dmx_l_ts:
 
                     # DMX lights and lasers
-                    if spec['dmx']['l_ts'] != cur_dmx_l_ts or spec['dmx']['f_ts'] != cur_dmx_f_ts: # DMX spec has changed
-                        process_dmx_spec(spec['dmx'])
-                        cur_dmx_l_ts = spec['dmx']['l_ts']
-                        cur_dmx_f_ts = spec['dmx']['f_ts']
+                    if spec['dmx']['l_ts'] != cur_dmx_l_ts \
+                    or spec['dmx']['f_ts'] != cur_dmx_f_ts \
+                    or spec['brdmx'] != cur_brdmx: # Some part of the DMX spec has changed
+                        # Save for future comparisons
+                        cur_brdmx = spec['brdmx']; cur_dmx_l_ts = spec['dmx']['l_ts']; cur_dmx_f_ts = spec['dmx']['f_ts']
+                        # switch off DMX power if brightness is 0
+                        gpio.output(_gpio_chans[_gpio_DMX], int(cur_brdmx) > 0)
+                        # Do the magic
+                        process_dmx_spec(spec['dmx'], cur_brdmx)
 
                     # Stop the old animation
                     logging.info('NEW DISPLAY, spec: '+str(spec))
                     anim_stop()
                     
-                    # Remember for next time
+                    # Remember spec for next time
                     cur_id = spec['id']; cur_vn = spec['hd'][6]
-                    cur_brled = spec['brled']; # cur_brdmx = spec['brdmx']; cur_brmet = spec['brmet']; 
+                    cur_brled = spec['brled']; 
 
                     # Make sure the mains is on for LEDs and DMX if required
                     gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)

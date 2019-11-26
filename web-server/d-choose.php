@@ -46,7 +46,7 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 	}
 	h1 {
 		font-family: 'Paprika', serif;
-		background-image: url('http://stt.woodcom.co.uk/wp-content/uploads/2018/06/h1-flourish.png');
+		background-image: url('https://lymingtonchurch.org/wp-content/uploads/2018/06/h1-flourish.png');
 		background-repeat: no-repeat;
 		background-position: bottom left;
 		color: rgb(118, 50, 63);

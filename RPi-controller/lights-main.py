@@ -6,7 +6,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(script_path + '/../../ws2812-animator')
 from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
-from dmx import dmx_init, dmx_put_value, dmx_put_flood_colour, dmx_close
+from dmx import dmx_init, dmx_put_value, dmx_set_flood_colour, dmx_set_flood_sequence, dmx_blank, dmx_close
 import numpy
 from colours import *
 import urllib.request
@@ -58,6 +58,50 @@ def init_gpio():
     gpio.setmode(gpio.BCM)
     gpio.setup(_gpio_chans, gpio.OUT, initial=False)
 
+def net_get_loop():
+    """
+    Try to get the next display spec from the server. If that fails, carry on with the current one.
+    Keep looping round, waiting for the duration specified in spec['durn']
+    """
+    global _get_spec, _get_next
+    def wait_t(ts, tnow):
+        # Work out when to re-get the data. The longer it is since the time stamp the longer we wait
+        age = tnow - ts
+        return tnow + (1 if age < 5 else 2 if age < 10 else 3 if age < 20 else 4 if age < 30 else 5)
+        
+    while _get_run: # run until told to stop by main thread setting this to False (only on exception)
+        try:
+            text = ''
+            download = urllib.request.urlopen(SERVER_URL)
+            data = download.read() # read into a 'bytes' object
+            text = data.decode('utf-8') # convert to a 'str' object
+            with threading.Lock():
+                _get_spec = json.loads(text)
+                next_t = int(_get_spec['next_t'])
+                try: # dmx not filled in if the lights are off
+                    dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
+                except KeyError:
+                    dmx_ts = 0
+                tnow = time.time()
+                # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
+                _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
+            # ~ logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
+            time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
+        except:
+            logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
+            time.sleep(1) # wait a second then try again
+
+def process_dmx_spec(ds):
+    """Look in dmx_spec and make calls to dmx library according to the mode in use"""
+    if ds['f_mode'] == 'off':
+        dmx_blank()
+    elif ds['f_mode'] == 'col':
+        dmx_set_flood_colour(0, hue=int(ds['f_colL']), strobe=int(ds['f_strobe']))
+        dmx_set_flood_colour(1, hue=int(ds['f_colR']), strobe=int(ds['f_strobe']))
+    elif ds['f_mode'] == 'seq':
+        dmx_set_flood_sequence(0, int(ds['f_seq']))
+        dmx_set_flood_sequence(1, int(ds['f_seq']))
+
 def pause(step):
     """How long to pause for this step of the countdown"""
     return step/20 + 0.75 # i.e. from 1.25 seconds, getting faster to 0.75
@@ -93,47 +137,47 @@ def do_countdown():
     gra_colours = ([RGB_Black]+[RGB_Magenta]*4)*6+[RGB_Black]*20
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
-    dmx_put_flood_colour(0, RGB_Magenta)
-    dmx_put_flood_colour(1, RGB_Magenta)
+    dmx_set_flood_colour(0, RGB_Magenta)
+    dmx_set_flood_colour(1, RGB_Magenta)
     anim_render(time.time()+pause(6))
     # 5 Red blocks + floods
     gra_colours = ([RGB_Black]+[RGB_Red]*4)*5+[RGB_Black]*25
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     gpio.output(_gpio_chans[_gpio_MET], True)
-    dmx_put_flood_colour(0, RGB_Red)
-    dmx_put_flood_colour(1, RGB_Red)
+    dmx_set_flood_colour(0, RGB_Red)
+    dmx_set_flood_colour(1, RGB_Red)
     anim_render(time.time()+pause(5))
     # 4 Orange blocks + red spot + floods
     gra_colours = ([RGB_Black]+[RGB_Orange]*4)*4+[RGB_Black]*30
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 1.5)
-    dmx_put_flood_colour(0, RGB_Orange)
-    dmx_put_flood_colour(1, RGB_Orange)
+    dmx_set_flood_colour(0, RGB_Orange)
+    dmx_set_flood_colour(1, RGB_Orange)
     anim_render(time.time()+pause(4))
     # 3 Yellow blocks + red spot twice + floods
     gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*3+[RGB_Black]*35
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 0.75, REPEAT)
-    dmx_put_flood_colour(0, RGB_Yellow)
-    dmx_put_flood_colour(1, RGB_Yellow)
+    dmx_set_flood_colour(0, RGB_Yellow)
+    dmx_set_flood_colour(1, RGB_Yellow)
     anim_render(time.time()+pause(3))
     # 2 white blocks moving fast, floods flashing
     gra_colours = ([RGB_Black]*5+[RGB_White]*10)
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1, reverse=REVERSE)
-    dmx_put_flood_colour(0, RGB_White, strobe='fast')
-    dmx_put_flood_colour(1, RGB_White, strobe='fast')
+    dmx_set_flood_colour(0, RGB_White, strobe='fast')
+    dmx_set_flood_colour(1, RGB_White, strobe='fast')
     anim_render(time.time()+pause(2))
     # 1 rapid rainbow all together no spot, floods still flashing
     gra_colours = [RGB_Red, RGB_Blue]
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=SMOOTH, bar_on=0)
     anim_define_pattern(gra_desc, segments=0, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1/2, reverse=REVERSE)
     anim_define_sparkle(200)
-    dmx_put_flood_colour(0, RGB_Cyan, strobe='fast')
-    dmx_put_flood_colour(1, RGB_Magenta, strobe='fast')
+    dmx_set_flood_colour(0, RGB_Cyan, strobe='fast')
+    dmx_set_flood_colour(1, RGB_Magenta, strobe='fast')
     anim_render(time.time()+pause(1))
     # 0 rainbow, sparkly, floods colour changing
     gra_colours = [RGB_Red, RGB_Yellow, RGB_Green, RGB_Cyan, RGB_Blue, RGB_Magenta]
@@ -142,38 +186,6 @@ def do_countdown():
     anim_define_sparkle(50)
     anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
     anim_render(time.time()+5) # A bit of extra time the first time round
-def net_get_loop():
-    """
-    Try to get the next display spec from the server. If that fails, carry on with the current one.
-    Keep looping round, waiting for the duration specified in spec['durn']
-    """
-    global _get_spec, _get_next
-    def wait_t(ts, tnow):
-        # Work out when to re-get the data. The longer it is since the time stamp the longer we wait
-        age = tnow - ts
-        return tnow + (1 if age < 5 else 2 if age < 10 else 3 if age < 20 else 4 if age < 30 else 5)
-        
-    while _get_run: # run until told to stop by main thread setting this to False (only on exception)
-        try:
-            text = ''
-            download = urllib.request.urlopen(SERVER_URL)
-            data = download.read() # read into a 'bytes' object
-            text = data.decode('utf-8') # convert to a 'str' object
-            with threading.Lock():
-                _get_spec = json.loads(text)
-                next_t = int(_get_spec['next_t'])
-                try: # dmx not filled in if the lights are off
-                    dmx_ts = int(_get_spec['dmx']['dmx_ts'])
-                except KeyError:
-                    dmx_ts = 0
-                tnow = time.time()
-                # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
-                _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
-            # ~ logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
-            time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
-        except:
-            logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
-            time.sleep(1) # wait a second then try again
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -188,7 +200,8 @@ if __name__ == '__main__':
     logging.info('Started logging')
 
     cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
-    cur_brled = ''; cur_brdmx = ''; cur_brmet = ''; 
+    cur_brled = ''; cur_brdmx = ''; cur_brmet = ''
+    cur_dmx_f_ts = ''; cur_dmx_l_ts = '';
     # Set up the animation structures
     anim_init(led_count=NUM_LEDS)
     dmx_init()
@@ -226,14 +239,18 @@ if __name__ == '__main__':
                 
             else: # Normal display
                 #logging.info('Display name: '+spec['hd'][0])
+                # If anything has changed we need to read the parameters for the new display
                 if spec['id'] != cur_id \
                 or spec['hd'][6] != cur_vn \
                 or spec['brled'] != cur_brled \
-                or spec['brdmx'] != cur_brdmx \
-                or spec['brmet'] != cur_brmet: # Changed, need to read the parameters for the new display
+                or spec['dmx']['f_ts'] != cur_dmx_f_ts \
+                or spec['dmx']['l_ts'] != cur_dmx_l_ts:
 
                     # DMX lights and lasers
-                    dmx_mode = int(spec['fl'][0])
+                    if spec['dmx']['l_ts'] != cur_dmx_l_ts or spec['dmx']['f_ts'] != cur_dmx_f_ts: # DMX spec has changed
+                        process_dmx_spec(spec['dmx'])
+                        cur_dmx_l_ts = spec['dmx']['l_ts']
+                        cur_dmx_f_ts = spec['dmx']['f_ts']
 
                     # Stop the old animation
                     logging.info('NEW DISPLAY, spec: '+str(spec))
@@ -241,7 +258,7 @@ if __name__ == '__main__':
                     
                     # Remember for next time
                     cur_id = spec['id']; cur_vn = spec['hd'][6]
-                    cur_brled = spec['brled']; cur_brdmx = spec['brdmx']; cur_brmet = spec['brmet']; 
+                    cur_brled = spec['brled']; # cur_brdmx = spec['brdmx']; cur_brmet = spec['brmet']; 
 
                     # Make sure the mains is on for LEDs and DMX if required
                     gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)

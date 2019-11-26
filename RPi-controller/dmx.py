@@ -62,16 +62,45 @@ def dmx_put_value(dmx_addr=1, value=0):
 
 _UNIT_0_OFFS = 0
 _FLOOD_CHANS = 7
-def dmx_put_flood_colour(unit=0, colour=0x000000, brightness=255, strobe='off'):
-    b = colour & 0xFF
-    g = (colour >> 8) & 0xFF
-    r = (colour >> 16) & 0xFF
-    # Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast (channel 6 must be 0-10)
-    s = {'off':0, 'slow':128, 'med':192, 'fast':240}[strobe]
+import colorsys
+def dmx_set_flood_colour(unit=0, colour=0x000000, hue=-1, brightness=255, strobe=0):
+    if hue > 0: # Use hue not colour
+        rgb=colorsys.hsv_to_rgb(hue/360,1,1)
+        (r,g,b) = [int(v*255) for v in rgb]
+        # ~ print("DEBUG:dmx:70 r,g,b=",(r,g,b))
+    else:
+        b = colour & 0xFF
+        g = (colour >> 8) & 0xFF
+        r = (colour >> 16) & 0xFF
+        
+    # Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast (channel 6 must be 0-10, intermediate values no effect)
+    s = [0,128,192,240][_limit(strobe, 0, 3)]
     # Order correctly for the particular channel use of the unit
     start_ix = _UNIT_0_OFFS + unit*_FLOOD_CHANS
     _dmx_buffer[start_ix: start_ix+_FLOOD_CHANS] = [brightness & 0xFF, r, g, b, s, 0, 0]
-    print('DEBUG:dmx:72 unit=', unit, 'colour=', colour, "[0:7]=", _dmx_buffer[0:7])
+    # ~ print('DEBUG:dmx:72 unit=', unit, 'colour=', colour, "[0:7]=", _dmx_buffer[0:7], " len buf=", len(_dmx_buffer))
+
+def dmx_set_flood_sequence(unit=0, speed=1):
+    seq = [[111,32],[61,50],[161,100],[111,128],[61,150],[161,170],[111,192],[61,200],[61,255],[161,255]][_limit(speed,1,10)-1]
+    # Order correctly for the particular channel use of the unit
+    start_ix = _UNIT_0_OFFS + unit*_FLOOD_CHANS
+    _dmx_buffer[start_ix: start_ix+_FLOOD_CHANS] = [0]*5 + seq # first five channels ignored for sequences
+    print('DEBUG:dmx:88 unit=', unit, 'speed=', speed, "[0:7]=", _dmx_buffer[0:7], " len buf=", len(_dmx_buffer))
+
+def _limit(val, min, max):
+    return min if val < min else max if val > max else val
+    
+_LASER_OFFS = 14
+_LASER_CHANS = 8
+def dmx_set_laser_turn(r=255,g=255,b=255, turn=5, strobe=0):
+    # Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast, 255=strobe
+    s = [0,128,192,240,255][_limit(strobe, 0, 4)]
+    t=[1,64,80,127,0,0,128,170,192,255][_limit(turn, 1, 10)-1]
+    _dmx_buffer[_LASER_OFFS: _LASER_OFFS+_LASER_CHANS] = [0xFF, r, g, b, s, 0, t, 0]
+
+def dmx_set_laser_auto(speed):
+    s=[201,225,175,200,150][_limit(speed, 1, 5)-1]
+    _dmx_buffer[_LASER_OFFS: _LASER_OFFS+_LASER_CHANS] = [0xFF, 0, 0, 0, 0, 0, 0, s]
 
 def dmx_close():
     dmx_blank()
@@ -83,20 +112,15 @@ def dmx_close():
     
 if __name__ == "__main__":
     dmx_init()
-    print('Flash black/red')
-    t_start = time()
-    #dmx_put_value(1,255) # brightness
+    dmx_set_flood_sequence(0,10)
+    sleep(5)
     pause=0.5; frames = 25;
     _dmx_buffer[0]=255
     for f in range (frames):
-        #dmx_put_value(2,f*10) # ramp up red
-        dmx_put_flood_colour(0,f*10)
+        dmx_put_flood_colour(0,f*10) # increasingly bright blue
         sleep(pause)
         dmx_put_flood_colour(0,0) # black
         sleep(pause)
-        # ~ sleep(max(0, frame_end - time()))
-    #~ print('DEBUG:dmx:93', _dmx_debug_f/(time()-_dmx_debug_start_t), 'USB FPS')
-
     print('Blank')
     dmx_blank()
     dmx_close()

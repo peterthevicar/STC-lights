@@ -113,8 +113,12 @@ $return['brled'] = $status['brled'];
 $return['brdmx'] = $status['brdmx'];
 $return['brmet'] = $status['brmet'];
 // Add in the dmx info
-include "x-get-dmx.php";
-$return['dmx'] = $dmx;
+$j_file = "j-dmx-las.json";
+include "s-get-json-nolock.php";
+$las = $j_arr;
+$j_file = "j-dmx-fll.json";
+include "s-get-json-nolock.php";
+$return['dmx'] = $las + $j_arr;
 // Return the info as a json string
 echo json_encode($return);
 ?>

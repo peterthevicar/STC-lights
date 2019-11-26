@@ -92,6 +92,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 	  width: 100%;
 	  height: 25px;
 	  background: #d3d3d3;
+	  background-image: linear-gradient(to right, red, yellow, green, cyan, blue, magenta, red);
 	  outline: none;
 	  opacity: 0.7;
 	  -webkit-transition: .2s;
@@ -150,9 +151,9 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 	<div style="display:none;">
 		<p>Choose the colours for the two floodlights and whether you want them to flash</p>
 		<p>Left hand flood light colour</p>
-		<input id="f_colL" onchange="sendChange('f_colL')" type="range" min="1" max="360" style="width:100%" value="<?php echo $j_arr['f_colL']?>">
+		<input id="f_colL" onchange="sendChange('f_colL')" type="range" min="1" max="360" class="slider" value="<?php echo $j_arr['f_colL']?>">
 		<p>Right hand flood light colour</p>
-		<input id="f_colR" onchange="sendChange('f_colR')" type="range" min="1" max="360" style="width:100%" value="<?php echo $j_arr['f_colR']?>">
+		<input id="f_colR" onchange="sendChange('f_colR')" type="range" min="1" max="360" class="slider" value="<?php echo $j_arr['f_colR']?>">
 		<p>Flash speed</p>
 		<input id="f_strobe" onchange="sendChange('f_strobe')" type="range" min="0" max="3" value="<?php echo $j_arr['f_strobe']?>">
 	</div>
@@ -160,7 +161,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 	<div style="display:none;">
 		<p>Choose how fast you want the colours to change</p>
 		<p>Speed</p>
-		<input id="f_seq" onchange="sendChange('f_seq')" type="range" min="1" max="10" style="width:100%" value="<?php echo $j_arr['f_seq']?>">
+		<input id="f_seq" onchange="sendChange('f_seq')" type="range" min="1" max="10" value="<?php echo $j_arr['f_seq']?>">
 	</div>
 	<div class="footer">
 		<div class="footer-text">

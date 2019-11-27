@@ -34,7 +34,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 	}
 	h1 {
 		font-family: 'Paprika', serif;
-		background-image: url('https://lymingtonchurch.org/wp-content/uploads/2018/06/h1-flourish.png');
+		background-image: url('h1-flourish.png');
 		background-repeat: no-repeat;
 		background-position: bottom left;
 		color: rgb(118, 50, 63);
@@ -44,6 +44,12 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 		font-size: 34px;
 		padding-bottom: 10px !important;
 	}
+    .home {
+        color: rgb(118, 50, 63);
+        text-decoration: none;
+        border: 2px;
+        border-style:solid;
+    }
 	.warning { /* will scroll to top of page then stop */
 		position: sticky; top: 0; 
 		background-color:rgb(118, 50, 63);
@@ -103,7 +109,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"l_mode":"off"}',true);
 </style>
 </head>
 <body>
-	<h1>Laser Control</h1>
+	<h1><a href="index.php" class="home">&nbsp;&lt;&nbsp</a> Laser Control</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>

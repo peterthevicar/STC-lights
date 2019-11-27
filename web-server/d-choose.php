@@ -46,7 +46,7 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 	}
 	h1 {
 		font-family: 'Paprika', serif;
-		background-image: url('https://lymingtonchurch.org/wp-content/uploads/2018/06/h1-flourish.png');
+		background-image: url('h1-flourish.png');
 		background-repeat: no-repeat;
 		background-position: bottom left;
 		color: rgb(118, 50, 63);
@@ -56,6 +56,12 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 		font-size: 34px;
 		padding-bottom: 10px !important;
 	}
+    .home {
+        color: rgb(118, 50, 63);
+        text-decoration: none;
+        border: 2px;
+        border-style:solid;
+    }
     #countdown {  /* Countdown to chosen display */
 		position:fixed; padding:0; margin:0; top:0; left:0;
 		width: 100%; height: 100%;
@@ -123,7 +129,8 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 <!-- -->
 </head>
 <body>
-	<h1>Display Control</h1>
+    
+	<h1><a href="index.php" class="home">&nbsp;&lt;&nbsp</a> Display Control</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>

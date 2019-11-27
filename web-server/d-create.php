@@ -130,7 +130,7 @@ function build_colours () {
 	}
 	h1 {
 		font-family: 'Paprika', serif;
-		background-image: url('https://lymingtonchurch.org/wp-content/uploads/2018/06/h1-flourish.png');
+		background-image: url('h1-flourish.png');
 		background-repeat: no-repeat;
 		background-position: bottom left;
 		color: rgb(118, 50, 63);

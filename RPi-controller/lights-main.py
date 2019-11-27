@@ -292,10 +292,10 @@ if __name__ == '__main__':
                     # switch off DMX power if brightness is 0
                     gpio.output(_gpio_chans[_gpio_DMX], int(cur_brdmx) > 0)
                     # Do the magic
+                    logging.info('DMX change: spec: '+str(spec['dmx']))
                     process_dmx_spec(spec['dmx'], cur_brdmx)
 
                 #Check laser_timeout
-                print(time.time(), last_laser_t, time.time() - last_laser_t)
                 if time.time() - last_laser_t > _LASER_TIMEOUT:
                     dmx_set_laser_turn(0,0,0)
                 

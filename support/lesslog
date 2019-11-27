@@ -1,3 +1,3 @@
 #!/bin/bash
-logf="/home/pi/Desktop/RPi-lights/lights.log"
+logf="/home/pi/Desktop/STC-Lights/RPi-controller/lights.log"
 less $logf

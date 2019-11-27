@@ -121,7 +121,7 @@ def process_dmx_spec(ds, brdmx):
 
 def pause(step):
     """How long to pause for this step of the countdown"""
-    return step/20 + 0.5 # i.e. from 1 second, getting faster to 0.55
+    return step/30 + 0.7 # i.e. from 1 second, getting faster to 0.7
 def do_countdown():
     """
     A ten step countdown. Each step has its own display spec
@@ -131,24 +131,28 @@ def do_countdown():
     gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
     anim_set_max_brightness(int(spec['brled']))
     logging.info('Start countdown sequence')
-    # 10 green blocks
-    gra_colours = ([RGB_Black]+[RGB_Green]*4)*10
+    # 10 Red blocks
+    gra_colours = ([RGB_Black]+[RGB_Red]*4)*10
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+    dmx_set_flood_colour(0, RGB_White, strobe=3)
+    dmx_set_flood_colour(1, RGB_White, strobe=3)    
     anim_render(time.time()+pause(10))
-    # 9 Green blocks
-    gra_colours = ([RGB_Black]+[RGB_Green]*4)*9+[RGB_Black]*5
+    # 9 Yellow blocks
+    gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*9+[RGB_Black]*5
+    gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
+    anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+    dmx_set_flood_colour(0, 0)
+    dmx_set_flood_colour(1, 0)    
+    anim_render(time.time()+pause(9))
+    # 8 Green blocks
+    gra_colours = ([RGB_Black]+[RGB_Green]*4)*8+[RGB_Black]*10
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     dmx_set_laser_turn(0,255,0,4)
-    anim_render(time.time()+pause(9))
-    # 8 Cyan blocks
-    gra_colours = ([RGB_Black]+[RGB_Cyan]*4)*8+[RGB_Black]*10
-    gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
-    anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_render(time.time()+pause(8))
-    # 7 Blue blocks
-    gra_colours = ([RGB_Black]+[RGB_Blue]*4)*7+[RGB_Black]*15
+    # 7 Cyan blocks
+    gra_colours = ([RGB_Black]+[RGB_Cyan]*4)*7+[RGB_Black]*15
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     dmx_set_laser_turn(0,0,255,7)
@@ -159,6 +163,7 @@ def do_countdown():
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     dmx_set_flood_colour(0, RGB_Magenta)
     dmx_set_flood_colour(1, RGB_Magenta)
+    dmx_set_laser_turn(0,0,255,7)
     anim_render(time.time()+pause(6))
     # 5 Red blocks + floods
     gra_colours = ([RGB_Black]+[RGB_Red]*4)*5+[RGB_Black]*25
@@ -169,30 +174,31 @@ def do_countdown():
     dmx_set_flood_colour(1, RGB_Red)
     dmx_set_laser_turn(255,0,0,8)
     anim_render(time.time()+pause(5))
-    # 4 Orange blocks + red spot + floods
-    gra_colours = ([RGB_Black]+[RGB_Orange]*4)*4+[RGB_Black]*30
+    # 4 Yellow blocks + red spot + floods
+    gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*4+[RGB_Black]*30
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 1.5)
-    dmx_set_flood_colour(0, RGB_Orange)
-    dmx_set_flood_colour(1, RGB_Orange)
+    dmx_set_flood_colour(0, RGB_Yellow)
+    dmx_set_flood_colour(1, RGB_Yellow)
+    dmx_set_laser_turn(255,255,0,8)
     anim_render(time.time()+pause(4))
-    # 3 Yellow blocks + red spot twice + floods
-    gra_colours = ([RGB_Black]+[RGB_Yellow]*4)*3+[RGB_Black]*35
+    # 3 Green blocks + red spot twice + floods
+    gra_colours = ([RGB_Black]+[RGB_Green]*4)*3+[RGB_Black]*35
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
     anim_define_spot(2, RGB_Red, RIGHT, 0.75, REPEAT)
-    dmx_set_flood_colour(0, RGB_Yellow)
-    dmx_set_flood_colour(1, RGB_Yellow)
+    dmx_set_flood_colour(0, RGB_Green)
+    dmx_set_flood_colour(1, RGB_Green)
     dmx_set_laser_turn(255,255,255,9)
     anim_render(time.time()+pause(3))
-    # 2 white blocks moving fast, floods flashing
+    # 2 Cyan blocks moving fast, floods flashing
     gra_colours = ([RGB_Black]*5+[RGB_White]*10)
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1, reverse=REVERSE)
     dmx_set_flood_colour(0, RGB_White, strobe=3)
     dmx_set_flood_colour(1, RGB_White, strobe=3)
-    dmx_set_laser_turn(255,255,255,10,4)
+    dmx_set_laser_turn(255,255,255,10)
     anim_render(time.time()+pause(2))
     # 1 rapid rainbow all together no spot, floods still flashing
     gra_colours = [RGB_Red, RGB_Blue]
@@ -201,6 +207,7 @@ def do_countdown():
     anim_define_sparkle(200)
     dmx_set_flood_colour(0, RGB_Cyan, strobe=3)
     dmx_set_flood_colour(1, RGB_Magenta, strobe=3)
+    dmx_set_laser_turn(0,0,0)
     anim_render(time.time()+pause(1))
     # 0 rainbow, sparkly, floods colour changing
     gra_colours = [RGB_Red, RGB_Yellow, RGB_Green, RGB_Cyan, RGB_Blue, RGB_Magenta]

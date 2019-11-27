@@ -64,14 +64,14 @@ _UNIT_0_OFFS = 0
 _FLOOD_CHANS = 7
 import colorsys
 def dmx_set_flood_colour(unit=0, colour=0x000000, hue=-1, brightness=255, strobe=0):
-    if hue == 361: # special case for white
+    if colour == 0: # blank
+        brightness=0; r=0; g=0; b=0
+    elif hue == 361: # special case for white
         (r,g,b)=[255]*3
     elif hue > 0: # Use hue not colour
         rgb=colorsys.hsv_to_rgb(hue/360,1,1)
         (r,g,b) = [int(v*255) for v in rgb]
-        # ~ print("DEBUG:dmx:70 r,g,b=",(r,g,b))
-    elif colour == 0: # blank
-        brightness=0; r=0; g=0; b=0
+        # ~ print("DEBUG:dmx:74 r,g,b=",(r,g,b))
     else:
         b = colour & 0xFF
         g = (colour >> 8) & 0xFF
@@ -89,7 +89,7 @@ def dmx_set_flood_sequence(unit=0, speed=1):
     # Order correctly for the particular channel use of the unit
     start_ix = _UNIT_0_OFFS + unit*_FLOOD_CHANS
     _dmx_buffer[start_ix: start_ix+_FLOOD_CHANS] = [0]*5 + seq # first five channels ignored for sequences
-    print('DEBUG:dmx:88 unit=', unit, 'speed=', speed, "[0:7]=", _dmx_buffer[0:7], " len buf=", len(_dmx_buffer))
+    # ~ print('DEBUG:dmx:92 unit=', unit, 'speed=', speed, "[0:7]=", _dmx_buffer[0:7], " len buf=", len(_dmx_buffer))
 
 def _limit(val, min, max):
     return min if val < min else max if val > max else val
@@ -98,16 +98,16 @@ _LASER_OFFS = 14
 _LASER_CHANS = 8
 def dmx_set_laser_turn(r=128, g=128, b=128, turn=5, strobe=0):
     # Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast, 255=strobe
-    print('DEBUG:dmx:99 r,g,b=', r,g,b, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
+    # ~ print('DEBUG:dmx:101 r,g,b=', r,g,b, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
     s = [0,128,192,240,255][_limit(strobe, 0, 4)]
     t=[1,64,80,127,0,0,128,170,192,255][_limit(turn, 1, 10)-1]
     _dmx_buffer[_LASER_OFFS: _LASER_OFFS+_LASER_CHANS] = [0xFF, r, g, b, s, 0, t, 0]
-    print('DEBUG:dmx:103 r,g,b,t=', r,g,b,t, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
+    # ~ print('DEBUG:dmx:105 r,g,b,t=', r,g,b,t, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
 
 def dmx_set_laser_auto(seq):
     s=[201,225,175,200,150][_limit(seq, 1, 5)-1]
     _dmx_buffer[_LASER_OFFS: _LASER_OFFS+_LASER_CHANS] = [0, 0, 0, 0, 0, 0, 0, s]
-    print('DEBUG:dmx:108 seq=', seq, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
+    # ~ print('DEBUG:dmx:110 seq=', seq, "[14:22]=", _dmx_buffer[14:22], " len buf=", len(_dmx_buffer))
 
 def dmx_close():
     dmx_blank()

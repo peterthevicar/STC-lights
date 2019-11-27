@@ -44,8 +44,7 @@ else {
 	}
 	else if ($req == 'cou') {
 		// Put a countdown sequence into the queue
-		$next_t = strval(time()+20);
-		file_put_contents('j-q.json', '{"cur_id":"id1","next_t":'.strval(time()).',"q":["COU",25]}');
+		file_put_contents('j-q.json', '{"cur_id":"XXX","next_t":0,"q":["COU",25]}'); # countdown will start on next de-q
 		//~ err('DEBUG:sysctl:44 next_t='.$next_t.' time='.strval(time()).' q='.file_get_contents('j-q.json'));
 		$status['on']='ON';
 	}

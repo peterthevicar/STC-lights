@@ -271,33 +271,48 @@ function build_colours () {
 	
 	<button class="collapsible">Coloured flood lights</button>
 	<div class="content">
-		<p>The two flood lights on the cupola can automatically pick up the colours from the rest of the display or can be set independently. If they are independent of the rest of the display the two sides can either be the same as each other, or alternate from side to side.
-			<?php build_select("fl",0,["0"=>"No flood lights", "1"=>"Automatic", "2"=>"Independent, both the same", "3"=>"Independent, alternating"]);?>
-		<p>For independent flood lights, set two colours for them to switch between.
+		<p>The two flood lights on the cupola can be set on or off at the start of the display.
+			<?php build_select("fl",0,["0"=>"No flood lights", "1"=>"Set colours below", "11"=>"Slow change", "15"=>"Med change", "20"=>"Fast change"]);?>
+		<p>If you want flood lights on, set two colours, the first for the left hand light, the second for the right hand one.
 			<?php build_colour("fl",1);?><?php build_colour("fl",2);?>
+<!--
 		<p>Move between the colours smoothly or in a single step:
 			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
 		<p>Speed of colour change: 
 			<?php build_select("fl",4,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]);?>
+-->
 		<p>Do you want the lights to flash on and off (strobe)?: 
-			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Slow", "2"=>"Fast"]);?>
+			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+	</div>
+	<button class="collapsible">Lasers</button>
+	<div class="content">
+		<p>Which lasers would you like turned on?
+			<?php build_select("la",0,["0"=>"Red off", "255"=>"Red ON"]);?>
+			<?php build_select("la",1,["0"=>"Green off", "255"=>"Green ON"]);?>
+			<?php build_select("la",2,["0"=>"Blue off", "255"=>"Blue ON"]);?>
+        <p>Rotate the lasers?
+   			<?php build_select("la",3,["1"=>"Fast left", "3"=>"Medium Left", "4"=>"Slow Left", "5"=>"Stop", "7"=>"Slow Right", "8"=>"Med Right", "10"=>"Fast Right"]);?>
+        <p>Flash the lasers?
+   			<?php build_select("la",4,["0"=>"Stop", "1"=>"Slow", "2"=>"Med", "3"=>"Fast", "4"=>"Strobe"]);?>
 	</div>
 	
+<!--
 	<button class="collapsible">Meteor shower lights</button>
 	<div class="content">
 		<p>Meteor shower effect (tubes with 'falling' white lights):
 			<?php build_select("me",0,["0"=>"No Meteors", "1"=>"Meteors ON"]);?>
 	</div>
+-->
 	
-	<button class="collapsible">Now name your creation</button>
-	<div class="content">
-		<p>A unique and descriptive name for your display: <br>
-			<?php build_text("hd",0);?>
-		<p>Your name (this will be shown in the list of displays as the creator of this display): <br>
+	<button class="collapsible active">Now name your creation</button>
+	<div class="content" style="display:block">
+		<p>Your username (e.g. 'Ms Design'. This will be shown in the list of displays as the creator of this display): <br>
 			<?php build_text("hd",1);?>
-	</div>
-	<p><strong>*Password</strong> for this display: <br>
+		<p>A unique and descriptive name for your display (e.g. 'Pink and sparkly'): <br>
+			<?php build_text("hd",0);?>
+        <p><strong>*Password</strong> for this display (don't use a precious password, this is not a secure link): <br>
 			<?php build_password("hd",2);?>
+	</div>
 
 	<div>
 		<button class='go-button' type="button" onclick="create_new(2);" style="background-color:orange">MODIFY this display</button>

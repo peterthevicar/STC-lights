@@ -25,8 +25,11 @@ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
 # ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
 # ~ SERVER_URL='fail'
 
-# Number of LEDs we're driving (3 strips of 150 plus two in the box)
+# Number of LEDs we're driving (plus 2 in the box)
 NUM_LEDS = 584+2
+
+# After this many seconds without being changed the laser will blank
+_LASER_TIMEOUT = 30
 
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
 trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]
@@ -48,7 +51,8 @@ _gpio_LED = 0
 _gpio_DMX = 1
 _gpio_MET = 2
 
-_get_spec = json.loads('{"id":"OFF","stat":"OFF","durn":2,"brled":"0","brdmx":"0","brmet":"false"}')
+_get_text = '{"id":"OFF","stat":"OFF","durn":2,"brled":"0","brdmx":"0","brmet":"false"}'
+_get_spec = json.loads(_get_text)
 _get_next = 0
 _get_LAT = 0.2 # expected latency on server connection
 _get_run = True # global flag to stop the get_loop
@@ -63,7 +67,7 @@ def net_get_loop():
     Try to get the next display spec from the server. If that fails, carry on with the current one.
     Keep looping round, waiting for the duration specified in spec['durn']
     """
-    global _get_spec, _get_next
+    global _get_spec, _get_next, _get_text
     def wait_t(ts, tnow):
         # Work out when to re-get the data. The longer it is since the time stamp the longer we wait
         age = tnow - ts
@@ -75,16 +79,20 @@ def net_get_loop():
             download = urllib.request.urlopen(SERVER_URL)
             data = download.read() # read into a 'bytes' object
             text = data.decode('utf-8') # convert to a 'str' object
+            tnow = time.time()
             with threading.Lock():
+                _get_text = text
                 _get_spec = json.loads(text)
-                next_t = int(_get_spec['next_t'])
-                try: # dmx not filled in if the lights are off
-                    dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
-                except KeyError:
-                    dmx_ts = 0
-                tnow = time.time()
-                # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
-                _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
+                if _get_spec['id']=='OFF':
+                    next_t = tnow + (1 if _get_spec['stat']=='STA' else 30)
+                else:
+                    next_t = int(_get_spec['next_t'])
+                    try: # dmx not filled in if the lights are off
+                        dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
+                    except KeyError:
+                        dmx_ts = 0
+                    # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
+                    _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
             # ~ logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
             time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
         except:
@@ -95,8 +103,8 @@ def process_dmx_spec(ds, brdmx):
     """Look in dmx_spec and make calls to dmx library according to the mode in use"""
     # First the floods
     if ds['f_mode'] == 'off':
-        dmx_set_flood_colour(0, 0, brightness=int(brdmx))
-        dmx_set_flood_colour(1, 0, brightness=int(brdmx))
+        dmx_set_flood_colour(0, 0)
+        dmx_set_flood_colour(1, 0)
     elif ds['f_mode'] == 'col':
         dmx_set_flood_colour(0, hue=int(ds['f_colL']), brightness=int(brdmx), strobe=int(ds['f_strobe']))
         dmx_set_flood_colour(1, hue=int(ds['f_colR']), brightness=int(brdmx), strobe=int(ds['f_strobe']))
@@ -118,6 +126,7 @@ def do_countdown():
     """
     A ten step countdown. Each step has its own display spec
     """
+    dmx_blank()
     gpio.output(_gpio_chans[_gpio_LED], True) # Make sure the mains is on
     gpio.output(_gpio_chans[_gpio_DMX], True) # Switch on DMX as it takes a while to warm up
     anim_set_max_brightness(int(spec['brled']))
@@ -131,6 +140,7 @@ def do_countdown():
     gra_colours = ([RGB_Black]+[RGB_Green]*4)*9+[RGB_Black]*5
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+    dmx_set_laser_turn(0,255,0,4)
     anim_render(time.time()+pause(9))
     # 8 Cyan blocks
     gra_colours = ([RGB_Black]+[RGB_Cyan]*4)*8+[RGB_Black]*10
@@ -141,6 +151,7 @@ def do_countdown():
     gra_colours = ([RGB_Black]+[RGB_Blue]*4)*7+[RGB_Black]*15
     gra_desc = GradientDesc(gra_colours, repeats=1, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=STOP)
+    dmx_set_laser_turn(0,0,255,7)
     anim_render(time.time()+pause(7))
     # 6 Magenta blocks + floods
     gra_colours = ([RGB_Black]+[RGB_Magenta]*4)*6+[RGB_Black]*20
@@ -156,6 +167,7 @@ def do_countdown():
     gpio.output(_gpio_chans[_gpio_MET], True)
     dmx_set_flood_colour(0, RGB_Red)
     dmx_set_flood_colour(1, RGB_Red)
+    dmx_set_laser_turn(255,0,0,8)
     anim_render(time.time()+pause(5))
     # 4 Orange blocks + red spot + floods
     gra_colours = ([RGB_Black]+[RGB_Orange]*4)*4+[RGB_Black]*30
@@ -172,21 +184,23 @@ def do_countdown():
     anim_define_spot(2, RGB_Red, RIGHT, 0.75, REPEAT)
     dmx_set_flood_colour(0, RGB_Yellow)
     dmx_set_flood_colour(1, RGB_Yellow)
+    dmx_set_laser_turn(255,255,255,9)
     anim_render(time.time()+pause(3))
     # 2 white blocks moving fast, floods flashing
     gra_colours = ([RGB_Black]*5+[RGB_White]*10)
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=STEP, bar_on=0)
     anim_define_pattern(gra_desc, segments=3, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1, reverse=REVERSE)
-    dmx_set_flood_colour(0, RGB_White, strobe='fast')
-    dmx_set_flood_colour(1, RGB_White, strobe='fast')
+    dmx_set_flood_colour(0, RGB_White, strobe=3)
+    dmx_set_flood_colour(1, RGB_White, strobe=3)
+    dmx_set_laser_turn(255,255,255,10,4)
     anim_render(time.time()+pause(2))
     # 1 rapid rainbow all together no spot, floods still flashing
     gra_colours = [RGB_Red, RGB_Blue]
     gra_desc = GradientDesc(gra_colours, repeats=2, blend=SMOOTH, bar_on=0)
     anim_define_pattern(gra_desc, segments=0, seg_reverse=REPEAT, motion=RIGHT, repeat_s=1/2, reverse=REVERSE)
     anim_define_sparkle(200)
-    dmx_set_flood_colour(0, RGB_Cyan, strobe='fast')
-    dmx_set_flood_colour(1, RGB_Magenta, strobe='fast')
+    dmx_set_flood_colour(0, RGB_Cyan, strobe=3)
+    dmx_set_flood_colour(1, RGB_Magenta, strobe=3)
     anim_render(time.time()+pause(1))
     # 0 rainbow, sparkly, floods colour changing
     gra_colours = [RGB_Red, RGB_Yellow, RGB_Green, RGB_Cyan, RGB_Blue, RGB_Magenta]
@@ -194,7 +208,8 @@ def do_countdown():
     anim_define_pattern(gra_desc, segments=6, seg_reverse=REPEAT, motion=RIGHT, repeat_s=5, reverse=REVERSE)
     anim_define_sparkle(50)
     anim_define_spot(3, RGB_White, RIGHT, 0.5, REVERSE)
-    anim_render(time.time()+5) # A bit of extra time the first time round
+    dmx_set_laser_auto(5)
+    # Render this until the time runs out
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -211,6 +226,7 @@ if __name__ == '__main__':
     cur_id = ''; cur_vn = '' # Current display ID and version number (to spot changes)
     cur_brled = ''; cur_brdmx = ''; cur_brmet = ''
     cur_dmx_f_ts = ''; cur_dmx_l_ts = '';
+    last_laser_t = 0 # to implement timeout (set _LASER_TIMEOUT above)
     # Set up the animation structures
     anim_init(led_count=NUM_LEDS)
     dmx_init()
@@ -229,56 +245,65 @@ if __name__ == '__main__':
                 next_t = time.time()+1
                 
             # Have our spec, now do it
-            logging.info('id='+spec['id']+', cur_id='+cur_id+', tsecs='+time.strftime('%S.')+str(time.time()).split('.')[1])
-            
+            logging.info('id='+spec['id']+', cur_id='+cur_id+', wait='+str(round(next_t-time.time(),2)))
+            #
+            # OFF
+            #
             if spec['id'] == 'OFF': # switch everything off
                 cur_id = 'OFF';
                 gpio.output(_gpio_chans, False) # Power down all the mains supplies
+                dmx_blank()
                 anim_stop()
                 if spec['stat'] == 'REB': # REBOOT RPi
                     os.system('sudo shutdown -r now')
-                time.sleep(max(0, next_t - time.time()))
-                
+                else: # OFF or STA - wait 1 or 30 seconds as set in get loop
+                    time.sleep(max(0, next_t - time.time()))
+            #
+            # COUNTDOWN
+            #    
             elif spec['id'] == 'COU': # countdown sequence
                 if cur_id != 'COU': # don't keep repeating the countdown sequence
                     cur_id = 'COU'
                     do_countdown()
                 # Keep going with the final display until something else comes along
-                anim_render(next_t)
-                
+                anim_render(next_t) # Time given to countdown is set in sysctl to 25 seconds
+            #
+            # NORMAL
+            #    
             else: # Normal display
                 #logging.info('Display name: '+spec['hd'][0])
-                # If anything has changed we need to read the parameters for the new display
-                if spec['id'] != cur_id \
-                or spec['hd'][6] != cur_vn \
-                or spec['brled'] != cur_brled \
-                or spec['brdmx'] != cur_brdmx \
-                or spec['dmx']['f_ts'] != cur_dmx_f_ts \
-                or spec['dmx']['l_ts'] != cur_dmx_l_ts:
-
-                    # DMX lights and lasers
-                    if spec['dmx']['l_ts'] != cur_dmx_l_ts \
+                
+                # Check DMX for changes
+                if spec['brdmx'] != cur_brdmx \
                     or spec['dmx']['f_ts'] != cur_dmx_f_ts \
-                    or spec['brdmx'] != cur_brdmx: # Some part of the DMX spec has changed
-                        # Save for future comparisons
-                        cur_brdmx = spec['brdmx']; cur_dmx_l_ts = spec['dmx']['l_ts']; cur_dmx_f_ts = spec['dmx']['f_ts']
-                        # switch off DMX power if brightness is 0
-                        gpio.output(_gpio_chans[_gpio_DMX], int(cur_brdmx) > 0)
-                        # Do the magic
-                        process_dmx_spec(spec['dmx'], cur_brdmx)
+                    or spec['dmx']['l_ts'] != cur_dmx_l_ts:
+                    # Make sure the mains is on
+                    gpio.output(_gpio_chans[_gpio_DMX], cur_brdmx != 0)
+                    # Save for future comparisons
+                    cur_brdmx = spec['brdmx']; cur_dmx_l_ts = spec['dmx']['l_ts']; cur_dmx_f_ts = spec['dmx']['f_ts']
+                    last_laser_t = max(int(cur_dmx_l_ts), last_laser_t)
+                    # switch off DMX power if brightness is 0
+                    gpio.output(_gpio_chans[_gpio_DMX], int(cur_brdmx) > 0)
+                    # Do the magic
+                    process_dmx_spec(spec['dmx'], cur_brdmx)
 
+                #Check laser_timeout
+                print(time.time(), last_laser_t, time.time() - last_laser_t)
+                if time.time() - last_laser_t > _LASER_TIMEOUT:
+                    dmx_set_laser_turn(0,0,0)
+                
+                # Check for LED display changes
+                if spec['id'] != cur_id \
+                    or spec['hd'][6] != cur_vn \
+                    or spec['brled'] != cur_brled:
+                    # Make sure the mains is on
+                    gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)
                     # Stop the old animation
                     logging.info('NEW DISPLAY, spec: '+str(spec))
                     anim_stop()
-                    
                     # Remember spec for next time
                     cur_id = spec['id']; cur_vn = spec['hd'][6]
                     cur_brled = spec['brled']; 
-
-                    # Make sure the mains is on for LEDs and DMX if required
-                    gpio.output(_gpio_chans[_gpio_LED], cur_brled != 0)
-                    gpio.output(_gpio_chans[_gpio_DMX], cur_brdmx != 0)
-                    
                     # Put together a new display specification
                     anim_set_max_brightness(int(cur_brled))
                     # Gradient spec
@@ -306,6 +331,26 @@ if __name__ == '__main__':
                     # Sparkle
                     anim_define_sparkle(s_per_k=trans_spark[int(spec['sk'][0])], s_duration=0.1)
                     
+                    # Flood lights
+                    # on/off, colL,colR strobe
+                    mode = int(spec['fl'][0])
+                    if mode == 0: # switch off
+                        dmx_set_flood_colour(0, 0)
+                        dmx_set_flood_colour(1, 0)
+                    elif mode == 1: # manual colours
+                        dmx_set_flood_colour(0, int(spec['fl'][1][1:],16), brightness=int(cur_brdmx), strobe=int(spec['fl'][5]))
+                        dmx_set_flood_colour(1, int(spec['fl'][2][1:],16), brightness=int(cur_brdmx), strobe=int(spec['fl'][5]))
+                    else: # different speeds of colour changing
+                        dmx_set_flood_sequence(0, mode-10)
+                        dmx_set_flood_sequence(1, mode-10)
+                        
+                    
+                    # Lasers
+                    # R,G,B speed,strobe
+                    dmx_set_laser_turn(int(spec['la'][0]), int(spec['la'][1]), int(spec['la'][2]), \
+                        int(spec['la'][3]), int(spec['la'][4]))
+                    last_laser_t = time.time()
+                   
                 anim_render(next_t) # run until we need to check back
                 # end of normal display section
             # end of while loop

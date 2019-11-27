@@ -1,0 +1,3 @@
+#!/bin/bash
+# Find running instance of lights
+ps axf | grep -A2 [s]upport/lights

@@ -19,9 +19,9 @@ try:
 except:
     print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
     import gpio
-# ~ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
+SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 # ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
-SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
+# ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
 # ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
 # ~ SERVER_URL='fail'
 
@@ -84,18 +84,17 @@ def net_get_loop():
                 _get_text = text
                 _get_spec = json.loads(text)
                 if _get_spec['id']=='OFF':
-                    next_t = tnow + (1 if _get_spec['stat']=='STA' else 30)
+                    _get_next = tnow + (1 if _get_spec['stat']=='STA' else 30)
                 else:
                     next_t = int(_get_spec['next_t'])
                     try: # dmx not filled in if the lights are off
                         dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
                     except KeyError:
                         dmx_ts = 0
-                    # ~ logging.info('next_t ='+str(next_t)+', dmx_ts='+str(dmx_ts))
                     _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
-            # ~ logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
+            # ~ print('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
             time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
-        except:
+        except ValueError:
             logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
             time.sleep(1) # wait a second then try again
 

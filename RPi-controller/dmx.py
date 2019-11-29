@@ -1,6 +1,7 @@
 #
 # Based on 2018 program 'example.py' by Dave Hocker
 #
+_HAVE_DMX_HARDWARE = True # Set to False if testing with no DMX hardware
 try:
     from pyudmx import pyudmx
 except:
@@ -32,7 +33,7 @@ def usb_transfer_loop():
         # With no sleeps we seem to get about 20fps max with full 512 universe
         #~ frame_end = time() + 1/30
         try:
-            _dmx.send_multi_value(1, _dmx_buffer)
+            if _HAVE_DMX_HARDWARE: _dmx.send_multi_value(1, _dmx_buffer)
         except Exception as e:
             print('ERR:dmx:38 Error in DMX send. Check device. e=',e)
             pass
@@ -47,7 +48,7 @@ def dmx_init():
     global _dmx
     print('DEBUG:dmx:48 Starting DMX controller')
     _dmx = pyudmx.uDMXDevice()
-    _dmx.open()
+    if _HAVE_DMX_HARDWARE: _dmx.open()
 
     # Start a separate thread for the USB data transfers (IO bound)
     if not _dmx_transfer:
@@ -116,7 +117,7 @@ def dmx_close():
     global _dmx_transfer
     _dmx_transfer = False
     sleep(0.1)
-    _dmx.close()
+    if _HAVE_DMX_HARDWARE: _dmx.close()
     
 if __name__ == "__main__":
     dmx_init()

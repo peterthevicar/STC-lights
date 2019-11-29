@@ -29,7 +29,7 @@ SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
 NUM_LEDS = 584+2
 
 # After this many seconds without being changed the laser will blank
-_LASER_TIMEOUT = 30
+_LASER_TIMEOUT = 120
 
 # ["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast", "5"=>"Very fast"]
 trans_speed = [1000.0, 40.0, 20.0, 5.0, 1.0, 0.5]
@@ -92,7 +92,7 @@ def net_get_loop():
                     except KeyError:
                         dmx_ts = 0
                     _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
-            # ~ print('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', secs to get_next='+str(_get_next - tnow))
+            logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', sleep='+str(_get_next - tnow -_get_LAT))
             time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
         except ValueError:
             logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
@@ -246,12 +246,12 @@ if __name__ == '__main__':
             with threading.Lock():
                 spec = copy.deepcopy(_get_spec) # make a copy as _get_spec can change at any time
                 next_t = _get_next # when we need to check back with the server
+            logging.info('id='+spec['id']+', cur_id='+cur_id+', wait='+str(round(next_t-time.time(),2)))
             if next_t <= time.time(): # not got anything since the last get so just keep going for another second
                 logging.info('next_t is '+str(time.time()-next_t)+' seconds in the past')
                 next_t = time.time()+1
                 
             # Have our spec, now do it
-            logging.info('id='+spec['id']+', cur_id='+cur_id+', wait='+str(round(next_t-time.time(),2)))
             #
             # OFF
             #

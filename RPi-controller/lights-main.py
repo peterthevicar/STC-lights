@@ -92,7 +92,7 @@ def net_get_loop():
                     except KeyError:
                         dmx_ts = 0
                     _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
-            logging.info('Fetched id='+_get_spec['id']+', tnow='+str(tnow)+', _get_next='+str(_get_next)+', sleep='+str(_get_next - tnow -_get_LAT))
+            logging.info('Fetched id='+_get_spec['id']+', sleep='+str(round(_get_next - tnow -_get_LAT,2)))
             time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
         except ValueError:
             logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
@@ -248,7 +248,6 @@ if __name__ == '__main__':
                 next_t = _get_next # when we need to check back with the server
             logging.info('id='+spec['id']+', cur_id='+cur_id+', wait='+str(round(next_t-time.time(),2)))
             if next_t <= time.time(): # not got anything since the last get so just keep going for another second
-                logging.info('next_t is '+str(time.time()-next_t)+' seconds in the past')
                 next_t = time.time()+1
                 
             # Have our spec, now do it

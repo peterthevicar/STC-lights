@@ -76,9 +76,10 @@ def net_get_loop():
     while _get_run: # run until told to stop by main thread setting this to False (only on exception)
         try:
             text = ''
-            download = urllib.request.urlopen(SERVER_URL)
-            data = download.read() # read into a 'bytes' object
+            response = urllib.request.urlopen(SERVER_URL,timeout=3)
+            data = response.read() # read into a 'bytes' object
             text = data.decode('utf-8') # convert to a 'str' object
+            if text == '': raise ValueError('no text retruned by de-q')
             tnow = time.time()
             with threading.Lock():
                 _get_text = text
@@ -87,15 +88,12 @@ def net_get_loop():
                     _get_next = tnow + (1 if _get_spec['stat']=='STA' else 30)
                 else:
                     next_t = int(_get_spec['next_t'])
-                    try: # dmx not filled in if the lights are off
-                        dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
-                    except KeyError:
-                        dmx_ts = 0
+                    dmx_ts = max(int(_get_spec['dmx']['l_ts']),int(_get_spec['dmx']['f_ts']))
                     _get_next = min(next_t if next_t > tnow+1 else wait_t(next_t, tnow), wait_t(dmx_ts, tnow))
             logging.info('Fetched id='+_get_spec['id']+', sleep='+str(round(_get_next - tnow -_get_LAT,2)))
             time.sleep(max(0, _get_next - tnow - _get_LAT)) # Start the get a bit early to allow for the latency
-        except ValueError:
-            logging.error('Error reading de-q. text="'+text+'". Trying again in 1 second')
+        except Exception as e:
+            logging.error('De-q exception:'+str(e)+', text='+text)
             time.sleep(1) # wait a second then try again
 
 def process_dmx_spec(ds, brdmx):

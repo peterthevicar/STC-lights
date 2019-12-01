@@ -1,4 +1,4 @@
 #!/bin/bash
-pkill -f support/lights
+sudo pkill -f support/lights
 sleep 3
-pkill -f RPi-controller/lights-main
+sudo pkill -f RPi-controller/lights-main

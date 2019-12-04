@@ -1,0 +1,1 @@
+<?php $t = filemtime('ts-pulse'); $d = time()-$t; echo ($d); ?>

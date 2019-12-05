@@ -3,7 +3,7 @@
 LOGF="/home/pi/Desktop/STC-Lights/RPi-controller/lights.log"
 while true; do
     if [ -f "$LOGF" ]; then # move the old log file out of the way and date-stamp it
-        mv "$LOGF" "$LOGF-$(date +%F-%T -d"$(stat --format=%z $LOGF)")"
+        mv "$LOGF" "$LOGF-$(date +%F-%T -r"$LOGF")"
     fi
 	sudo python3 /home/pi/Desktop/STC-Lights/RPi-controller/lights-main.py
 	wget -O - http://lymingtonchurch.org/lights/s-report-error.php?"lights-main completed with error $?"

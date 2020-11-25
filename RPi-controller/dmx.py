@@ -86,6 +86,7 @@ def dmx_set_flood_colour(unit=0, colour=0x000000, hue=-1, brightness=255, strobe
     # ~ print('DEBUG:dmx:72 unit=', unit, 'colour=', colour, "[0:7]=", _dmx_buffer[0:7], " len buf=", len(_dmx_buffer))
 
 def dmx_set_flood_sequence(unit=0, speed=1):
+	# Set up channels 6 and 7 with values appropriate to the selected speed
     seq = [[111,32],[61,50],[161,100],[111,128],[61,150],[161,170],[111,192],[61,200],[61,255],[161,255]][_limit(speed,1,10)-1]
     # Order correctly for the particular channel use of the unit
     start_ix = _UNIT_0_OFFS + unit*_FLOOD_CHANS

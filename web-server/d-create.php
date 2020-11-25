@@ -5,31 +5,32 @@ include "s-nocache.php";
 //
 //::= <display details>*
 //<display details> ::= <id> <header> <colour list> <gradient> <segment> <fading> <sparkle> <spot> <meteors>
-//  <id> ::= id<int>
-//  <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses> <6 version>
+//  <id> ::= id<int> [id]
+//  <header> ::= <0 name> <1 creator> <2 pwd_hash> <3 created> <4 used> <5 uses> <6 version> [hd]
 //    <uses> ::= <int>
 //    <name>, <creator> ::= <str>
 //    <created>, <used> ::= <timestamp>
-//  <colour list> ::= <colour> <colour>* <colour>
-//  <gradient> ::= <repeats> <blend> <bar type>
+//  <colour list> ::= <colour> <colour>* <colour> [co]
+//  <gradient> ::= <repeats> <blend> <bar type> [gr]
 //	  <bar type> :== <int OFF, DASH, DOT>
-//  <segment> := <num segments> <alternate> <motion> <speed> <reverse>
+//  <segment> := <num segments> <alternate> <motion> <speed> <reverse> [se]
 //    <num segments> ::= <int 0-8>
 //    <alternate>, <reverse> ::= <int REPEAT, REVERSE>
 //    <motion> ::= <int LEFT, RIGHT, R2L1, STOP>
 //    <speed> ::= <int VSLOW..VFAST>
-//  <fading> ::= <fade speed> <blend> <fade min>
+//  <fading> ::= <fade speed> <blend> <fade min> [fa]
 //    <blend> ::= <int STEP, SMOOTH>
 //    <fade min> ::== <int 0-255>
-//  <sparkle> ::== <int NONE TOUCH NORMAL LOTS LOTSANDLOTS>
-//  <spot> ::= <size> <colour> <motion> <speed> <reverse>
+//  <sparkle> ::== <int NONE TOUCH NORMAL LOTS LOTSANDLOTS> [sk]
+//  <spot> ::= <size> <colour> <motion> <speed> <reverse> [st]
 //    <size> ::= <int 0-32>
-//  <floods> ::= <flood spec> <flood spec>
-//    <flood spec> ::= <int OFF, AUTO, IND_SAME, IND_ALT> <flood def>
-//      <flood def> ::= <colour> <colour> <blend> <speed> <strobe>
-//        <strobe> ::= <int OFF, SLOW, FAST>
+//  <floods> ::= <flood spec> <flood spec> <flood spec> [fl]
+//    <flood spec> ::=
+//      [0,3,6] ::= <0-4> [off, fixed colour, slow auto sequence, medium auto, fast auto]
+//      [1,4,7] ::= <0-361> [colour]
+//		[2,5,8] ::= <0-3> [no strobe, slow, med, fast]
 //  <meteor> ::= <int ON, OFF, AUTO>
-
+		
 include "s-error-handler.php";
 
 // Read in the information we need from json file
@@ -196,6 +197,7 @@ function build_colours () {
 	  overflow: hidden;
 	  background-color:white;
 	}
+	
 </style>
 </head>
 <body>
@@ -269,21 +271,30 @@ function build_colours () {
 			<?php build_select("fa",2,["1"=>"Subtle", "2"=>"Normal", "3"=>"Maximum"]);?>
 	</div>
 	
-	<button class="collapsible">Coloured flood lights</button>
+	<button class="collapsible">Coloured floodlights</button>
 	<div class="content">
-		<p>The two flood lights on the cupola can be set on or off at the start of the display.
-			<?php build_select("fl",0,["0"=>"No flood lights", "1"=>"Set colours below", "11"=>"Slow change", "15"=>"Med change", "20"=>"Fast change"]);?>
-		<p>If you want flood lights on, set two colours, the first for the left hand light, the second for the right hand one.
-			<?php build_colour("fl",1);?><?php build_colour("fl",2);?>
-<!--
-		<p>Move between the colours smoothly or in a single step:
-			<?php build_select("fl",3,["1"=>"Smooth", "2"=>"Step"]);?>
-		<p>Speed of colour change: 
-			<?php build_select("fl",4,["1"=>"Very slow", "2"=>"Slow", "3"=>"Medium", "4"=>"Fast"]);?>
--->
-		<p>Do you want the lights to flash on and off (strobe)?: 
+		<p>Top floodlights
+			<?php build_select("fl",0,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
+		<p>If you chose to have a fixed colour, set the colour here.
+			<?php build_colour("fl",1);?>
+		<p>Do you want the Top floodlights to flash on and off (strobe)?: 
+			<?php build_select("fl",2,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+			
+		<p>Clock floodlights
+			<?php build_select("fl",3,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
+		<p>If you chose to have a fixed colour, set the colour here.
+			<?php build_colour("fl",4);?>
+		<p>Do you want the Clock floodlights to flash on and off (strobe)?: 
 			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+			
+		<p>Window floodlights
+			<?php build_select("fl",6,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
+		<p>If you chose to have a fixed colour, set the colour here.
+			<?php build_colour("fl",7);?>
+			<p>Do you want the Window floodlights to flash on and off (strobe)?: 
+			<?php build_select("fl",8,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
 	</div>
+<!--
 	<button class="collapsible">Lasers</button>
 	<div class="content">
 		<p>Which lasers would you like turned on?
@@ -295,6 +306,7 @@ function build_colours () {
         <p>Flash the lasers?
    			<?php build_select("la",4,["0"=>"Stop", "1"=>"Slow", "2"=>"Med", "3"=>"Fast", "4"=>"Strobe"]);?>
 	</div>
+-->
 	
 <!--
 	<button class="collapsible">Meteor shower lights</button>
@@ -304,13 +316,13 @@ function build_colours () {
 	</div>
 -->
 	
-	<button class="collapsible active">Now name your creation</button>
+	<button class="collapsible active">Now personalise your creation</button>
 	<div class="content" style="display:block">
 		<p>Your username (e.g. 'Ms Design'. This will be shown in the list of displays as the creator of this display): <br>
 			<?php build_text("hd",1);?>
 		<p>A unique and descriptive name for your display (e.g. 'Pink and sparkly'): <br>
 			<?php build_text("hd",0);?>
-        <p><strong>*Password</strong> for this display (don't use a precious password, this is not a secure link): <br>
+        <p><strong>*Password</strong> for this display so you can change it later (don't use a precious password, this is not a secure link): <br>
 			<?php build_password("hd",2);?>
 	</div>
 

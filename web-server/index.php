@@ -86,9 +86,13 @@ include "s-check-lights-on.php";
 	</div>
 	<div>
 		<h2>What do you want to change?</h2>
-		<button class="go-button" onclick="window.location.href='d-choose.php'" style="background-color:red">Display</button>
+		<button class="go-button" onclick="window.location.href='d-choose.php'" style="background-color:red">Animated display</button>
+<!--
 		<button class="go-button" onclick="window.location.href='x-laser.php'" style="background-color:green">Laser</button>
-		<button class="go-button" onclick="window.location.href='x-floods.php'" style="background-color:blue">Floods</button>
+-->
+		<button class="go-button" onclick="window.location.href='x-floods-n.php?Top'" style="background-color:green">Top floods</button>
+		<button class="go-button" onclick="window.location.href='x-floods-n.php?Clock'" style="background-color:blue">Clock floods</button>
+		<button class="go-button" onclick="window.location.href='x-floods-n.php?Window'" style="background-color:purple">Window floods</button>
 	</div>
 	<div class="footer">
 		<div class="footer-text">

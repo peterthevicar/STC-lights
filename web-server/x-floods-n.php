@@ -1,22 +1,24 @@
 <?php
-// Format of j-dmx-fll.json
-//{"f_mode":"off","f_strobe":"0","f_seq":"8","f_colL":"227","f_colR":"32","f_ts":"1574890727"}
-// <f_mode> <f_strobe> <f_seq> <f_col> <f_col> <f_ts>
-// <f_mode> ::= <int off, col, seq>
-// <f_strobe> ::= <int 0-3> [strobe speed]
-// <f_seq> ::= <int 1-10> [auto sequence speed]
-// <f_col> ::= <int 0-361> [hue]
-// <f_ts> ::= <int> [timestamp]
 include "s-nocache.php";
 include "s-error-handler.php";
 // read in the status file to see if the lights are on at the moment
 include "s-get-status.php";
 include "s-check-lights-on.php";
+// Read the request code which is the json file suffix for this dmx unit
+$req=(array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']: 'x');
+// Format of j-dmx-fll-<$req>.json
+// <f_mode> <f_strobe> <f_seq> <f_col> <f_ts>
+// <f_mode> ::= <off, col, seq> [off, fixed colour, auto sequence]
+// <f_strobe> ::= <0-3> [strobe speed]
+// <f_seq> ::= <1-10> [auto sequence speed]
+// <f_col> ::= <0-361> [hue]
+// <f_ts> ::= <int> [timestamp of latest change]
+
 // Read in the current state (into $j_arr)
-$j_file="j-dmx-fll.json";
+$j_file='j-dmx-fll-'.$req.'.json';
 include "s-get-json-nolock.php";
 # If it's gone wrong, set to off
-if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
+if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off", "f_col":"0", "f_strobe":"0", "f_seq":"0"}',true);
 //~ print_r($j_arr);
 //
 // ----------------------------- END PHP -----------------------------//
@@ -130,7 +132,7 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 </style>
 </head>
 <body>
-	<h1><a href="index.php" class="home">&nbsp;&lt;&nbsp</a> Flood lights</h1>
+	<h1><a href="index.php" class="home">&nbsp;&lt;&nbsp</a> <?php echo $req?> Floodlights</h1>
 	<div class="warning" style="display:<?php echo ($lightson?'none':'block'); ?>">
 		The lights are switched off at the moment. They should be back
 		<?php echo ($until==0? 'soon.': 'at '.date('H:i', $until)); ?>
@@ -138,15 +140,13 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 	</div>
 	<button id="off" class="collapsible">OFF</button>
 	<div style="display:none;">
-		<p>You have now switched the flood lights OFF</p>
+		<p>You have now switched the <?php echo $req?> floodlights OFF</p>
 	</div>
 	<button id="col" class="collapsible">Fixed colours</button>
 	<div style="display:none;">
-		<p>Choose the colours for the two floodlights and whether you want them to flash</p>
-		<p>Left hand flood light colour</p>
-		<input id="f_colL" onchange="sendChange('f_colL')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_colL']?>">
-		<p>Right hand flood light colour</p>
-		<input id="f_colR" onchange="sendChange('f_colR')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_colR']?>">
+		<p>Choose the colour for the <?php echo $req?> floodlights and whether you want them to flash</p>
+		<p><?php echo $req?> floodlight colour</p>
+		<input id="f_col" onchange="sendChange('f_col')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_col']?>">
 		<p>Flash speed</p>
 		<input id="f_strobe" onchange="sendChange('f_strobe')" type="range" min="0" max="3" value="<?php echo $j_arr['f_strobe']?>">
 	</div>
@@ -164,7 +164,9 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off"}',true);
 			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
 		</div>
 	</div>
-
+<script>
+var x=1
+</script>
 <script>
 var dmxState=<?php echo (json_encode($j_arr)); ?>;
 
@@ -181,7 +183,7 @@ function sendChange(id) {
 
 	// send the collected data as JSON
 	if (id != '') dmxState[id] = document.getElementById(id).value;
-	dmxState['fn'] = 'j-dmx-fll.json';
+	dmxState['fn'] = 'j-dmx-fll-<?php echo $req?>.json';
 	dmxState['f_ts'] = Math.floor(Date.now()/1000).toString();
 	xhr.send('json='+JSON.stringify(dmxState));
 	//alert('json='+JSON.stringify(dmxState));

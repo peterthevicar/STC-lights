@@ -113,12 +113,15 @@ $return['brled'] = $status['brled'];
 $return['brdmx'] = $status['brdmx'];
 $return['brmet'] = $status['brmet'];
 // Add in the dmx info
-$j_file = "j-dmx-las.json";
+$j_file = "j-dmx-fll-Top.json";
 include "s-get-json-nolock.php";
-$las = $j_arr;
-$j_file = "j-dmx-fll.json";
+$return['dmx']['Top'] = $j_arr;
+$j_file = "j-dmx-fll-Clock.json";
 include "s-get-json-nolock.php";
-$return['dmx'] = $las + $j_arr;
+$return['dmx']['Clock'] = $j_arr;
+$j_file = "j-dmx-fll-Window.json";
+include "s-get-json-nolock.php";
+$return['dmx']['Window'] = $j_arr;
 // Return the info as a json string
 echo json_encode($return);
 ?>

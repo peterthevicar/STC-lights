@@ -91,7 +91,7 @@ _fixture_definition={
     )
 }
 # Unit fixtures - DMX start channel and fixture type for each unit
-_unit_fixture=((1,'WP6'), (1,'UK36'), (1,'SS54'))
+_unit_fixture=((9,'WP6'), (1,'UK36'), (20,'SS54'))
 
 
 def _limit(val, min, max):

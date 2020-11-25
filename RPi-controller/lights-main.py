@@ -6,7 +6,7 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(script_path + '/../../ws2812-animator')
 from animator import anim_init, anim_stop, anim_define_pattern, anim_define_spot, anim_define_fade, anim_define_sparkle, anim_render, anim_set_max_brightness, RIGHT,LEFT,L2R1,STOP,REPEAT,REVERSE
 from gradients import GradientDesc, gradient_preset, STEP, SMOOTH
-from dmx import dmx_init, dmx_put_value, dmx_set_flood_colour, dmx_set_flood_sequence, dmx_set_laser_turn, dmx_set_laser_auto, dmx_blank, dmx_close
+from dmx import dmx_init, dmx_put_value, dmx_set_flood_colour, dmx_set_flood_sequence, dmx_blank, dmx_close
 import numpy
 from colours import *
 import urllib.request
@@ -68,7 +68,7 @@ trans_fade_min = [100, 80, 50, 0];
 # ["0"=>"No sparkle", "1"=>"Just a touch", "2"=>"Normal", "3"=>"Lots", "4"=>"Lots and lots"]
 trans_spark = [0, 10, 20, 100, 250];
 
-# 0-4 off, fixed colour, slow auto sequence, medium auto, fast auto
+# [0 off, 1 fixed colour, 2 slow auto sequence, 3 medium auto, 4 fast auto]
 trans_dmx_speed = [0, 0, 1, 5, 10];
 
 # ["0"=>"None", "1"=>"Slow", "2"=>"Fast"]

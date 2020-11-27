@@ -482,7 +482,7 @@ function build_colours () {
 					}
 					else {
 						// found a matching element so get its value
-						new_disp[section_id][i] = (id=='st1' || id=='fl1' || id=='fl2'? standardise_colour(e.value): e.value);
+						new_disp[section_id][i] = (id=='st1' || id=='fl1' || id=='fl4' || id=='fl7'? standardise_colour(e.value): e.value);
 						if (orig_sect[i] != e.value)
 							changed = true;
 					}

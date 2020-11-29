@@ -148,13 +148,13 @@ if ($j_arr == array()) $j_arr = json_decode('{"f_mode":"off", "f_col":"0", "f_st
 		<p><?php echo $req?> floodlight colour</p>
 		<input id="f_col" onchange="sendChange('f_col')" type="range" min="0" max="361" class="colour-slider" value="<?php echo $j_arr['f_col']?>">
 		<p>Flash speed</p>
-		<input id="f_strobe" onchange="sendChange('f_strobe')" type="range" min="0" max="3" value="<?php echo $j_arr['f_strobe']?>">
+		<input id="f_strobe" onchange="sendChange('f_strobe')" type="range" min="0" max="5" value="<?php echo $j_arr['f_strobe']?>">
 	</div>
 	<button id="seq" class="collapsible">Automatic colour changing</button>
 	<div style="display:none;">
 		<p>Choose how fast you want the colours to change</p>
 		<p>Speed</p>
-		<input id="f_seq" onchange="sendChange('f_seq')" type="range" min="1" max="10" value="<?php echo $j_arr['f_seq']?>">
+		<input id="f_seq" onchange="sendChange('f_seq')" type="range" min="0" max="5" value="<?php echo $j_arr['f_seq']?>">
 	</div>
 	<div class="footer">
 		<div class="footer-text">

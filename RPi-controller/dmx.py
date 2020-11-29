@@ -70,24 +70,21 @@ def dmx_put_value(dmx_addr=1, value=0):
 # Fixture definitions - how are the channels arranged and what values give what results
 # ----------------------------------------------------------------------
 
-# My observations about 2018 7ch fixtures:
-#  Strobe channel values: 0=off, 128=slow, 192=medium, 240=fast (channel 6 must be 0-10, intermediate values no effect)
-
 # fixture_desc: (0 control_ch, 1 control_normal_operation_val, 2 dim_ch, 3 r_ch, 4 g_ch, 5 b_ch, 6 w_ch, 
-#   7 strobe_ch, 8 (strobe_speeds), 
-#   9 (sequence_chs), 10 ((sequence_speeds))
+#   7 strobe_ch, 8 (strobe_speeds 0-5), 
+#   9 (sequence_chs), 10 ((sequence_speeds 0-5 >3min 3min 1min 30s 10s 1s))
 _fixture_definition={
   'WP6':(7, 0, 1, 2, 3, 4, 5, 
-    6, (0,5,128,220),
-    (7,8), ((151,150),(151,200),(151,240),(151,245),(151,255),(201,240),(201,255),(101,240),(101,250),(101,255))
+    6, (0,5,5,128,220,240),
+    (7,8), ((151,150),(151,200),(151,240),(151,255),(101,240),(101,255))
     ),
   'SS54':(6, 0, 1, 2, 3, 4, 0, 
-    5, (0,250,254,255),
-    (6,7), ((151,150),(151,200),(151,240),(151,255),(201,254),(201,255),(101,220),(101,240),(101,250),(101,255))
+    5, (0,240,250,254,255,255),
+    (6,7), ((151,150),(151,240),(151,255),(201,254),(101,250),(101,255))
     ),
    'UK36':(6, 0, 1, 2, 3, 4, 0,
-     5, (0,192,224,240),
-     (6,7), ((111,32),(111,50),(111,100),(111,128),(61,150),(61,170),(61,192),(61,200),(61,255),(161,255))
+     5, (0,128,192,224,240,240),
+     (6,7), ((61,20),(61,32),(61,50),(61,100),(61,192),(161,255))
     )
 }
 # Unit fixtures - DMX start channel and fixture type for each unit
@@ -116,7 +113,7 @@ def dmx_set_flood_colour(unit=0, colour=0x000000, hue=-1, brightness=255, strobe
         
     unit_offs = _unit_fixture[unit][0] - 2 # subtract one for the start channel, one for the used channel
     fd = _fixture_definition[_unit_fixture[unit][1]]
-    s = fd[8][_limit(strobe, 0, 3)]
+    s = fd[8][_limit(strobe, 0, 5)]
     # Order correctly for the particular channel use of the unit
     _dmx_buffer[unit_offs + fd[0]] = fd[1] # set control to normal operation
     _dmx_buffer[unit_offs + fd[2]] = brightness & 0xFF
@@ -135,7 +132,7 @@ def dmx_set_flood_sequence(unit=0, speed=1):
     fd = _fixture_definition[_unit_fixture[unit][1]]
     # Have to put values in more than one channel, probably sequential but not taking that for granted
     seq_chs=fd[9]
-    seq_vals=fd[10][_limit(speed, 1, 10)-1]
+    seq_vals=fd[10][_limit(speed, 0, 5)]
     i = 0
     for c in seq_chs:
         _dmx_buffer[unit_offs + c] = seq_vals[i]

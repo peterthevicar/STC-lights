@@ -68,12 +68,6 @@ trans_fade_min = [100, 80, 50, 0];
 # ["0"=>"No sparkle", "1"=>"Just a touch", "2"=>"Normal", "3"=>"Lots", "4"=>"Lots and lots"]
 trans_spark = [0, 10, 20, 100, 250];
 
-# [0 off, 1 fixed colour, 2 slow auto sequence, 3 medium auto, 4 fast auto]
-trans_dmx_speed = [0, 0, 1, 5, 10];
-
-# ["0"=>"None", "1"=>"Slow", "2"=>"Fast"]
-trans_dmx_strobe = [0, 100, 250];
-
 _gpio_chans = [17,27,22] # Three GPIO channels for: LEDs, DMX, Meteors
 _gpio_LED = 0
 _gpio_DMX = 1
@@ -374,8 +368,8 @@ if __name__ == '__main__':
 							dmx_set_flood_colour(i, 0)
 						elif mode == 1: # manual colours
 							dmx_set_flood_colour(i, int(spec['fl'][offs+1][1:],16), brightness=int(cur_brdmx), strobe=int(spec['fl'][offs+2]))
-						else: # different speeds of colour changing slow, medium, fast
-							dmx_set_flood_sequence(i, speed=trans_dmx_speed[mode])
+						else: # different speeds of colour changing (2=slow, 3=med, 4=fast)
+							dmx_set_flood_sequence(i, speed=(1,3,4)[mode-2]) # translate speed into 0-5 space
 						
 					
 					# ~ # Lasers

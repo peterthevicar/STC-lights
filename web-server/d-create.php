@@ -278,21 +278,21 @@ function build_colours () {
 		<p>If you chose to have a fixed colour, set the colour here.
 			<?php build_colour("fl",1);?>
 		<p>Do you want the Top floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",2,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+			<?php build_select("fl",2,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
 			
 		<p>Clock floodlights
 			<?php build_select("fl",3,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
 		<p>If you chose to have a fixed colour, set the colour here.
 			<?php build_colour("fl",4);?>
 		<p>Do you want the Clock floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
 			
 		<p>Window floodlights
 			<?php build_select("fl",6,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
 		<p>If you chose to have a fixed colour, set the colour here.
 			<?php build_colour("fl",7);?>
 			<p>Do you want the Window floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",8,["0"=>"No strobing", "1"=>"Slow", "2"=>"Med", "3"=>"Fast"]);?>
+			<?php build_select("fl",8,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
 	</div>
 <!--
 	<button class="collapsible">Lasers</button>

@@ -1,0 +1,8 @@
+echo "Lights System Information"
+echo "  Also available: errs, mem, log, lesslog"
+echo "**Running python processes:"
+ps ax | grep python
+echo "**Internal IP:"
+hostname -I
+echo "**External IP"
+curl https://ipinfo.io/ip

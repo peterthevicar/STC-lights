@@ -41,11 +41,12 @@ try:
 except:
 	print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
 	import gpio
-SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
-# ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
-# ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
-# ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
-# ~ SERVER_URL='fail'
+_PCID='?gallery' # This varies from computer to computer so we can track activity
+_SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'+_PCID
+# ~ _SERVER_URL='http://salisburys.net/test/q-de-q.php'
+# ~ _SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
+# ~ _SERVER_URL='http://localhost/web-server/q-de-q.php'
+# ~ _SERVER_URL='fail'
 
 # Number of LEDs we're driving (plus 2 in the box)
 NUM_LEDS = 584+2
@@ -98,7 +99,7 @@ def net_get_loop():
 	while _get_run: # run until told to stop by main thread setting this to False (only on exception)
 		try:
 			text = ''
-			response = urllib.request.urlopen(SERVER_URL,timeout=3)
+			response = urllib.request.urlopen(_SERVER_URL,timeout=3)
 			data = response.read() # read into a 'bytes' object
 			text = data.decode('utf-8') # convert to a 'str' object
 			if text == '': raise ValueError('no text retruned by de-q')

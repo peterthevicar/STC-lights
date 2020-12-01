@@ -5,8 +5,11 @@ include "s-get-status.php";
 //~ err('DEBUG:de-q:5 status='.json_encode($status));
 include "s-check-lights-on.php";
 
-// Touch heartbeat file
-touch('ts-pulse');
+// Read the query string which is the identifier of the requesting computer
+$pcid=(array_key_exists('QUERY_STRING',$_SERVER)? '-'.$_SERVER['QUERY_STRING']: '');
+
+// Touch heartbeat file for the requesting computer
+touch('ts-pulse'.$pcid);
 
 // First handle situations where lights are off so no need to look in queue etc
 if (!$lightson) {

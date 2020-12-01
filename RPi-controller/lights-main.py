@@ -16,9 +16,11 @@ import copy
 # Import the variables that change between different setups.
 # If there are no specific settings, use the defaults.
 try:
-	from settings.thispc import NUM_LEDS, SERVER_URL
+	from settings.thispc import PCID, SERVER_URL, NUM_LEDS
 except:
-	from thispc import NUM_LEDS, SERVER_URL
+	from thispc import PCID, SERVER_URL, NUM_LEDS
+print ("PCID:",PCID, "SERVER_URL:",SERVER_URL, "NUM_LEDS:",NUM_LEDS)
+
 """
 net_get_loop polls the website for the latest display spec
 This is picked up and interpreted by the main while True loop
@@ -96,7 +98,7 @@ def net_get_loop():
 	while _get_run: # run until told to stop by main thread setting this to False (only on exception)
 		try:
 			text = ''
-			response = urllib.request.urlopen(_SERVER_URL,timeout=3)
+			response = urllib.request.urlopen(SERVER_URL,timeout=3)
 			data = response.read() # read into a 'bytes' object
 			text = data.decode('utf-8') # convert to a 'str' object
 			if text == '': raise ValueError('no text retruned by de-q')

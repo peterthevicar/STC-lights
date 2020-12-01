@@ -16,9 +16,9 @@ from sys import exit
 # Import the variables that change between different setups.
 # If there are no specific settings, use the defaults.
 try:
-	from settings.thispc import HAVE_DMX_HARDWARE
+	from settings.thispc import PCID, HAVE_DMX_HARDWARE
 except:
-	from thispc import HAVE_DMX_HARDWARE
+	from thispc import PCID, HAVE_DMX_HARDWARE
 
 # DMX globals, including the buffer to be sent continuously
 _DMX_UNIVERSE_SIZE = 512

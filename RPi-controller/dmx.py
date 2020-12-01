@@ -4,7 +4,6 @@ This means we can control the frame rate which seems very important
 Each unit has a definition which is used to work out what values need to
   be sent to what channels to get the desired effect.
 """
-_HAVE_DMX_HARDWARE = True # Set to False if testing with no DMX hardware
 try:
     from pyudmx import pyudmx
 except:
@@ -14,6 +13,12 @@ except:
 from time import sleep, time
 import threading
 from sys import exit
+# Import the variables that change between different setups.
+# If there are no specific settings, use the defaults.
+try:
+	from settings.thispc import HAVE_DMX_HARDWARE
+except:
+	from thispc import HAVE_DMX_HARDWARE
 
 # DMX globals, including the buffer to be sent continuously
 _DMX_UNIVERSE_SIZE = 512
@@ -38,7 +43,7 @@ def usb_transfer_loop():
         # With no sleeps we seem to get about 20fps max with full 512 universe
         #~ frame_end = time() + 1/30
         try:
-            if _HAVE_DMX_HARDWARE: _dmx.send_multi_value(1, _dmx_buffer)
+            if HAVE_DMX_HARDWARE: _dmx.send_multi_value(1, _dmx_buffer)
         except Exception as e:
             print('ERR:dmx:38 Error in DMX send. Check device. e=',e)
             pass
@@ -53,7 +58,7 @@ def dmx_init():
     global _dmx
     print('DEBUG:dmx:48 Starting DMX controller')
     _dmx = pyudmx.uDMXDevice()
-    if _HAVE_DMX_HARDWARE: _dmx.open()
+    if HAVE_DMX_HARDWARE: _dmx.open()
 
     # Start a separate thread for the USB data transfers (IO bound)
     if not _dmx_transfer:
@@ -162,7 +167,7 @@ def dmx_close():
     global _dmx_transfer
     _dmx_transfer = False
     sleep(0.1)
-    if _HAVE_DMX_HARDWARE: _dmx.close()
+    if HAVE_DMX_HARDWARE: _dmx.close()
     
 if __name__ == "__main__":
     dmx_init()

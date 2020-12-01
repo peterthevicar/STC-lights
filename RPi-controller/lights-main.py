@@ -13,6 +13,12 @@ import urllib.request
 import json
 import threading
 import copy
+# Import the variables that change between different setups.
+# If there are no specific settings, use the defaults.
+try:
+	from settings.thispc import NUM_LEDS, SERVER_URL
+except:
+	from thispc import NUM_LEDS, SERVER_URL
 """
 net_get_loop polls the website for the latest display spec
 This is picked up and interpreted by the main while True loop
@@ -41,14 +47,6 @@ try:
 except:
 	print('lights-main:14 Failed to import RPi.GPIO, using local dummy library')
 	import gpio
-SERVER_URL='http://lymingtonchurch.org/lights/q-de-q.php'
-# ~ SERVER_URL='http://salisburys.net/test/q-de-q.php'
-# ~ SERVER_URL='http://192.168.1.10/web-server/q-de-q.php'
-# ~ SERVER_URL='http://localhost/web-server/q-de-q.php'
-# ~ SERVER_URL='fail'
-
-# Number of LEDs we're driving (plus 2 in the box)
-NUM_LEDS = 584+2
 
 # After this many seconds without being changed the laser will blank
 _LASER_TIMEOUT = 120

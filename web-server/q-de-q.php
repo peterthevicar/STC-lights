@@ -6,8 +6,8 @@ include "s-get-status.php";
 include "s-check-lights-on.php";
 
 // Read the query string which is the identifier of the requesting computer
-$pcid=(array_key_exists('QUERY_STRING',$_SERVER)? '-'.$_SERVER['QUERY_STRING']: '');
-
+$pcid=(array_key_exists('QUERY_STRING',$_SERVER)? $_SERVER['QUERY_STRING']: '');
+if ($pcid !== '') $pcid = '-'.$pcid;
 // Touch heartbeat file for the requesting computer
 touch('ts-pulse'.$pcid);
 

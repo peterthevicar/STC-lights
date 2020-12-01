@@ -1,5 +1,7 @@
 # local error log
 error-log.txt
+RPi-controller/lights.log*
+RPi-controller/settings/thispc.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

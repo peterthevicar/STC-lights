@@ -96,7 +96,7 @@ def net_get_loop():
 	while _get_run: # run until told to stop by main thread setting this to False (only on exception)
 		try:
 			text = ''
-			response = urllib.request.urlopen(SERVER_URL,timeout=3)
+			response = urllib.request.urlopen(_SERVER_URL,timeout=3)
 			data = response.read() # read into a 'bytes' object
 			text = data.decode('utf-8') # convert to a 'str' object
 			if text == '': raise ValueError('no text retruned by de-q')

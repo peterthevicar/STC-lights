@@ -1,8 +1,14 @@
 echo "Lights System Information"
 echo "  Also available: errs, mem, log, lesslog"
+echo
+echo "**settings/thispc.py"
+tail -n4 $(dirname $0)/../RPi-controller/settings/thispc.py
+echo
 echo "**Running python processes:"
 ps ax | grep python
+echo
 echo "**Internal IP:"
 hostname -I
+echo
 echo "**External IP"
 curl https://ipinfo.io/ip

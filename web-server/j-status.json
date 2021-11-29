@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"on":"ON","st":"16:00","et":"01:00","brled":"20","brdmx":"100","brmet":"true"}
+=======
+{"on":"TIM","st":"15:00","et":"00:00","brled":"80","brdmx":"250","brmet":"false"}
+>>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc

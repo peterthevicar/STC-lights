@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 // Format of j-dmx-fll.json
 //{"f_mode":"off","f_strobe":"0","f_seq":"8","f_colL":"227","f_colR":"32","f_ts":"1574890727"}
 // <f_mode> <f_strobe> <f_seq> <f_col> <f_col> <f_ts>
@@ -7,12 +8,18 @@
 // <f_seq> ::= <int 1-10> [auto sequence speed]
 // <f_col> ::= <int 0-361> [hue]
 // <f_ts> ::= <int> [timestamp]
+=======
+>>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc
 include "s-nocache.php";
 include "s-error-handler.php";
 // read in the status file to see if the lights are on at the moment
 include "s-get-status.php";
 include "s-check-lights-on.php";
+<<<<<<< HEAD
 // Read in the current state (into $j_arr)
+=======
+// Read in the current laser state (into $j_arr)
+>>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc
 $j_file="j-dmx-fll.json";
 include "s-get-json-nolock.php";
 # If it's gone wrong, set to off

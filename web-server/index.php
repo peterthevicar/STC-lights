@@ -91,15 +91,10 @@ include "s-check-lights-on.php";
 		<button class="go-button" onclick="window.location.href='x-laser.php'" style="background-color:green">Laser</button>
 -->
 		<button class="go-button" onclick="window.location.href='x-floods-n.php?Top'" style="background-color:green">Top floods</button>
-<<<<<<< HEAD
-		<button class="go-button" onclick="window.location.href='x-floods-n.php?Clock'" style="background-color:blue">Clock floods</button>
-		<button class="go-button" onclick="window.location.href='x-floods-n.php?Window'" style="background-color:purple">Window floods</button>
-=======
 <!--
 		<button class="go-button" onclick="window.location.href='x-floods-n.php?Clock'" style="background-color:blue">Clock floods</button>
 		<button class="go-button" onclick="window.location.href='x-floods-n.php?Window'" style="background-color:purple">Window floods</button>
 -->
->>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc
 	</div>
 	<div class="footer">
 		<div class="footer-text">

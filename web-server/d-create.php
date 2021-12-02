@@ -272,42 +272,6 @@ function build_colours () {
 	</div>
 	
 	<button class="collapsible">Coloured floodlights</button>
-<<<<<<< HEAD
-	<div class="content">
-		<p>Top floodlights
-			<?php build_select("fl",0,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
-		<p>If you chose to have a fixed colour, set the colour here.
-			<?php build_colour("fl",1);?>
-		<p>Do you want the Top floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",2,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
-			
-		<p>Clock floodlights
-			<?php build_select("fl",3,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
-		<p>If you chose to have a fixed colour, set the colour here.
-			<?php build_colour("fl",4);?>
-		<p>Do you want the Clock floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",5,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
-			
-		<p>Window floodlights
-			<?php build_select("fl",6,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
-		<p>If you chose to have a fixed colour, set the colour here.
-			<?php build_colour("fl",7);?>
-			<p>Do you want the Window floodlights to flash on and off (strobe)?: 
-			<?php build_select("fl",8,["0"=>"No strobing", "1"=>"Very slow", "2"=>"Slow", "3"=>"Med", "4"=>"Fast"]);?>
-	</div>
-<!--
-	<button class="collapsible">Lasers</button>
-	<div class="content">
-		<p>Which lasers would you like turned on?
-			<?php build_select("la",0,["0"=>"Red off", "255"=>"Red ON"]);?>
-			<?php build_select("la",1,["0"=>"Green off", "255"=>"Green ON"]);?>
-			<?php build_select("la",2,["0"=>"Blue off", "255"=>"Blue ON"]);?>
-        <p>Rotate the lasers?
-   			<?php build_select("la",3,["1"=>"Fast left", "3"=>"Medium Left", "4"=>"Slow Left", "5"=>"Stop", "7"=>"Slow Right", "8"=>"Med Right", "10"=>"Fast Right"]);?>
-        <p>Flash the lasers?
-   			<?php build_select("la",4,["0"=>"Stop", "1"=>"Slow", "2"=>"Med", "3"=>"Fast", "4"=>"Strobe"]);?>
-	</div>
-=======
 	<div class="content">
 		<p>Top floodlights
 			<?php build_select("fl",0,["0"=>"OFF", "1"=>"Fixed colour", "2"=>"Slow change", "3"=>"Med change", "4"=>"Fast change"]);?>
@@ -343,7 +307,6 @@ function build_colours () {
         <p>Flash the lasers?
    			<?php build_select("la",4,["0"=>"Stop", "1"=>"Slow", "2"=>"Med", "3"=>"Fast", "4"=>"Strobe"]);?>
 	</div>
->>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc
 -->
 	
 <!--
@@ -357,15 +320,9 @@ function build_colours () {
 	<button class="collapsible active">Now personalise your creation</button>
 	<div class="content" style="display:block">
 		<p>Your username (e.g. 'Ms Design'. This will be shown in the list of displays as the creator of this display): <br>
-<<<<<<< HEAD
-			<?php build_text("hd",1);?>
-		<p>A unique and descriptive name for your display (e.g. 'Pink and sparkly'): <br>
-			<?php build_text("hd",0);?>
-=======
 			<?php build_text("hd",1, false);?>
 		<p>A unique and descriptive name for your display (e.g. 'Pink and sparkly'): <br>
 			<?php build_text("hd",0, true);?>
->>>>>>> 19d0d9062bb0c26f1ca6f066497d77483f55e3cc
         <p><strong>*Password</strong> for this display so you can change it later (don't use a precious password, this is not a secure link): <br>
 			<?php build_password("hd",2);?>
 	</div>

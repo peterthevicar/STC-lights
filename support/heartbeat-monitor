@@ -1,0 +1,27 @@
+#!/bin/bash
+# Find how long since the last heartbeat and restart the computer if not found
+# Overview: start a shutdown with a timer
+# Check a fair bit before the timer is up to see if things are OK (defined by a recent pulse on the server)
+# If all well then restart the timer
+MAX_AGE_MINS=2 # in minutes (shutdown works in minutes)
+MAX_AGE_SECS=$((MAX_AGE_MINS*60))
+CHECK_SECS=$((MAX_AGE_SECS-10)) # When to check the pulse first (a bit before the timeout)
+
+sudo shutdown -r +$MAX_AGE_MINS # We're now permanently on the brink of rebooting!
+while true; do
+    AGE=$(wget --quiet --timeout=4 -O -  https://lymingtonchurch.org/lights/s-pulse-age.php)
+    if [ "$?" != "0" ]; then
+        # Network error, keep trying
+        echo "[ERROR] Heartbeat-monitor: Network error"
+        sleep 3
+    elif [ "$AGE" -lt "$MAX_AGE_SECS" ]; then
+        # Had a pulse within time limit so reschedule the shutdown
+        sudo shutdown -c; sudo shutdown -r +$MAX_AGE_MINS
+        # Sleep till it's time to check again
+        sleep $CHECK_SECS
+    else
+        # We're in the window and still no pulse, keep checking
+        echo "[ERROR] Heartbeat-monitor: $AGE since last pulse"
+        sleep 3
+    fi
+done

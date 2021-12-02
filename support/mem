@@ -1,0 +1,2 @@
+#!/bin/bash
+ps -C python3 -o %mem,vsz,rss,args | numfmt --header --from-unit=1024 --to=iec --field 2-3

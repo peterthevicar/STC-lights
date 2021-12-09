@@ -274,7 +274,8 @@ if __name__ == '__main__':
 			# OFF
 			#
 			if spec['id'] == 'OFF': # switch everything off
-				cur_id = 'OFF';
+				# Reset current status variables to trigger changes for next run
+				cur_id = 'OFF'; cur_brled = ''; cur_brdmx = ''; cur_brmet = ''
 				gpio.output(_gpio_chans, False) # Power down all the mains supplies
 				dmx_blank()
 				anim_stop()
@@ -302,15 +303,13 @@ if __name__ == '__main__':
 					or spec['dmx']['Top']['f_ts'] != cur_dmx_Top_ts \
 					or spec['dmx']['Clock']['f_ts'] != cur_dmx_Clock_ts \
 					or spec['dmx']['Window']['f_ts'] != cur_dmx_Window_ts:
-					# Make sure the mains is on
-					gpio.output(_gpio_chans[_gpio_DMX], cur_brdmx != 0)
 					# Save for future comparisons
 					cur_brdmx = spec['brdmx'];
 					cur_dmx_Top_ts = spec['dmx']['Top']['f_ts']; 
 					cur_dmx_Clock_ts = spec['dmx']['Clock']['f_ts']; 
 					cur_dmx_Window_ts = spec['dmx']['Window']['f_ts']
 					# ~ last_laser_t = max(int(cur_dmx_l_ts), last_laser_t)
-					# switch off DMX power if brightness is 0
+					# switch on/off DMX power if brightness is >/= 0
 					gpio.output(_gpio_chans[_gpio_DMX], int(cur_brdmx) > 0)
 					# Do the magic
 					logging.info('DMX change: spec: '+str(spec['dmx']))

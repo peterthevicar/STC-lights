@@ -6,6 +6,6 @@ while true; do
         mv "$LOGF" "$LOGF-$(date +%F-%T -r"$LOGF")"
     fi
 	sudo python3 /home/pi/Desktop/STC-Lights/RPi-controller/lights-main.py
-	wget -O - http://lymingtonchurch.org/lights/s-report-error.php?"lights-main completed with error $?"
+	wget -O - https://salisburys.net/lights-server/s-report-error.php?"lights-main completed with error $?"
 	sleep 5
 done

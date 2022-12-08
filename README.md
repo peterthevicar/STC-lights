@@ -1,5 +1,5 @@
 # STC-Lights
-Software for publicly controlled lights on the tower of St.Thomas church, Lymington
+Software for web controlled lights, including WS2812 LED strips and DMX units
 
 The running project has four parts: Web interface, Server, RPi controller, Hardware interface
 

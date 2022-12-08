@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,200&family=Merienda:wght@300&family=Satisfy&display=swap');
+
+/* Button styles */
+button, #sortselect {font-size:15px}
+.go-button {
+    height:100px; width:120px;
+    border-radius:8px;
+    padding: 5px;
+    font-size:20px; color:white;
+    display:inline-block;
+    vertical-align: top;
+}
+
+/* Countdown (to chosen display) styles */
+#countdown {
+    position:fixed; padding:0; margin:0; top:0; left:0;
+    width: 100%; height: 100%;
+    background-color:black; opacity:0.8;
+    display:none;
+}
+.cdDigits { /* Countdown digits */
+    font-size:300%; color:yellow;
+}
+#cdText { /* Text in the countdown div - centred vertically*/
+    position:relative; margin: 0 auto;
+    top:50%; transform:translateY(-50%);
+    font-size:100%; color:white; text-align:center;
+}
+#cdNow {
+    font-size:150%; color:yellow;
+}
+
+/* Footer stays at foot of page with text scrolling behind */
+.footer {
+    position: sticky; bottom: 0; width: 100%;
+    margin-top:20px;
+}
+.footer-text {
+    background-color:Green;
+    color: white;
+    padding: 5px;
+    margin: 0 0 0 0;
+}
+.footer a {
+    color:white; font-weight: bold;
+    text-decoration: none;
+}
+
+/* Headers */
+h1 {
+    font-family: 'Merienda', cursive;
+    background-repeat: no-repeat;
+    background-position: bottom left;
+    color: Crimson;
+    font-weight: 600;
+    min-height: 70px;
+    font-size: 34px;
+    padding-bottom: 10px !important;
+}
+.header { /* will scroll to top of page then stop */
+    position: sticky; top: 0;
+    background-color:Green;
+    color:white;
+    padding: 15px 15px 15px 5px;
+    border: none;
+    text-align: left;
+    outline: none;
+
+}
+
+/* Normal stuff */
+.hidden {display: none}
+
+.home {
+    color: Crimson;
+    text-decoration: none;
+    border: 2px;
+    border-style:solid;
+}
+html {
+    background-color:white;
+    color:Black;
+    font-family: 'Lato', sans-serif;
+}
+
+/* Table styles */
+th {
+    color:Crimson; text-align:left;
+    font-family: 'Merienda', cursive;
+    padding-right:5px;
+}
+td {
+    padding-right:5px;
+}
+#curSel, .curSel { /* Selected row in table */
+    color:white; background-color:Green;
+    font-size:100%;
+}
+
+.warning { /* will scroll to top of page then stop */
+    position: sticky; top: 0;
+    background-color:Orange;
+    padding:5px;
+    color:white;
+}
+
+/*----------------- COLLAPSIBLE ---*/
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    background-color:Green;
+    font-size:18px;
+    color: white;
+    cursor: pointer;
+    padding: 15px 15px 15px 5px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+}
+.collapsible:before {
+    content: '\025B6'; /* Unicode character for "plus" sign (+) */
+    color: white;
+    float: left;
+    margin: 0px 15px 0px 5px;
+}
+
+.active:before {
+    content: "\025BC";
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.collapsible:hover {
+    background-color:Green;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+    display: none;
+    overflow: hidden;
+    background-color:white;
+}

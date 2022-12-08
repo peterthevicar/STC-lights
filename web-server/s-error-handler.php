@@ -7,7 +7,7 @@ function err($msg) {
 	//~ echo $msg;
 	error_log("".date('Y.M.d H:i:s')." $msg\n", 3, "error-log.txt");
 }
-function customError($error_number, $error_string, $error_file, $error_line, $error_context) {
+function customError($error_number, $error_string, $error_file, $error_line) {
 	err("***Error: [$error_number] $error_string");
 	err("File:[$error_file] Line:[$error_line]");
 	err(json_encode($error_context));

@@ -117,88 +117,7 @@ function build_colours () {
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style type="text/css">
-	@import url('https://fonts.googleapis.com/css?family=Paprika');
-	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
-	html {
-		background-color:white;
-		color:rgb(102, 102, 102);
-		font-family:'Open Sans';
-	}
-	body {
-		margin: 0 5px 0 5px;
-		font-size: 15px;
-	}
-	h1 {
-		font-family: 'Paprika', serif;
-		background-image: url('h1-flourish.png');
-		background-repeat: no-repeat;
-		background-position: bottom left;
-		color: rgb(118, 50, 63);
-		font-weight: 600;
-		text-transform: uppercase;
-		min-height: 70px;
-		font-size: 34px;
-		padding-bottom: 10px !important;
-	}
-	.go-button {
-		height:100px; width:120px;
-		border-radius:8px;
-		padding: 5px;
-		font-size:20px; color:white;
-		display:inline-block;
-		vertical-align: top;
-	}
-	.footer {
-		width: 100%;
-	}
-	.footer-text {
-		background-color:rgb(86, 86, 86);
-		color: rgb(150, 150, 150);
-		padding: 5px;
-		margin: 0 0 0 0;
-	}
-	.footer a { /* stays at foot of page with text scrolling behind */
-		color:white; font-weight: bold;
-		text-decoration: none;
-	}
-	/*----------------- COLLAPSIBLE ---*/
-	/* Style the button that is used to open and close the collapsible content */
-	.collapsible {
-		background-color:rgb(192, 159, 128);
-		font-size:18px; 
-		color: white;
-		cursor: pointer;
-		padding: 15px 15px 15px 5px;
-		width: 100%;
-		border: none;
-		text-align: left;
-		outline: none;
-	}
-	.collapsible:before {
-		content: '\025B6'; /* Unicode character for "plus" sign (+) */
-		color: white;
-		float: left;
-		margin: 0px 15px 0px 5px;
-	}
-
-	.active:before {
-		content: "\025BC";
-	}
-
-	/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-	.collapsible:hover {
-	  background-color:rgb(118, 50, 63);
-	}
-
-	/* Style the collapsible content. Note: hidden by default */
-	.content {
-	  display: none;
-	  overflow: hidden;
-	  background-color:white;
-	}
-	
-</style>
+<link rel="stylesheet" href="styles.css" type="text/css">
 </head>
 <body>
 	<div>
@@ -336,10 +255,7 @@ function build_colours () {
 	<div style='margin-bottom:50px'></div>
 	<div class="footer">
 		<div class="footer-text">
-			St.Thomas Church:
-			the town church for Lymington offering
-			prayer and hospitality in Jesus' name.<br>
-			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
+			Christmas in Bicester 9-11th December 2022
 		</div>
 	</div>
 

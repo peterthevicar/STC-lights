@@ -7,7 +7,7 @@ $req=(($_GET != [] and array_key_exists('mode',$_GET))? $_GET['mode']: '');
 if ($req == '' 
 and !(array_key_exists('QUERY_STRING',$_SERVER) and $_SERVER['QUERY_STRING'] == 'st') 
 and (array_key_exists('SERVER_ADDR',$_SERVER))) {
-	echo '<html><body><p>Welcome to the St.Thomas IP logger, your IP ' . $_SERVER['SERVER_ADDR'] . ' has been recorded.</body></html>';
+	echo '<html><body><p>SYSCTL (System Compromise Threat Logger), your IP ' . $_SERVER['SERVER_ADDR'] . ' has been recorded.</body></html>';
 	exit(1);
 }
 //~ err('DEBUG:sysctl:12 req='.$req);
@@ -103,8 +103,7 @@ include "s-check-lights-on.php";
 	<body>
 		<h2>System status: <?php echo date('D H:i:s', time())?></h2>
 		<p class="<?php echo ($lightson?'on': 'off');?>"><?php echo '<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
-		<p class="<?php $t = filemtime('ts-pulse-cupola'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Cupola: <?php echo ('last de-q pulse: <b>'.strval($d).'</b> seconds ago'); ?>
-		<p class="<?php $t = filemtime('ts-pulse-gallery'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Gallery: <?php echo ('last de-q pulse: <b>'.strval($d).'</b> seconds ago'); ?>
+		<p class="<?php $t = filemtime('ts-pulse-main'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Main: <?php echo ('last de-q pulse: <b>'.strval($d).'</b> seconds ago'); ?>
 		<p>Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo ('cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q'])); ?>
 		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('D H:i:s', $t).' ('.secondsToTime($d).'</b> ago)'; ?>
 		<div>

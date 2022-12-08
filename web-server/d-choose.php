@@ -33,97 +33,7 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- -->
-<!-- ---------------------- CSS ------------------- -->
-<!-- -->
-<style type="text/css">
-	@import url('https://fonts.googleapis.com/css?family=Paprika');
-	@import url('https://fonts.googleapis.com/css?family=Open+Sans');
-	html {
-		background-color:white;
-		color:rgb(102, 102, 102);
-		font-family:'Open Sans';
-	}
-	h1 {
-		font-family: 'Paprika', serif;
-		background-image: url('h1-flourish.png');
-		background-repeat: no-repeat;
-		background-position: bottom left;
-		color: rgb(118, 50, 63);
-		font-weight: 600;
-		text-transform: uppercase;
-		min-height: 70px;
-		font-size: 34px;
-		padding-bottom: 10px !important;
-	}
-    .home {
-        color: rgb(118, 50, 63);
-        text-decoration: none;
-        border: 2px;
-        border-style:solid;
-    }
-    #countdown {  /* Countdown to chosen display */
-		position:fixed; padding:0; margin:0; top:0; left:0;
-		width: 100%; height: 100%;
-		background-color:black; opacity:0.8;
-		display:none;		
-    }
-    .cdDigits { /* Countdown digits */
-		font-size:300%; color:yellow;
-	}
-	#cdText { /* Text in the countdown div - centred vertically*/
-		position:relative; margin: 0 auto;
-		top:50%; transform:translateY(-50%);
-		font-size:100%; color:white; text-align:center;
-	}
-	#cdNow {
-		font-size:150%; color:yellow;
-	}
-	th {
-		color:rgb(118, 50, 63); text-align:left;
-		font-family:'Paprika';
-		padding-right:5px;
-	}
-	td {
-		padding-right:5px;
-	}
-	#curSel, .curSel { /* Selected row in table */
-		color:white; background-color:rgb(192, 159, 128);
-		font-size:100%;
-	}
-	.header { /* will scroll to top of page then stop */	
-		position: sticky; top: 0;
-		background-color:rgb(192, 159, 128);
-		color:white;
-		padding: 15px 15px 15px 5px;
-		border: none;
-		text-align: left;
-		outline: none;
-
-	}
-	.warning { /* will scroll to top of page then stop */
-		position: sticky; top: 0; 
-		background-color:rgb(118, 50, 63);
-		padding:5px;
-		color:white;
-	}
-	.footer { /* stays at foot of page with text scrolling behind */
-		position: sticky; bottom: 0; width: 100%;
-		margin-top:20px;
-	}
-	.footer-text {
-		background-color:rgb(86, 86, 86);
-		color: rgb(150, 150, 150);
-		padding: 5px;
-		margin: 0 0 0 0;
-	}
-	.footer a { /* stays at foot of page with text scrolling behind */
-		color:white; font-weight: bold;
-		text-decoration: none;
-	}
-	button, #sortselect {font-size:15px}
-	.hidden {display: none}
-</style>
+<link rel="stylesheet" href="styles.css" type="text/css">
 <!-- -->
 <!-- ---------------------- HTML SECTION ------------------------- -->
 <!-- -->
@@ -138,7 +48,7 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 	<div>
 		<p>There are lots of different displays to choose from.
 		Once you've chosen a display you can either <strong>DISPLAY</strong> it on the 
-		church tower or <strong>CREATE</strong> a new display of your own based on the one
+		lights or <strong>CREATE</strong> a new display of your own based on the one
 		you've chosen. <strong>Enjoy!</strong>
 	</div>
 	<div>
@@ -177,10 +87,7 @@ if (substr($init_id, 0, 2) != 'id') $init_d = '';
 	</div>
 	<div class="footer">
 		<div class="footer-text">
-			St.Thomas Church:
-			the town church for Lymington offering
-			prayer and hospitality in Jesus' name.<br>
-			<a href="https://lymingtonchurch.org">Click here for the church web site.</a>
+			Christmas in Bicester 9-11th December 2022
 		</div>
 	</div>
 	<div id="countdown">

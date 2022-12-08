@@ -1,36 +1,16 @@
 # STC-Lights
 Software for publicly controlled lights on the tower of St.Thomas church, Lymington
 
-The running project has four parts: Browser, Server, RPi, Hardware
+The running project has four parts: Web interface, Server, RPi controller, Hardware interface
 
-1. Browser (mix of php on server and javascript in client):
-  php file web-server/ui.php
-	php read json-history.json (includes response token to prevent flooding)
-	(see ui.php comments for format of this file)
-	php format this into a selection list
-	php creates token andserialize records in token database (using x lock)
-	user selects one of the existing displays from the list
-	user chooses whether to display it or edit it into a new one
-	[user edits the display to create a new one]
-	js send back the data as json-request (including token)
-2. Server:
-  json-request arrives at web-server/proc-enq.php
-    check the token
-    update token database to invalidate this token (x lock)
-    enqueue the request by creating a file with the info and a timestamped name
-    return position in queue
-  web-server/proc-deq.php checks for new files in the queue. When found:
-    read file contents to work out next display
-    format json-current with new display data for reading by the RPi
-    update json-history to include new display
-3. RPi:
-  wget json-current.json
-  check for changes
-  format display data and send to animator
-  animator sends required hardware signals
-4. Hardware:
-  power supply for large amps
-  WS2812 strip
-  Meteor lights
-  USB DMX controller
-  DMX RGB spotlights
+1. Web interface (mix of php on server and javascript in client):
+  This formats a form on the user's device allowing them to choose how the lights will controlled. This can done by choosing someone else's creation or designing their own from scratch.
+  
+2. Server (php on server):
+  When the user asks for a particular lighting display (via a form submission) the request is queued on the server. The user receives a response saying roughly how long their request will be in the queue before beginning. The server software keeps track of how many requests each display receives and so can give a list of 'most popular' or 'most recent' displays.
+  
+3. RPi controller (python in RPi connected to the lights)
+  The controller polls the web server looking for new requests. If there are no new requests it keeps playing the most recently requested display.
+  
+4. Hardware interface
+  The interfaces to control the lights are in a separate github project and use the GPIO outputs from the RPi. The system can cope with WS2812 type addressable LED strips, DMX addressable units and simple on/off devices.

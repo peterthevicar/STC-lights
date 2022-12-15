@@ -106,8 +106,20 @@ include "s-check-lights-on.php";
 	<body>
 		<h2>System status: <?php echo date('D H:i:s', time())?></h2>
 		<p class="<?php echo ($lightson?'on': 'off');?>"><?php echo '<br>lightson='.($lightson?'true':'false').', until='.($until==0? '0': date('H:i', $until)).'<br>s-status='.file_get_contents($status_file);?>
-		<p class="<?php $t = filemtime('ts-pulse-main'); $d = time()-$t; echo ($d>45?'warn': 'ok'); ?>">Main: <?php echo ('last de-q pulse: <b>'.strval($d).'</b> seconds ago'); ?>
-		<p>Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo ('cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q'])); ?>
+        <?php
+        // Look up all the time stamps
+        $files=glob("ts-pulse*");
+        foreach ($files as $tsf) {
+            // Build a <p class="..."> tag with class as warn or ok depending on how long since previous timestamp
+            echo '<p class="';
+            $t = filemtime($tsf);
+            $d = time()-$t;
+            echo ($d>45?'warn': 'ok');
+            echo '">';
+            echo $tsf.': <b>'.strval($d).'</b> seconds ago';
+        }
+        ?>
+        <p>Queue: <?php $q = json_decode(file_get_contents('j-q.json'), true); echo ('cur_id: <b>'.$q['cur_id'].'</b>; next_t: <b>'.date('H:i:s', $q['next_t']).' (in '.strval($q['next_t']-time()).'s)</b>; queue: '.json_encode($q['q'])); ?>
 		<p class="<?php $t = filemtime('error-log.txt'); $d = time()-$t; echo ($t>filemtime('ts-error-check')?'warn': 'ok'); ?>">Error log: <?php echo 'last error: <b>'.date('D H:i:s', $t).' ('.secondsToTime($d).'</b> ago)'; ?>
 		<div>
 			<button type=button style="background-color:white" onclick="location.href='<?php echo "sysctl.php?{$acc}"?>'">REFRESH</button>
